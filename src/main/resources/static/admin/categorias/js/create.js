@@ -30,7 +30,7 @@ async function guardar(e) {
 
     };
 
-    await fetch("/api/admin/peliculas", {
+    await fetch("/api/admin/categorias", {
 
         method: "POST",
 
