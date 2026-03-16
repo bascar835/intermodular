@@ -1,47 +1,19 @@
-async function cargarDirectores() {
-
-    const response = await fetch("/api/admin/directores");
-    const directores = await response.json();
-
-    const select = document.getElementById("director");
-
-    directores.forEach(d => {
-
-        const option = document.createElement("option");
-
-        option.value = d.id;
-        option.textContent = d.nombre;
-
-        select.appendChild(option);
-    });
-}
-
 async function guardar(e) {
-
     e.preventDefault();
 
-    const pelicula = {
-
-        titulo: titulo.value,
-        anyo: anyo.value,
-        duracion: duracion.value,
-        sinopsis: sinopsis.value,
-        director_id: director.value
-
+    const categoria = {
+        nombre: nombre.value,
+        descripcion: descripcion.value,
+        activa: activa.checked
     };
 
-    await fetch("/api/admin/peliculas", {
-
+    await fetch("/api/admin/categorias", {
         method: "POST",
-
         headers: {
             "Content-Type": "application/json"
         },
-
-        body: JSON.stringify(pelicula)
+        body: JSON.stringify(categoria)
     });
 
     location.href = "index.html";
 }
-
-cargarDirectores();

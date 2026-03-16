@@ -44,7 +44,7 @@ public class CategoriaRepository extends BaseRepository<Categoria> {
 
 	@Override
 	public Object[] getUpdateValues(Categoria c) {
-		return new Object[] { c.getNombre(), c.getDescripcion(),c.isActiva() };
+		return new Object[] { c.getNombre(), c.getDescripcion(),c.isActiva(),c.getId() };
 	}
 
 	public List<CategoriaResumen> findResumen() {
