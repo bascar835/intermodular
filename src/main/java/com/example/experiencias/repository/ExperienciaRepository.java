@@ -44,26 +44,31 @@ public class ExperienciaRepository extends BaseRepository<Experiencia> {
 
 	@Override
 	public Object[] getUpdateValues(Experiencia e) {
-		return new Object[] { e.getTitulo(), e.getDescripcion(), e.getPrecio(),e.getUbicacion(),e.getDuracion_horas(),e.getCategoria_id(),e.isActiva(),e.getFecha_creacion()};
+		return new Object[] { e.getTitulo(), e.getDescripcion(), e.getPrecio(),e.getUbicacion(),e.getDuracion_horas(),e.getCategoria_id(),e.isActiva(),e.getFecha_creacion(), e.getId() };
 	}
 
 	public List<ExperienciaResumen> findResumen() {
 		String sql = """
-			SELECT id, nombre,descripcion,activa
-			FROM categorias
-			ORDER BY nombre
+			SELECT id, titulo,descripcion,precio,ubicacion,duracion_horas,categoria_id,activa,fecha_creacion
+			FROM experiencias
+			ORDER BY titulo
 		""";
 		
 		return DB.queryMany(con, sql, rs ->
 			new ExperienciaResumen(
-				rs.getInt("id"),
-				rs.getString("nombre"),
-				rs.getString("descripcion"),
-				rs.getBoolean("activa")
+					rs.getInt("id"),
+	                rs.getString("titulo"),
+	                rs.getString("descripcion"),
+	                rs.getDouble("precio"),
+	                rs.getString("ubicacion"),
+	                rs.getInt("duracion_horas"),
+	                rs.getInt("categoria_id"),
+	                rs.getBoolean("activa"),
+	                rs.getTimestamp("fecha_creacion").toLocalDateTime()
 			)
 		);
 	}
-	
+	/*
 	public PeliculaDetalle findDetalle(int id) {
 		String sql = """
 			SELECT p.titulo,
@@ -85,6 +90,6 @@ public class ExperienciaRepository extends BaseRepository<Experiencia> {
 				rs.getString("director")
 			),
 			id
-		);
+		);*/
 	}
-}
+

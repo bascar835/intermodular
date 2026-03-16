@@ -8,13 +8,15 @@ import javax.sql.DataSource;
 
 import org.springframework.web.bind.annotation.*;
 
-import com.example.experiencias.dto.ExperienciasResumen;
+import com.example.experiencias.dto.ExperienciaResumen;
+import com.example.experiencias.dto.ExperienciaResumen;
 import com.example.experiencias.dto.PeliculaDetalle;
 import com.example.experiencias.exception.DataAccessException;
-import com.example.experiencias.repository.ExperienciasRepository;
+import com.example.experiencias.repository.ExperienciaRepository;
+import com.example.experiencias.repository.ExperienciaRepository;
 
 @RestController
-@RequestMapping("/api/categorias")
+@RequestMapping("/api/experiencias")
 public class ExperienciaController {
 	private final DataSource ds;
     public ExperienciaController(DataSource ds) {
@@ -22,21 +24,23 @@ public class ExperienciaController {
     }
     
     @GetMapping
-    public List<ExperienciasResumen> index() {
+    public List<ExperienciaResumen> index() {
         try (Connection con = ds.getConnection()) {
-            ExperienciasRepository repo = new ExperienciasRepository(con);
+            ExperienciaRepository repo = new ExperienciaRepository(con);
             return repo.findResumen();
         } catch (SQLException e) {
             throw new DataAccessException(e);
         }
     }
+    /*
     @GetMapping("/{id}")
     public PeliculaDetalle show(@PathVariable int id) {
         try (Connection con = ds.getConnection()) {
-            ExperienciasRepository repo = new ExperienciasRepository(con);
+            ExperienciaRepository repo = new ExperienciaRepository(con);
             return repo.findDetalle(id);
         } catch (SQLException e) {
             throw new DataAccessException(e);
         }
     }
+    */
 }
