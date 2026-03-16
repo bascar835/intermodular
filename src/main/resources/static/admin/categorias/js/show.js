@@ -8,14 +8,12 @@ async function cargarPelicula() {
 
     const id = obtenerId();
 
-    const response = await fetch(`/api/admin/peliculas/${id}`);
-    const p = await response.json();
+    const response = await fetch(`/api/admin/categorias/${id}`);
+    const c = await response.json();
 
-    document.getElementById("titulo").textContent = p.titulo;
-    document.getElementById("anyo").textContent = p.anyo;
-    document.getElementById("duracion").textContent = p.duracion;
-    document.getElementById("director").textContent = p.director;
-    document.getElementById("sinopsis").textContent = p.sinopsis;
+    document.getElementById("nombre").textContent = c.nombre;
+    document.getElementById("descripcion").textContent = c.descripcion;
+    document.getElementById("activa").textContent = c.activa ? "Si":"No";
 
     document.getElementById("editar").href = `edit.html?id=${id}`;
 }

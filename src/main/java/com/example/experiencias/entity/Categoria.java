@@ -2,14 +2,16 @@ package com.example.experiencias.entity;
 
 public class Categoria {
 	
-	int id;
-	String nombre;
-	String descripcion;
-	boolean activa;
+	private Integer id;
+	private String nombre;
+	private String descripcion;
+	private boolean activa;
 	
 	
-	
-	public Categoria(int id, String nombre, String descripcion, boolean activa) {
+	public Categoria() {
+    }
+
+	public Categoria(Integer id, String nombre, String descripcion, boolean activa) {
 		super();
 		this.id = id;
 		this.nombre = nombre;

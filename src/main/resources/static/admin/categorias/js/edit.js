@@ -1,74 +1,39 @@
 function obtenerId() {
-
     const params = new URLSearchParams(window.location.search);
     return params.get("id");
 }
 
-async function cargarDirectores() {
-
-    const response = await fetch("/api/admin/directores");
-    const directores = await response.json();
-
-    const select = document.getElementById("director");
-
-    directores.forEach(d => {
-
-        const option = document.createElement("option");
-
-        option.value = d.id;
-        option.textContent = d.nombre;
-
-        select.appendChild(option);
-    });
-}
-
 async function cargar() {
-
     const id = obtenerId();
 
-    const response = await fetch(`/api/admin/peliculas/${id}`);
-    const p = await response.json();
+    const response = await fetch(`/api/admin/categorias/${id}`);
+    const c = await response.json();
 
-    titulo.value = p.titulo;
-    anyo.value = p.anyo;
-    duracion.value = p.duracion;
-    sinopsis.value = p.sinopsis;
-    director.value = p.director_id;
+    nombre.value = c.nombre;
+    descripcion.value = c.descripcion;
+    activa.checked = c.activa;
 }
 
 async function guardar(e) {
-
     e.preventDefault();
 
     const id = obtenerId();
 
-    const pelicula = {
-
-        titulo: titulo.value,
-        anyo: anyo.value,
-        duracion: duracion.value,
-        sinopsis: sinopsis.value,
-        director_id: director.value
+    const categoria = {
+        nombre: nombre.value,
+        descripcion: descripcion.value,
+        activa: activa.checked
     };
 
-    await fetch(`/api/admin/peliculas/${id}`, {
-
+    await fetch(`/api/admin/categorias/${id}`, {
         method: "PUT",
-
         headers: {
             "Content-Type": "application/json"
         },
-
-        body: JSON.stringify(pelicula)
+        body: JSON.stringify(categoria)
     });
 
     location.href = "index.html";
 }
 
-async function init() {
-
-    await cargarDirectores();
-    await cargar();
-}
-
-init();
+cargar();

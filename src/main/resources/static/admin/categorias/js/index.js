@@ -1,11 +1,11 @@
 async function cargarCategorias() {
 
     const response = await fetch("/api/admin/categorias");
-    const peliculas = await response.json();
+    const categorias = await response.json();
 
     const tabla = document.getElementById("tabla-categorias");
-
-    peliculas.forEach(c => {
+	tabla.innerHTML="";
+    categorias.forEach(c => {
 
         const tr = document.createElement("tr");
 
@@ -13,7 +13,7 @@ async function cargarCategorias() {
 					<td>${c.id}</td>
 		            <td>${c.nombre}</td>
 		            <td>${c.descripcion}</td>
-					<td>${c.activa}</td>
+					<td>${c.activa ? "Si":"No"}</td>
 		            <td>
 
 		                <a href="show.html?id=${c.id}"
