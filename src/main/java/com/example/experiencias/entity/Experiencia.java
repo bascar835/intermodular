@@ -1,0 +1,93 @@
+package com.example.experiencias.entity;
+
+import java.time.LocalDateTime;
+
+public class Experiencia {
+
+	private Integer id;
+	private String titulo;
+	private String descripcion;
+	private double precio;
+	private String ubicacion;
+	private int duracion_horas;
+	private int categoria_id;
+	private boolean activa;
+	private LocalDateTime fecha_creacion;
+	
+	public Integer getId() {
+		return id;
+	}
+	public void setId(Integer id) {
+		this.id = id;
+	}
+	public String getTitulo() {
+		return titulo;
+	}
+	public void setTitulo(String titulo) {
+		this.titulo = titulo;
+	}
+	public String getDescripcion() {
+		return descripcion;
+	}
+	public void setDescripcion(String descripcion) {
+		this.descripcion = descripcion;
+	}
+	public double getPrecio() {
+		return precio;
+	}
+	public void setPrecio(double precio) {
+		this.precio = precio;
+	}
+	public String getUbicacion() {
+		return ubicacion;
+	}
+	public void setUbicacion(String ubicacion) {
+		this.ubicacion = ubicacion;
+	}
+	public int getDuracion_horas() {
+		return duracion_horas;
+	}
+	public void setDuracion_horas(int duracion_horas) {
+		this.duracion_horas = duracion_horas;
+	}
+	public int getCategoria_id() {
+		return categoria_id;
+	}
+	public void setCategoria_id(int categoria_id) {
+		this.categoria_id = categoria_id;
+	}
+	public boolean isActiva() {
+		return activa;
+	}
+	public void setActiva(boolean activa) {
+		this.activa = activa;
+	}
+	public LocalDateTime getFecha_creacion() {
+		return fecha_creacion;
+	}
+	public void setFecha_creacion(LocalDateTime fecha_creacion) {
+		this.fecha_creacion = fecha_creacion;
+	}
+	@Override
+	public String toString() {
+		return "Experiencias [id=" + id + ", titulo=" + titulo + ", descripcion=" + descripcion + ", precio=" + precio
+				+ ", ubicacion=" + ubicacion + ", duracion_horas=" + duracion_horas + ", categoria_id=" + categoria_id
+				+ ", activa=" + activa + ", fecha_creacion=" + fecha_creacion + "]";
+	}
+	//Constructor
+	public Experiencia(Integer id, String titulo, String descripcion, double precio, String ubicacion,
+			int duracion_horas, int categoria_id, boolean activa, LocalDateTime fecha_creacion) {
+		super();
+		this.id = id;
+		this.titulo = titulo;
+		this.descripcion = descripcion;
+		this.precio = precio;
+		this.ubicacion = ubicacion;
+		this.duracion_horas = duracion_horas;
+		this.categoria_id = categoria_id;
+		this.activa = activa;
+		this.fecha_creacion = fecha_creacion;
+	}
+	
+	
+}
