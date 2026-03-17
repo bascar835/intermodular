@@ -41,24 +41,24 @@ public class ExperienciaAdminController {
     }
 
     @PostMapping
-    public Experiencia store(@RequestBody Experiencia categoria) {
+    public Experiencia store(@RequestBody Experiencia experiencia) {
         try (Connection con = ds.getConnection()) {
             ExperienciaRepository repo = new ExperienciaRepository(con);
-            repo.insert(categoria);
-            return categoria;
+            repo.insert(experiencia);
+            return experiencia;
         } catch (SQLException e) {
             throw new DataAccessException(e);
         }
     }
 
     @PutMapping("/{id}")
-    public Experiencia update(@PathVariable int id, @RequestBody Experiencia categoria) {
-    	System.out.println(categoria);
+    public Experiencia update(@PathVariable int id, @RequestBody Experiencia experiencia) {
+    	System.out.println(experiencia);
         try (Connection con = ds.getConnection()) {
             ExperienciaRepository repo = new ExperienciaRepository(con);
-            categoria.setId(id);
-            repo.update(categoria);
-            return categoria;
+            experiencia.setId(id);
+            repo.update(experiencia);
+            return experiencia;
         } catch (SQLException e) {
             throw new DataAccessException(e);
         }

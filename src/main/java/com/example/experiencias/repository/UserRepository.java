@@ -21,7 +21,7 @@ public class UserRepository extends BaseRepository<User> {
 
     @Override
     public String getTable() {
-        return "users";
+        return "usuarios";
     }
 
     @Override
@@ -69,7 +69,7 @@ public class UserRepository extends BaseRepository<User> {
     // =========================
 
     public Optional<User> findByEmail(String email) {
-        String sql = "SELECT * FROM users WHERE email = ?";
+        String sql = "SELECT * FROM usuarios WHERE email = ?";
         User user = DB.queryOne(con, sql, new UserRowMapper(), email);
         return Optional.ofNullable(user);
     }
@@ -77,7 +77,7 @@ public class UserRepository extends BaseRepository<User> {
     public Optional<UserResponse> findResponseById(int id) {
         String sql = """
             SELECT id, name, email, role
-            FROM users
+            FROM usuarios
             WHERE id = ?
         """;
         UserResponse user = DB.queryOne(
@@ -92,7 +92,7 @@ public class UserRepository extends BaseRepository<User> {
     public List<UserResponse> findAllResponses() {
         String sql = """
             SELECT id, name, email, role
-            FROM users
+            FROM usuarios
         """;
         return DB.queryMany(
             con,
