@@ -43,13 +43,13 @@ CREATE TABLE experiencias (
     precio NUMERIC(10,2) NOT NULL,
     ubicacion VARCHAR(200),
     duracion_horas NUMERIC(4,2),
-    categoria_id BIGINT NOT NULL,
+    categoria_id BIGINT NULL,  -- permite NULL para categorías eliminadas
     fecha_creacion TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT fk_experiencia_categoria
         FOREIGN KEY (categoria_id)
         REFERENCES categorias(id)
-        ON DELETE RESTRICT,
+        ON DELETE SET NULL,  -- si borras categoría, la experiencia sigue existiendo
 
     CONSTRAINT chk_precio_positivo CHECK (precio > 0),
     CONSTRAINT chk_duracion_positiva CHECK (duracion_horas IS NULL OR duracion_horas > 0)

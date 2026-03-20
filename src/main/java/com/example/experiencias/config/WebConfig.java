@@ -24,10 +24,10 @@ public class WebConfig implements WebMvcConfigurer {
     
     public void addInterceptors(InterceptorRegistry registry) {
 
-        registry.addInterceptor(authInterceptor)
+      /*  registry.addInterceptor(authInterceptor)
                 .addPathPatterns("/admin/**", "/api/admin/**");
 
         registry.addInterceptor(roleInterceptor)
                 .addPathPatterns("/admin/**", "/api/admin/**");
-    }
+    */}
 }
