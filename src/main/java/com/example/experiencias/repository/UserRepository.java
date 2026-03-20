@@ -4,7 +4,6 @@ import java.sql.Connection;
 import java.util.List;
 import java.util.Optional;
 
-import org.springframework.stereotype.Repository;
 
 import com.example.experiencias.db.DB;
 import com.example.experiencias.dto.UserResponse;
@@ -12,11 +11,10 @@ import com.example.experiencias.entity.User;
 import com.example.experiencias.mapper.UserRowMapper;
 import com.example.experiencias.mapper.UserResponseRowMapper;
 
-@Repository
 public class UserRepository extends BaseRepository<User> {
 
     public UserRepository(Connection con) {
-        super(con, new UserRowMapper()); // Mapper para la entidad completa
+        super(con, new UserRowMapper());
     }
 
     @Override
@@ -33,11 +31,11 @@ public class UserRepository extends BaseRepository<User> {
     public String[] getColumnNames() {
         return new String[] {
             "id",
-            "name",
+            "nombre",          
             "email",
             "password",
-            "role",
-            "fecha_creacion"
+            "rol",            
+            "fecha_registro"   
         };
     }
 
@@ -46,7 +44,7 @@ public class UserRepository extends BaseRepository<User> {
         return new Object[] {
             user.getName(),
             user.getEmail(),
-            user.getPassword(), // ⚠️ recordar hash
+            user.getPassword(),
             user.getRole(),
             user.getFechaCreacion()
         };
@@ -64,10 +62,6 @@ public class UserRepository extends BaseRepository<User> {
         };
     }
 
-    // =========================
-    // 🔍 MÉTODOS ESPECÍFICOS
-    // =========================
-
     public Optional<User> findByEmail(String email) {
         String sql = "SELECT * FROM usuarios WHERE email = ?";
         User user = DB.queryOne(con, sql, new UserRowMapper(), email);
@@ -76,7 +70,7 @@ public class UserRepository extends BaseRepository<User> {
 
     public Optional<UserResponse> findResponseById(int id) {
         String sql = """
-            SELECT id, name, email, role
+            SELECT id, nombre, email, rol
             FROM usuarios
             WHERE id = ?
         """;
@@ -91,7 +85,7 @@ public class UserRepository extends BaseRepository<User> {
 
     public List<UserResponse> findAllResponses() {
         String sql = """
-            SELECT id, name, email, role
+            SELECT id, nombre, email, rol
             FROM usuarios
         """;
         return DB.queryMany(

@@ -19,7 +19,7 @@ public class RoleInterceptor implements HandlerInterceptor {
 
 		String role = (String) session.getAttribute("role");
 
-		if (!"ADMIN".equals(role)) {
+		if (!"ROLE_ADMIN".equals(role)) {
 
 			String path = request.getRequestURI();
 

@@ -11,9 +11,9 @@ public class UserResponseRowMapper implements RowMapper<UserResponse> {
     public UserResponse map(ResultSet rs) throws SQLException {
         return new UserResponse(
             rs.getInt("id"),
-            rs.getString("name"),
+            rs.getString("nombre"),   
             rs.getString("email"),
-            rs.getString("role")
+            rs.getString("rol")       
         );
     }
 }

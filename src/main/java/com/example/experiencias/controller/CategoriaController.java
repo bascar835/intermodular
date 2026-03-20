@@ -30,7 +30,7 @@ public class CategoriaController {
             throw new DataAccessException(e);
         }
     }
-    @GetMapping("/{id}")
+    /*@GetMapping("/{id}")
     public PeliculaDetalle show(@PathVariable int id) {
         try (Connection con = ds.getConnection()) {
             CategoriaRepository repo = new CategoriaRepository(con);
@@ -38,5 +38,5 @@ public class CategoriaController {
         } catch (SQLException e) {
             throw new DataAccessException(e);
         }
-    }
+    }*/
 }

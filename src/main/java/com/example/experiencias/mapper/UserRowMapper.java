@@ -11,11 +11,11 @@ public class UserRowMapper implements RowMapper<User> {
     public User map(ResultSet rs) throws SQLException {
         return new User(
             rs.getInt("id"),
-            rs.getString("name"),
+            rs.getString("nombre"),      // era "name"
             rs.getString("email"),
-            rs.getString("password"), // ⚠️ hash
-            rs.getString("role"),
-            rs.getTimestamp("fecha_creacion").toLocalDateTime()
+            rs.getString("password"),
+            rs.getString("rol"),         // era "role"
+            rs.getTimestamp("fecha_registro").toLocalDateTime()  // era "fecha_creacion"
         );
     }
 }
