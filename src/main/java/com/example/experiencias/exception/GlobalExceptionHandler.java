@@ -1,3 +1,4 @@
+/*
 package com.example.experiencias.exception;
 
 import org.springframework.dao.DuplicateKeyException;
@@ -48,3 +49,4 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(500).body(response);
     }
 }
+*/
