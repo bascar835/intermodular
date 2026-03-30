@@ -5,7 +5,7 @@ import java.sql.SQLException;
 
 import com.example.experiencias.entity.User;
 
-public class UserRowMapper implements RowMapper<User> {
+public class UserMapper implements RowMapper<User> {
 
     @Override
     public User map(ResultSet rs) throws SQLException {

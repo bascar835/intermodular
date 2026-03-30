@@ -1,74 +1,44 @@
 function obtenerId() {
-
     const params = new URLSearchParams(window.location.search);
     return params.get("id");
 }
 
-async function cargarDirectores() {
-
-    const response = await fetch("/api/admin/directores");
-    const directores = await response.json();
-
-    const select = document.getElementById("director");
-
-    directores.forEach(d => {
-
-        const option = document.createElement("option");
-
-        option.value = d.id;
-        option.textContent = d.nombre;
-
-        select.appendChild(option);
-    });
-}
-
-async function cargar() {
-
+// Cargar usuario en el formulario
+async function cargarUsuario() {
     const id = obtenerId();
+    const response = await fetch(`/api/users/${id}`);
+    const u = await response.json();
 
-    const response = await fetch(`/api/admin/peliculas/${id}`);
-    const p = await response.json();
-
-    titulo.value = p.titulo;
-    anyo.value = p.anyo;
-    duracion.value = p.duracion;
-    sinopsis.value = p.sinopsis;
-    director.value = p.director_id;
+    document.getElementById("name").value = u.name;
+    document.getElementById("email").value = u.email;
+    document.getElementById("role").value = u.role;
+    document.getElementById("password").value = ""; // nueva contraseña opcional
 }
 
-async function guardar(e) {
-
+// Guardar cambios
+async function guardarUsuario(e) {
     e.preventDefault();
 
     const id = obtenerId();
-
-    const pelicula = {
-
-        titulo: titulo.value,
-        anyo: anyo.value,
-        duracion: duracion.value,
-        sinopsis: sinopsis.value,
-        director_id: director.value
+    const user = {
+        name: document.getElementById("name").value,
+        email: document.getElementById("email").value,
+        role: document.getElementById("role").value,
+        password: document.getElementById("password").value
     };
 
-    await fetch(`/api/admin/peliculas/${id}`, {
-
+    await fetch(`/api/users/${id}`, {
         method: "PUT",
-
-        headers: {
-            "Content-Type": "application/json"
-        },
-
-        body: JSON.stringify(pelicula)
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(user)
     });
 
     location.href = "index.html";
 }
 
 async function init() {
-
-    await cargarDirectores();
-    await cargar();
+    await cargarUsuario();
+    document.getElementById("form-edit").addEventListener("submit", guardarUsuario);
 }
 
 init();

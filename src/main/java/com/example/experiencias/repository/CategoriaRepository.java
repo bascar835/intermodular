@@ -3,13 +3,19 @@ package com.example.experiencias.repository;
 import java.sql.Connection;
 import java.util.List;
 
-import com.example.experiencias.db.DB;
 import com.example.experiencias.dto.CategoriaResumen;
 import com.example.experiencias.dto.ExperienciaResumen;
 import com.example.experiencias.entity.Categoria;
 import com.example.experiencias.mapper.CategoriaMapper;
 import com.example.experiencias.mapper.RowMapper;
 
+<<<<<<< HEAD
+import database.DB;
+
+
+
+=======
+>>>>>>> 0407c7245f949afc7920d5cfd9e1801539bba996
 public class CategoriaRepository extends BaseRepository<Categoria> {
 
     public CategoriaRepository(Connection con) {
