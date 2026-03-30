@@ -9,13 +9,12 @@ import com.example.experiencias.entity.Categoria;
 import com.example.experiencias.mapper.CategoriaMapper;
 import com.example.experiencias.mapper.RowMapper;
 
-<<<<<<< HEAD
+
 import database.DB;
 
 
 
-=======
->>>>>>> 0407c7245f949afc7920d5cfd9e1801539bba996
+
 public class CategoriaRepository extends BaseRepository<Categoria> {
 
     public CategoriaRepository(Connection con) {

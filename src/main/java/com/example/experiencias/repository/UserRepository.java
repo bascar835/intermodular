@@ -4,11 +4,6 @@ import java.sql.Connection;
 import java.util.List;
 import java.util.Optional;
 
-<<<<<<< HEAD
-=======
-
-import com.example.experiencias.db.DB;
->>>>>>> 0407c7245f949afc7920d5cfd9e1801539bba996
 import com.example.experiencias.dto.UserResponse;
 import com.example.experiencias.entity.User;
 import com.example.experiencias.mapper.UserMapper;
@@ -19,11 +14,7 @@ import database.DB;
 public class UserRepository extends BaseRepository<User> {
 
     public UserRepository(Connection con) {
-<<<<<<< HEAD
         super(con, new UserMapper());
-=======
-        super(con, new UserRowMapper());
->>>>>>> 0407c7245f949afc7920d5cfd9e1801539bba996
     }
 
     @Override
@@ -40,11 +31,11 @@ public class UserRepository extends BaseRepository<User> {
     public String[] getColumnNames() {
         return new String[] {
             "id",
-            "nombre",          
+            "nombre",
             "email",
             "password",
-            "rol",            
-            "fecha_registro"   
+            "rol",
+            "fecha_registro"
         };
     }
 
@@ -71,54 +62,51 @@ public class UserRepository extends BaseRepository<User> {
         };
     }
 
-<<<<<<< HEAD
-    //  Buscar por email
-    public Optional<User> findByEmail(String email) {
-        String sql = "SELECT * FROM users WHERE email = ?";
-        return Optional.ofNullable(DB.queryOne(con, sql, new UserMapper(), email));
-=======
+    // ✅ INSERT con cast explícito al ENUM de PostgreSQL
+    @Override
+    public int insert(User user) {
+        String sql = """
+            INSERT INTO usuarios (nombre, email, password, rol, fecha_registro)
+            VALUES (?, ?, ?, ?::rol_usuario, ?)
+        """;
+        int id = DB.insert(con, sql, getInsertValues(user));
+        setPrimaryKey(user, id);
+        return id;
+    }
+
+    // ✅ UPDATE con cast explícito al ENUM de PostgreSQL
+    @Override
+    public int update(User user) {
+        String sql = """
+            UPDATE usuarios
+            SET nombre = ?, email = ?, password = ?, rol = ?::rol_usuario, fecha_registro = ?
+            WHERE id = ?
+        """;
+        return DB.update(con, sql, getUpdateValues(user));
+    }
+
+    // Buscar por email
     public Optional<User> findByEmail(String email) {
         String sql = "SELECT * FROM usuarios WHERE email = ?";
-        User user = DB.queryOne(con, sql, new UserRowMapper(), email);
-        return Optional.ofNullable(user);
->>>>>>> 0407c7245f949afc7920d5cfd9e1801539bba996
+        return Optional.ofNullable(DB.queryOne(con, sql, new UserMapper(), email));
     }
 
-    // Respuesta simplificada
+    // Respuesta simplificada por id
     public Optional<UserResponse> findResponseById(int id) {
-<<<<<<< HEAD
-        String sql = "SELECT id, name, email, role FROM users WHERE id = ?";
-        return Optional.ofNullable(DB.queryOne(con, sql, new UserResponseMapper(), id));
-    }
-
-    public List<UserResponse> findAllResponses() {
-        String sql = "SELECT id, name, email, role FROM users";
-        return DB.queryMany(con, sql, new UserResponseMapper());
-=======
         String sql = """
             SELECT id, nombre, email, rol
             FROM usuarios
             WHERE id = ?
         """;
-        UserResponse user = DB.queryOne(
-            con,
-            sql,
-            new UserResponseRowMapper(),
-            id
-        );
-        return Optional.ofNullable(user);
+        return Optional.ofNullable(DB.queryOne(con, sql, new UserResponseMapper(), id));
     }
 
+    // Todos los usuarios como respuesta simplificada
     public List<UserResponse> findAllResponses() {
         String sql = """
             SELECT id, nombre, email, rol
             FROM usuarios
         """;
-        return DB.queryMany(
-            con,
-            sql,
-            new UserResponseRowMapper()
-        );
->>>>>>> 0407c7245f949afc7920d5cfd9e1801539bba996
+        return DB.queryMany(con, sql, new UserResponseMapper());
     }
 }
