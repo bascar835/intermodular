@@ -5,7 +5,7 @@ import java.sql.SQLException;
 
 import com.example.experiencias.dto.UserResponse;
 
-public class UserResponseRowMapper implements RowMapper<UserResponse> {
+public class UserResponseMapper implements RowMapper<UserResponse> {
 
     @Override
     public UserResponse map(ResultSet rs) throws SQLException {

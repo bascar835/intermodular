@@ -3,12 +3,13 @@ package com.example.experiencias.repository;
 import java.sql.Connection;
 import java.util.List;
 
-import com.example.experiencias.db.DB;
 import com.example.experiencias.dto.ExperienciaResumen;
 import com.example.experiencias.dto.PeliculaDetalle;
 import com.example.experiencias.entity.Experiencia;
 import com.example.experiencias.mapper.ExperienciaMapper;
 import com.example.experiencias.mapper.RowMapper;
+
+import database.DB;
 
 
 

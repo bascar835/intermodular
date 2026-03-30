@@ -1,23 +1,18 @@
 function obtenerId() {
-
     const params = new URLSearchParams(window.location.search);
     return params.get("id");
 }
 
-async function cargarPelicula() {
-
+async function cargarUsuario() {
     const id = obtenerId();
+    const response = await fetch(`/api/users/${id}`);
+    const u = await response.json();
 
-    const response = await fetch(`/api/admin/peliculas/${id}`);
-    const p = await response.json();
-
-    document.getElementById("titulo").textContent = p.titulo;
-    document.getElementById("anyo").textContent = p.anyo;
-    document.getElementById("duracion").textContent = p.duracion;
-    document.getElementById("director").textContent = p.director;
-    document.getElementById("sinopsis").textContent = p.sinopsis;
+    document.getElementById("name").textContent = u.name;
+    document.getElementById("email").textContent = u.email;
+    document.getElementById("role").textContent = u.role;
 
     document.getElementById("editar").href = `edit.html?id=${id}`;
 }
 
-cargarPelicula();
+cargarUsuario();

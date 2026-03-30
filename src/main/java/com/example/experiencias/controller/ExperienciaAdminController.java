@@ -12,7 +12,7 @@ import com.example.experiencias.entity.Experiencia;
 import com.example.experiencias.exception.DataAccessException;
 import com.example.experiencias.repository.ExperienciaRepository;
 @RestController
-@RequestMapping("/api/admin/categorias")
+@RequestMapping("/api/admin/experiencias")
 public class ExperienciaAdminController {
 	private final DataSource ds;
 

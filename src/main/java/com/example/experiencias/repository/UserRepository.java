@@ -4,19 +4,17 @@ import java.sql.Connection;
 import java.util.List;
 import java.util.Optional;
 
-import org.springframework.stereotype.Repository;
-
-import com.example.experiencias.db.DB;
 import com.example.experiencias.dto.UserResponse;
 import com.example.experiencias.entity.User;
-import com.example.experiencias.mapper.UserRowMapper;
-import com.example.experiencias.mapper.UserResponseRowMapper;
+import com.example.experiencias.mapper.UserMapper;
+import com.example.experiencias.mapper.UserResponseMapper;
 
-@Repository
+import database.DB;
+
 public class UserRepository extends BaseRepository<User> {
 
     public UserRepository(Connection con) {
-        super(con, new UserRowMapper()); // Mapper para la entidad completa
+        super(con, new UserMapper());
     }
 
     @Override
@@ -46,7 +44,7 @@ public class UserRepository extends BaseRepository<User> {
         return new Object[] {
             user.getName(),
             user.getEmail(),
-            user.getPassword(), // ⚠️ recordar hash
+            user.getPassword(),
             user.getRole(),
             user.getFechaCreacion()
         };
@@ -64,40 +62,20 @@ public class UserRepository extends BaseRepository<User> {
         };
     }
 
-    // =========================
-    // 🔍 MÉTODOS ESPECÍFICOS
-    // =========================
-
+    //  Buscar por email
     public Optional<User> findByEmail(String email) {
         String sql = "SELECT * FROM users WHERE email = ?";
-        User user = DB.queryOne(con, sql, new UserRowMapper(), email);
-        return Optional.ofNullable(user);
+        return Optional.ofNullable(DB.queryOne(con, sql, new UserMapper(), email));
     }
 
+    // Respuesta simplificada
     public Optional<UserResponse> findResponseById(int id) {
-        String sql = """
-            SELECT id, name, email, role
-            FROM users
-            WHERE id = ?
-        """;
-        UserResponse user = DB.queryOne(
-            con,
-            sql,
-            new UserResponseRowMapper(),
-            id
-        );
-        return Optional.ofNullable(user);
+        String sql = "SELECT id, name, email, role FROM users WHERE id = ?";
+        return Optional.ofNullable(DB.queryOne(con, sql, new UserResponseMapper(), id));
     }
 
     public List<UserResponse> findAllResponses() {
-        String sql = """
-            SELECT id, name, email, role
-            FROM users
-        """;
-        return DB.queryMany(
-            con,
-            sql,
-            new UserResponseRowMapper()
-        );
+        String sql = "SELECT id, name, email, role FROM users";
+        return DB.queryMany(con, sql, new UserResponseMapper());
     }
 }

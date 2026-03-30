@@ -5,8 +5,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import com.example.experiencias.db.DB;
 import com.example.experiencias.mapper.RowMapper;
+
+import database.DB;
 
 public abstract class BaseRepository<T> {
 
