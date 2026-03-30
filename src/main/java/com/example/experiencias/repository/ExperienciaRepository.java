@@ -8,13 +8,12 @@ import com.example.experiencias.entity.Experiencia;
 import com.example.experiencias.mapper.ExperienciaMapper;
 import com.example.experiencias.mapper.RowMapper;
 
-<<<<<<< HEAD
+
 import database.DB;
 
 
 
-=======
->>>>>>> 0407c7245f949afc7920d5cfd9e1801539bba996
+
 public class ExperienciaRepository extends BaseRepository<Experiencia> {
 
     public ExperienciaRepository(Connection con) {

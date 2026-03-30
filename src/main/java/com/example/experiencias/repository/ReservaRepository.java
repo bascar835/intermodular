@@ -3,11 +3,13 @@ package com.example.experiencias.repository;
 import java.sql.Connection;
 import java.util.List;
 
-import com.example.experiencias.db.DB;
+
 import com.example.experiencias.dto.ReservaResumen;
 import com.example.experiencias.entity.Reserva;
 import com.example.experiencias.mapper.ReservaMapper;
 import com.example.experiencias.mapper.RowMapper;
+
+import database.DB;
 
 public class ReservaRepository extends BaseRepository<Reserva> {
 
