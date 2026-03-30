@@ -1,85 +1,37 @@
--- =============================================
--- Directores
--- =============================================
+-- =========================
+-- INSERTS: CATEGORIAS
+-- =========================
+INSERT INTO categorias (nombre, descripcion) VALUES
+('Senderismo', 'Excursiones y caminatas al aire libre'),
+('Gastronomía', 'Tours y experiencias culinarias'),
+('Cultural', 'Visitas a museos, monumentos y eventos históricos'),
+('Aventura', 'Actividades extremas y deportes de riesgo'),
+('Relax', 'Spas, playas y experiencias de bienestar');
 
-INSERT INTO directores (nombre, pais) VALUES
-('Lana Wachowski', 'Estados Unidos'),
-('Christopher Nolan', 'Reino Unido'),
-('Steven Spielberg', 'Estados Unidos'),
-('Quentin Tarantino', 'Estados Unidos'),
-('Hayao Miyazaki', 'Japón');
+-- =========================
+-- INSERTS: USUARIOS
+-- =========================
+INSERT INTO usuarios (nombre, email, password, rol) VALUES
+('Ana Pérez', 'ana.perez@example.com', 'hashed_password1', 'ROLE_USER'),
+('Luis García', 'luis.garcia@example.com', 'hashed_password2', 'ROLE_USER'),
+('Carlos López', 'carlos.lopez@example.com', 'hashed_password3', 'ROLE_ADMIN');
 
+-- =========================
+-- INSERTS: EXPERIENCIAS
+-- =========================
+INSERT INTO experiencias (titulo, descripcion, precio, ubicacion, duracion_horas, categoria_id) VALUES
+('Caminata por la Sierra', 'Ruta guiada de 5 km por montañas locales', 25.00, 'Sierra Norte', 3.5, 1),
+('Tour gastronómico en el casco histórico', 'Degustación de platos típicos y visita a mercados', 50.00, 'Ciudad Antigua', 4.0, 2),
+('Visita al Museo de Arte Moderno', 'Recorrido guiado por exposiciones contemporáneas', 15.00, 'Museo Central', 2.0, 3),
+('Rafting en el río Bravo', 'Aventura extrema en rápidos clase III y IV', 70.00, 'Río Bravo', 3.0, 4),
+('Día de spa y relajación', 'Acceso a piscinas, sauna y masajes relajantes', 60.00, 'Spa Resort', 6.0, 5);
 
--- =============================================
--- Películas con director
--- =============================================
-INSERT INTO peliculas
-(titulo, anyo, duracion, sinopsis, director_id)
-VALUES
-('Matrix', 1999, 136,
- 'Un hacker descubre que la realidad es una simulación.',
- 1),
-
-('Inception', 2010, 148,
- 'Un ladrón roba secretos infiltrándose en sueños.',
- 2),
-
-('Jurassic Park', 1993, 127,
- 'Un parque temático de dinosaurios clonados pierde el control.',
- 3),
-
-('Pulp Fiction', 1994, 154,
- 'Historias criminales entrelazadas en Los Ángeles.',
- 4),
-
-('El viaje de Chihiro', 2001, 125,
- 'Una niña entra en un mundo mágico gobernado por espíritus.',
- 5),
- 
-('The Matrix Reloaded', 2003, 138,
- 'Neo y los rebeldes continúan la lucha contra las máquinas.',
- 1),
-
-('The Matrix Revolutions', 2003, 129,
- 'La guerra entre humanos y máquinas alcanza su punto final.',
- 1),
-
-('Interstellar', 2014, 169,
- 'Un grupo de astronautas viaja a través de un agujero de gusano para salvar a la humanidad.',
- 2),
-
-('The Dark Knight', 2008, 152,
- 'Batman se enfrenta al Joker en una batalla por el alma de Gotham.',
- 2),
-
-('Tenet', 2020, 150,
- 'Un agente debe manipular el flujo del tiempo para evitar una guerra mundial.',
- 2),
-
-('E.T. the Extra-Terrestrial', 1982, 115,
- 'Un niño se hace amigo de un extraterrestre perdido en la Tierra.',
- 3),
-
-('Indiana Jones and the Last Crusade', 1989, 127,
- 'Indiana Jones busca el Santo Grial junto a su padre.',
- 3),
-
-('Django Unchained', 2012, 165,
- 'Un esclavo liberado busca rescatar a su esposa con ayuda de un cazarrecompensas.',
- 4),
-
-('Kill Bill: Vol. 1', 2003, 111,
- 'Una asesina busca venganza contra su antiguo escuadrón.',
- 4),
-
-('Kill Bill: Vol. 2', 2004, 137,
- 'La búsqueda de venganza de la Novia llega a su final.',
- 4),
-
-('My Neighbor Totoro', 1988, 86,
- 'Dos niñas descubren espíritus del bosque en el campo japonés.',
- 5),
-
-('Princess Mononoke', 1997, 134,
- 'Un príncipe se ve atrapado en el conflicto entre humanos y dioses del bosque.',
- 5);
+-- =========================
+-- INSERTS: RESERVAS
+-- =========================
+INSERT INTO reservas (usuario_id, experiencia_id, fecha_reserva, numero_personas, precio_total, estado) VALUES
+(1, 1, '2026-04-05 10:00', 2, 50.00, 'confirmada'),
+(1, 2, '2026-04-10 12:00', 1, 50.00, 'pendiente'),
+(2, 4, '2026-04-08 09:00', 3, 210.00, 'confirmada'),
+(3, 5, '2026-04-15 15:00', 1, 60.00, 'pendiente'),
+(2, 3, '2026-04-12 11:00', 2, 30.00, 'cancelada');

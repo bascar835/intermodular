@@ -8,22 +8,23 @@ import javax.sql.DataSource;
 
 import org.springframework.web.bind.annotation.*;
 
-import com.example.experiencias.entity.Experiencia;
+import com.example.experiencias.entity.Reserva;
 import com.example.experiencias.exception.DataAccessException;
-import com.example.experiencias.repository.ExperienciaRepository;
+import com.example.experiencias.repository.ReservaRepository;
+
 @RestController
-@RequestMapping("/api/admin/experiencias")
-public class ExperienciaAdminController {
+@RequestMapping("/api/admin/reservas")
+public class ReservaAdminController {
 	private final DataSource ds;
 
-    public ExperienciaAdminController(DataSource ds) {
+    public ReservaAdminController(DataSource ds) {
     	this.ds = ds;
     }
     
     @GetMapping
-    public List<Experiencia> index() throws SQLException {
+    public List<Reserva> index() throws SQLException {
     	try (Connection con = ds.getConnection()) {
-    	    ExperienciaRepository repo = new ExperienciaRepository(con);
+    	    ReservaRepository repo = new ReservaRepository(con);
     	    return repo.findAll();
     	 } catch (SQLException e) {
     	        throw new DataAccessException(e);
@@ -31,9 +32,9 @@ public class ExperienciaAdminController {
     }
     
     @GetMapping("/{id}")
-    public Experiencia show(@PathVariable int id) {
+    public Reserva show(@PathVariable int id) {
         try (Connection con = ds.getConnection()) {
-            ExperienciaRepository repo = new ExperienciaRepository(con);
+            ReservaRepository repo = new ReservaRepository(con);
             return repo.find(id);
         } catch (SQLException e) {
             throw new DataAccessException(e);
@@ -41,24 +42,24 @@ public class ExperienciaAdminController {
     }
 
     @PostMapping
-    public Experiencia store(@RequestBody Experiencia experiencia) {
+    public Reserva store(@RequestBody Reserva reserva) {
         try (Connection con = ds.getConnection()) {
-            ExperienciaRepository repo = new ExperienciaRepository(con);
-            repo.insert(experiencia);
-            return experiencia;
+            ReservaRepository repo = new ReservaRepository(con);
+            repo.insert(reserva);
+            return reserva;
         } catch (SQLException e) {
             throw new DataAccessException(e);
         }
     }
 
     @PutMapping("/{id}")
-    public Experiencia update(@PathVariable int id, @RequestBody Experiencia experiencia) {
-    	System.out.println(experiencia);
+    public Reserva update(@PathVariable int id, @RequestBody Reserva reserva) {
+    	System.out.println(reserva);
         try (Connection con = ds.getConnection()) {
-            ExperienciaRepository repo = new ExperienciaRepository(con);
-            experiencia.setId(id);
-            repo.update(experiencia);
-            return experiencia;
+            ReservaRepository repo = new ReservaRepository(con);
+            reserva.setId(id);
+            repo.update(reserva);
+            return reserva;
         } catch (SQLException e) {
             throw new DataAccessException(e);
         }
@@ -67,7 +68,7 @@ public class ExperienciaAdminController {
     @DeleteMapping("/{id}")
     public void destroy(@PathVariable int id) {
         try (Connection con = ds.getConnection()) {
-            ExperienciaRepository repo = new ExperienciaRepository(con);
+            ReservaRepository repo = new ReservaRepository(con);
             repo.delete(id);
         } catch (SQLException e) {
             throw new DataAccessException(e);

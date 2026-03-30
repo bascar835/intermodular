@@ -1,4 +1,4 @@
-package com.example.experiencias.controller;
+/*package com.example.experiencias.controller;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -30,4 +30,4 @@ public class DirectorAdminController {
             throw new DataAccessException(e);
         }
     }
-}
+}*/
