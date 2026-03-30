@@ -62,6 +62,29 @@ public class UserRepository extends BaseRepository<User> {
         };
     }
 
+    // ✅ INSERT con cast explícito al ENUM de PostgreSQL
+    @Override
+    public int insert(User user) {
+        String sql = """
+            INSERT INTO usuarios (nombre, email, password, rol, fecha_registro)
+            VALUES (?, ?, ?, ?::rol_usuario, ?)
+        """;
+        int id = DB.insert(con, sql, getInsertValues(user));
+        setPrimaryKey(user, id);
+        return id;
+    }
+
+    // ✅ UPDATE con cast explícito al ENUM de PostgreSQL
+    @Override
+    public int update(User user) {
+        String sql = """
+            UPDATE usuarios
+            SET nombre = ?, email = ?, password = ?, rol = ?::rol_usuario, fecha_registro = ?
+            WHERE id = ?
+        """;
+        return DB.update(con, sql, getUpdateValues(user));
+    }
+
     // Buscar por email
     public Optional<User> findByEmail(String email) {
         String sql = "SELECT * FROM usuarios WHERE email = ?";

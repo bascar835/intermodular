@@ -1,19 +1,20 @@
-// Guardar nuevo usuario
-async function guardarUsuario(e) {
+async function guardar(e) {
     e.preventDefault();
 
-    const user = {
-        name: document.getElementById("name").value,
-        email: document.getElementById("email").value,
-        role: document.getElementById("role").value,
-        password: document.getElementById("password").value
-    };
-
-    await fetch("/api/users", {
+    const response = await authFetch("/api/admin/users", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(user)
+        body: JSON.stringify({
+            name: document.getElementById("nombre").value,
+            email: document.getElementById("email").value,
+            password: document.getElementById("password").value,
+            role: document.getElementById("rol").value
+        })
     });
 
-    location.href = "index.html"; // volver al listado
+    if (response && response.ok) {
+        location.href = "index.html";
+    } else {
+        alert("Error al crear el usuario. Revisa los datos.");
+    }
 }
