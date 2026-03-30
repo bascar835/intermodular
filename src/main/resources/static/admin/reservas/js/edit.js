@@ -1,74 +1,40 @@
 function obtenerId() {
-
-    const params = new URLSearchParams(window.location.search);
-    return params.get("id");
-}
-
-async function cargarDirectores() {
-
-    const response = await fetch("/api/admin/directores");
-    const directores = await response.json();
-
-    const select = document.getElementById("director");
-
-    directores.forEach(d => {
-
-        const option = document.createElement("option");
-
-        option.value = d.id;
-        option.textContent = d.nombre;
-
-        select.appendChild(option);
-    });
+    return new URLSearchParams(window.location.search).get("id");
 }
 
 async function cargar() {
-
     const id = obtenerId();
+    const response = await authFetch(`/api/admin/reservas/${id}`);
+    if (!response) return;
 
-    const response = await fetch(`/api/admin/peliculas/${id}`);
-    const p = await response.json();
+    const r = await response.json();
 
-    titulo.value = p.titulo;
-    anyo.value = p.anyo;
-    duracion.value = p.duracion;
-    sinopsis.value = p.sinopsis;
-    director.value = p.director_id;
+    usuario_id.value = r.usuario_id;
+    experiencia_id.value = r.experiencia_id;
+    fecha_reserva.value = r.fecha_reserva.substring(0, 16);
+    numero_personas.value = r.numero_personas;
+    precio_total.value = r.precio_total;
+    estado.value = r.estado;
 }
 
 async function guardar(e) {
-
     e.preventDefault();
-
     const id = obtenerId();
 
-    const pelicula = {
-
-        titulo: titulo.value,
-        anyo: anyo.value,
-        duracion: duracion.value,
-        sinopsis: sinopsis.value,
-        director_id: director.value
-    };
-
-    await fetch(`/api/admin/peliculas/${id}`, {
-
+    await authFetch(`/api/admin/reservas/${id}`, {
         method: "PUT",
-
-        headers: {
-            "Content-Type": "application/json"
-        },
-
-        body: JSON.stringify(pelicula)
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            usuario_id: parseInt(usuario_id.value),
+            experiencia_id: parseInt(experiencia_id.value),
+            fecha_reserva: fecha_reserva.value,
+            numero_personas: parseInt(numero_personas.value),
+            precio_total: parseFloat(precio_total.value),
+            estado: estado.value
+        })
     });
 
     location.href = "index.html";
 }
 
-async function init() {
-
-    await cargarDirectores();
-    await cargar();
-}
-
-init();
+cargar();

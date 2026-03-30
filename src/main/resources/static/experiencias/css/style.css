@@ -1,0 +1,302 @@
+/* Tu CSS original */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Open Sans', sans-serif;
+}
+
+body {
+     background-color: #fff; 
+     color: #333; 
+    }
+
+/* Barra azul superior */
+.top-bar {
+    background-color:#020202;
+    color: white;
+    text-align: center;
+    padding: 8px;
+    font-size: 13px;
+    font-weight: bold;
+}
+
+/* Navegación Estilo Wonderbox */
+.main-nav {
+    padding: 10px 5%;
+    border-bottom: 1px solid #000000;
+    background: #fff;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.nav-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.logo {
+    font-size: 50px;
+    font-weight: 800;
+    font-style: italic;
+    color: #333;
+}
+.logo span { color: #e11d48; }
+
+.search-bar {
+    flex: 0 1 500px;
+    display: flex;
+    border: 1px solid #ccc;
+    border-radius: 25px;
+    overflow: hidden;
+}
+
+.search-bar input {
+    width: 100%;
+    padding: 10px 20px;
+    border: none;
+    outline: none;
+}
+
+.search-bar button {
+    background: none;
+    border: none;
+    padding: 0 15px;
+    cursor: pointer;
+    color: #666;
+}
+
+.user-actions {
+    display: flex;
+    gap: 20px;
+    font-size: 20px;
+}
+
+.user-actions a { 
+    color: #333; 
+    text-decoration: none;
+    position: relative;
+ }
+
+#fav-count {
+    position: absolute;
+    top: -8px;
+    right: -10px;
+    background: #e11d48;
+    color: rgb(0, 0, 0);
+    font-size: 10px;
+    padding: 2px 5px;
+    border-radius: 10px;
+}
+
+.nav-bottom .menu-links {
+    display: flex;
+    list-style: none;
+    justify-content: center;
+    gap: 30px;
+    align-items: center;
+}
+.nav-bottom {
+    margin-top: 30px; 
+    border-radius: 20px;
+}
+
+.menu-links a {
+    text-decoration: none;
+    color: #e43333;
+    font-weight: 600;
+    font-size: 14px;
+}
+.btn-primary{
+    background-color: #2a7bdd;
+    padding: 8px 15px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: bold;
+}
+.btn-wonder {
+    background-color: #100f0f;
+    padding: 8px 15px;
+    border-radius: 20px;
+}
+.btn-wonder a { color: white; }
+
+/* Hero Banner */
+.hero-banner {
+    height: 450px;
+    background: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), 
+                url('../png/gif2.gif');
+    background-size: cover;
+    background-position: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    text-align: center;
+}
+
+.hero-stats { letter-spacing: 2px; font-weight: bold; margin-bottom: 10px; }
+.hero-banner h1 { font-size: 45px; margin-bottom: 20px; }
+
+/* Grid de Productos */
+.content { padding: 40px 5%; }
+.section-title { margin-bottom: 30px; font-size: 22px; }
+
+/* Esto hará que tus cajas de experiencia se pongan una al lado de la otra */
+.product-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: center;
+    padding: 20px;
+}
+
+/* Esto le da forma de tarjeta a cada experiencia */
+.product-card {
+    width: 300px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    overflow: hidden;
+    background: white;
+}
+
+.product-card img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover; /* Esto evita que la imagen se deforme */
+}
+
+.product-card:hover { 
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1); 
+}
+
+.image-container { 
+    position: relative; height: 200px;
+ }
+
+.image-container img { 
+    width: 100%; height: 100%; object-fit: cover; }
+
+.heart-btn {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: white;
+    border: none;
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    color: #666;
+    transition: 0.3s;
+}
+
+.heart-btn.active { color: #e11d48; }
+
+.badge {
+    position: absolute;
+    bottom: 10px;
+    left: 10px;
+    background: #ffde59;
+    padding: 5px 10px;
+    font-size: 11px;
+    font-weight: bold;
+    border-radius: 4px;
+}
+
+.card-info { padding: 15px; }
+.card-info h3 { font-size: 16px; margin-bottom: 5px; }
+.card-info p { font-size: 13px; color: #777; margin-bottom: 15px; }
+
+.card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.price { font-size: 18px; font-weight: 800; }
+
+.btn-buy {
+    background: #333;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+/* Estilos agregados del código anterior */
+body {
+    animation: fadeIn 1s ease-in;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+#beneficios h2 {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.beneficios-grid {
+    display: flex;
+    justify-content: space-around;
+    gap: 20px;
+}
+
+/*Añadiendo*/
+.beneficio {
+    width: 250px;
+    text-align: center;
+    padding: 20px;
+}
+
+.beneficio img {
+    width: 80px;
+    margin-bottom: 15px;
+}
+
+.beneficio h3 {
+    margin-bottom: 10px;
+}
+/*LAS ANIMACIONES CON CARD*/
+
+.product-card {
+    width: 300px;
+    border: 1px #e43333;
+    border-radius: 10px;
+    overflow: hidden;
+    background: white;
+
+    opacity: 0;
+    transform: translateY(50px);
+    transition: all 0.8s ease;
+}
+
+/* Cuando aparece en pantalla */
+.product-card.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/*CONTADOR DE CARRITOS*/
+#cart-count{
+position:absolute;
+top:-8px;
+right:-10px;
+background:red;
+color:white;
+font-size:10px;
+padding:3px 6px;
+border-radius:50%;
+}

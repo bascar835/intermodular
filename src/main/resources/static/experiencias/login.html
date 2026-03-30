@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iniciar Sesión | XPerioPRO</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <header class="navbar">
+        <div class="logo">🎁 XPerio<span>PRO</span></div>
+        <nav>
+            <ul>
+                <li><a href="index.html">🏠 Inicio</a></li>
+                <li><a href="carrito.html">🛒 Mi Carrito</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="login-container">
+        <div class="login-box">
+            <h1> Iniciar Sesión</h1>
+            <p>Accede para guardar tus experiencias favoritas y ver tus reservas.</p>
+
+			<input type="text" id="correo" placeholder="Introduce tu correo electrónico">
+			<input type="password" id="contrasena" placeholder="Introduce tu contraseña">
+
+            <button class="btn-main" onclick="login()">Entrar</button>
+
+            <p id="mensajeError" class="error-text"></p>
+        </div>
+    </div>
+
+    <script>
+        function login() {
+            let nombre = document.getElementById("nombre").value.trim();
+            let mensajeError = document.getElementById("mensajeError");
+
+            if (nombre === "") {
+                mensajeError.innerText = "⚠️ Por favor, introduce tu nombre.";
+                return;
+            }
+
+            let usuario = {
+                nombre: nombre,
+                puntos: 1250,
+                nivel: "Oro",
+                descuento: "15%"
+            };
+
+            localStorage.setItem("usuario", JSON.stringify(usuario));
+
+            window.location.href = "index.html";
+        }
+    </script>
+
+	<script src="js/login.js"></script>
+
+</body>
+</html>

@@ -15,22 +15,23 @@ import com.example.experiencias.repository.ReservaRepository;
 @RestController
 @RequestMapping("/api/admin/reservas")
 public class ReservaAdminController {
-	private final DataSource ds;
+
+    private final DataSource ds;
 
     public ReservaAdminController(DataSource ds) {
-    	this.ds = ds;
+        this.ds = ds;
     }
-    
+
     @GetMapping
     public List<Reserva> index() throws SQLException {
-    	try (Connection con = ds.getConnection()) {
-    	    ReservaRepository repo = new ReservaRepository(con);
-    	    return repo.findAll();
-    	 } catch (SQLException e) {
-    	        throw new DataAccessException(e);
-    	 }
+        try (Connection con = ds.getConnection()) {
+            ReservaRepository repo = new ReservaRepository(con);
+            return repo.findAll();
+        } catch (SQLException e) {
+            throw new DataAccessException(e);
+        }
     }
-    
+
     @GetMapping("/{id}")
     public Reserva show(@PathVariable int id) {
         try (Connection con = ds.getConnection()) {
@@ -54,7 +55,7 @@ public class ReservaAdminController {
 
     @PutMapping("/{id}")
     public Reserva update(@PathVariable int id, @RequestBody Reserva reserva) {
-    	System.out.println(reserva);
+        System.out.println(reserva);
         try (Connection con = ds.getConnection()) {
             ReservaRepository repo = new ReservaRepository(con);
             reserva.setId(id);
