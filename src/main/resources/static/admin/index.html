@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard | XPerioPRO Admin</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/admin/css/admin-layout.css">
+</head>
+<body>
+
+    <!-- El sidebar se inyecta aquí por admin-sidebar.js -->
+
+    <div class="admin-main">
+
+        <div class="admin-topbar">
+            <span class="page-title">Dashboard</span>
+            <div class="topbar-user">
+                <span>👤</span>
+                <span class="user-name">Admin</span>
+            </div>
+        </div>
+
+        <div class="admin-content">
+
+            <div class="stats-row" id="stats-row">
+                <div class="stat-card">
+                    <div class="stat-value" id="stat-experiencias">–</div>
+                    <div class="stat-label">Experiencias</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="stat-categorias">–</div>
+                    <div class="stat-label">Categorías</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="stat-reservas">–</div>
+                    <div class="stat-label">Reservas</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="stat-usuarios">–</div>
+                    <div class="stat-label">Usuarios</div>
+                </div>
+            </div>
+
+            <div class="admin-card">
+                <div class="admin-card-header">
+                    <h2>Accesos rápidos</h2>
+                </div>
+                <div style="padding:24px; display:flex; gap:12px; flex-wrap:wrap;">
+                    <a href="/admin/experiencias/create.html" class="btn-primary">+ Nueva experiencia</a>
+                    <a href="/admin/categorias/create.html" class="btn-primary">+ Nueva categoría</a>
+                    <a href="/admin/reservas/index.html" class="btn-primary">Ver reservas</a>
+                    <a href="/admin/usuarios/index.html" class="btn-primary">Ver usuarios</a>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script src="/admin/js/admin-sidebar.js"></script>
+    <script>
+    async function cargarStats() {
+        try {
+            const [exp, cat, res, usr] = await Promise.all([
+                fetch('/api/experiencias').then(r => r.json()),
+                fetch('/api/categorias').then(r => r.json()),
+                fetch('/api/reservas').then(r => r.json()),
+                fetch('/api/users').then(r => r.json()),
+            ]);
+            document.getElementById('stat-experiencias').textContent = exp.length;
+            document.getElementById('stat-categorias').textContent = cat.length;
+            document.getElementById('stat-reservas').textContent = res.length;
+            document.getElementById('stat-usuarios').textContent = usr.length;
+        } catch(e) {
+            console.error('Error cargando stats:', e);
+        }
+    }
+    cargarStats();
+    </script>
+
+</body>
+</html>

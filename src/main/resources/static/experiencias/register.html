@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Iniciar Sesión | XPerioPRO</title>
+    <title>Registro | XPerioPRO</title>
     <link rel="stylesheet" href="css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap" rel="stylesheet">
 </head>
@@ -14,30 +14,31 @@
         <nav>
             <ul>
                 <li><a href="index.html">🏠 Inicio</a></li>
-                <li><a href="carrito.html">🛒 Mi Carrito</a></li>
+                <li><a href="login.html">👤 Iniciar Sesión</a></li>
             </ul>
         </nav>
     </header>
 
     <div class="login-container">
         <div class="login-box">
-            <h1>Iniciar Sesión</h1>
-            <p>Accede para guardar tus experiencias favoritas y ver tus reservas.</p>
+            <h1>Crear cuenta</h1>
+            <p>Únete para reservar experiencias únicas.</p>
 
-            <input type="email" id="correo" placeholder="Correo electrónico" autocomplete="email">
-            <input type="password" id="contrasena" placeholder="Contraseña" autocomplete="current-password">
+            <input type="text"     id="nombre"    placeholder="Nombre completo" autocomplete="name">
+            <input type="email"    id="correo"    placeholder="Correo electrónico" autocomplete="email">
+            <input type="password" id="contrasena" placeholder="Contraseña (mínimo 6 caracteres)" autocomplete="new-password">
 
-            <button class="btn-main" onclick="login()">Entrar</button>
+            <button class="btn-main" onclick="registrar()">Crear cuenta</button>
 
             <p id="mensajeError" class="error-text"></p>
 
             <p style="margin-top:20px; font-size:13px; color:var(--color-text-secondary)">
-                ¿No tienes cuenta? <a href="register.html" style="color:#e11d48; font-weight:600;">Regístrate</a>
+                ¿Ya tienes cuenta? <a href="login.html" style="color:#e11d48; font-weight:600;">Inicia sesión</a>
             </p>
         </div>
     </div>
 
-    <script src="js/login.js"></script>
+    <script src="js/register.js"></script>
 
 </body>
 </html>

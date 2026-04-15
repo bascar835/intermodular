@@ -1,59 +1,53 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-
 <meta charset="UTF-8">
-<title>Nueva película</title>
-
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-<link rel="stylesheet" href="/css/app.css">
-
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nueva experiencia | XPerioPRO Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/admin/css/admin-layout.css">
 </head>
-
 <body>
 
-<div class="container">
+    <div class="admin-main">
+        <div class="admin-topbar">
+            <span class="page-title">Nueva experiencia</span>
+            <div class="topbar-user"><span>👤</span><span class="user-name">Admin</span></div>
+        </div>
+        <div class="admin-content">
+            <div class="admin-card" style="padding:24px;">
+                <form class="admin-form" onsubmit="guardar(event)">
 
-<h1>Nueva película</h1>
+                    <div class="form-group">
+                        <label>Título</label>
+                        <input id="titulo" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Año</label>
+                        <input id="anyo" type="number" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Duración</label>
+                        <input id="duracion" type="number" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Director</label>
+                        <select id="director"></select>
+                    </div>
+                    <div class="form-group">
+                        <label>Sinopsis</label>
+                        <textarea id="sinopsis"></textarea>
+                    </div>
 
-<form onsubmit="guardar(event)">
+                    <button class="btn-primary" type="submit">Guardar</button>
+                    <a href="index.html" class="btn-primary" style="background:#6b7280;margin-left:8px;">Cancelar</a>
+                </form>
+            </div>
+        </div>
+    </div>
 
-<div class="mb-3">
-<label class="form-label">Título</label>
-<input id="titulo" class="form-control" required>
-</div>
-
-<div class="mb-3">
-<label class="form-label">Año</label>
-<input id="anyo" type="number" class="form-control" required>
-</div>
-
-<div class="mb-3">
-<label class="form-label">Duración</label>
-<input id="duracion" type="number" class="form-control" required>
-</div>
-
-<div class="mb-3">
-<label class="form-label">Director</label>
-<select id="director" class="form-select"></select>
-</div>
-
-<div class="mb-3">
-<label class="form-label">Sinopsis</label>
-<textarea id="sinopsis" class="form-control"></textarea>
-</div>
-
-<button class="btn btn-primary">Guardar</button>
-
-<a href="index.html" class="btn btn-secondary">
-Cancelar
-</a>
-
-</form>
-
-</div>
-
+<script src="/js/auth.js"></script>
 <script src="js/create.js"></script>
-
+<script src="/admin/js/admin-sidebar.js"></script>
 </body>
 </html>

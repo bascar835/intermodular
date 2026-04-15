@@ -3,8 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <title>Mi Carrito | XPerioPRO</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+	<link rel="stylesheet" href="css/carrito.css">
+	<style>
+       
+    </style>
 </head>
 <body>
 
@@ -24,48 +28,9 @@
             <div class="cart-empty-state" id="emptyCart">
                 <h1>🛒 Tu carrito está vacío</h1>
                 <p>Inicia sesión para ver tus productos guardados o sigue comprando para descubrir nuevas experiencias.</p>
-
                 <div class="cart-actions">
-                    <a href="login.html" class="btn-main"> Iniciar Sesión</a>
+                    <a href="login.html" class="btn-main">Iniciar Sesión</a>
                     <a href="index.html" class="btn-secondary">Seguir comprando</a>
-                </div>
-
-                <br>
-
-                <div class="suggestions">
-                    <h2>💡 Te podría gustar</h2>
-
-                    <div class="experience-grid">
-                        <div class="card">
-                            <div class="card-img" style="background-image: url('../INTERMODULAR/png/4466096a56bbbafa1d8b777edff4d229.png');">
-                                <span class="tag-premium">REGALO 🏷️</span>
-                            </div>
-                            <div class="card-body">
-                                <span class="cat-label">Tarjetas</span>
-                                <h3>Tarjeta Regalo Flex 50€</h3>
-                                <p>El detalle perfecto para regalar momentos únicos.</p>
-                                <div class="card-footer">
-                                    <span class="price">50€</span>
-                                    <button class="btn-add" onclick="addToCart('Tarjeta Regalo Flex 50€', 50)">Añadir 🛒</button>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="card">
-                            <div class="card-img" style="background-image: url('../INTERMODULAR/png/real-madrid-stadium-tour-prices.png');">
-                                <span class="tag">TOP VENTAS ⚽</span>
-                            </div>
-                            <div class="card-body">
-                                <span class="cat-label">Deportes</span>
-                                <h3>Tour Santiago Bernabéu</h3>
-                                <p>Vive una experiencia inolvidable en uno de los estadios más icónicos.</p>
-                                <div class="card-footer">
-                                    <span class="price">25€</span>
-                                    <button class="btn-add" onclick="addToCart('Tour Santiago Bernabéu', 25)">Añadir 🛒</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
                 </div>
             </div>
 
@@ -73,16 +38,50 @@
             <div id="cartProducts" style="display: none;">
                 <h1>🛒 Tu Carrito</h1>
                 <div id="productsList"></div>
-
                 <div class="cart-total-box">
-                    <h2 id="totalCarrito">Total: 0€</h2>
-                    <button class="btn-main">💳 Finalizar compra</button>
+                    <h2 id="totalCarrito"></h2>
+                    <button class="btn-main" onclick="abrirModalCompra()">💳 Finalizar compra</button>
                 </div>
             </div>
 
         </div>
     </div>
 
-	<script src="js/carrito.js"></script>
+    <!-- ── Modal paso a paso ── -->
+    <div id="modal-compra" class="modal-compra-overlay">
+        <div class="modal-compra-box">
+
+            <!-- Barra de progreso -->
+            <div class="modal-progreso">
+                <div class="modal-progreso-bar" id="modal-progreso-bar"></div>
+            </div>
+
+            <!-- Cabecera dinámica -->
+            <p class="modal-paso-label" id="modal-paso-label">Experiencia 1 de 1</p>
+            <h2 class="modal-nombre-exp" id="modal-nombre-exp"></h2>
+            <p class="modal-precio-exp" id="modal-precio-exp"></p>
+
+            <!-- Error -->
+            <div id="modal-compra-error" class="modal-compra-error"></div>
+
+            <!-- Campos -->
+            <label for="input-fecha">📅 Fecha y hora</label>
+            <input type="datetime-local" id="input-fecha">
+
+            <label for="input-personas">👥 Número de personas</label>
+            <input type="number" id="input-personas" min="1" max="20" value="1">
+
+            <!-- Acciones -->
+            <div class="modal-compra-actions">
+                <button class="btn-cancelar-modal" onclick="cerrarModalCompra()">Cancelar</button>
+                <button class="btn-siguiente-modal" id="btn-siguiente" onclick="siguientePaso()">
+                    Siguiente →
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+    <script src="js/carrito.js"></script>
 </body>
 </html>

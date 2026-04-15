@@ -4,33 +4,32 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Regala Experiencias | Home</title>
-    <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
 
     <div class="top-bar">
-        <center>Validez de 3 AÑOS 🗓️ | Cambio gratuito e ILIMITADO 🔄</center>
+        Validez de 3 AÑOS 🗓️ | Cambio gratuito e ILIMITADO 🔄
+    </div>
 
     <header class="navbar">
         <div class="logo">🎁 XPerio<span>PRO</span></div>
         <div class="search-bar">
-                <input type="text" placeholder="Buscar una actividad, un lugar...🔍">
-                <button><i class="fas fa-search"></i></button>
-            </div>
+            <input type="text" placeholder="Buscar una actividad, un lugar...🔍">
+            <button><i class="fas fa-search"></i></button>
+        </div>
         <nav>
-            
-    <ul>
-        <li><a href="index.html">🏠 Inicio</a></li>
-        <li><a href="reservas.html">📅 Mis Reservas</a></li> 
-        <li><a href="carrito.html" class="nav-cart">🛒 Mi Carrito <span id="cart-count">0</span></a></li>
-        <li><a href="login.html">👤 Iniciar Sesión</a></li>
-    </ul>
-</nav>
+            <ul>
+                <li><a href="index.html">🏠 Inicio</a></li>
+                <li><a href="reservas.html">📅 Mis Reservas</a></li>
+                <li><a href="carrito.html" class="nav-cart">🛒 Mi Carrito <span id="cart-count">0</span></a></li>
+                <li><a href="login.html">👤 Iniciar Sesión</a></li>
+            </ul>
+        </nav>
     </header>
 
-    
     <section class="hero">
         <div class="hero-content">
             <h1>¡Vive momentos únicos! ✨</h1>
@@ -41,7 +40,7 @@
     <section id="experiencias" class="container">
         <h2 class="section-title">Experiencias Destacadas</h2>
         <div class="experience-grid">
-<!----> 
+
             <div class="card">
                 <div class="card-img" style="background-image: url('https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&w=500&q=80');">
                     <span class="tag">TOP VENTAS</span>
@@ -52,13 +51,11 @@
                     <p>Disfruta de una cena de 5 tiempos para 2 personas.</p>
                     <div class="card-footer">
                         <span class="price">89.90€</span>
-                    <button class="btn-add" onclick="addToCart('Cena Gourmet con Vistas', 89.90)">Añadir 🛒
-                    </button>
-
+                        <button class="btn-add" onclick="addToCart('Cena Gourmet con Vistas', 89.90)">Añadir 🛒</button>
                     </div>
                 </div>
             </div>
-            <!-- BOTON RESERVAR-->
+
             <div class="card">
                 <div class="card-img" style="background-image: url('https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=500&q=80');">
                     <span class="tag-premium">PREMIUM</span>
@@ -69,96 +66,102 @@
                     <p>Desconexión total: 2 horas de circuito y masaje.</p>
                     <div class="card-footer">
                         <span class="price">120.00€</span>
-                    <button class="btn-add" onclick="location.href='reservas.html'">Reservar</button>
+                        <button class="btn-add" onclick="location.href='reservas.html'">Reservar</button>
                     </div>
                 </div>
             </div>
-    
+
+            <div class="card vip-card">
+                <div class="card-img" style="background-image: url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=500&q=80');">
+                    <div class="wishlist-heart" onclick="toggleFavorite(this)"><i class="fa-regular fa-heart"></i></div>
+                    <span class="tag-vip">💎 EXCLUSIVO VIP</span>
+                </div>
+                <div class="card-body">
+                    <span class="cat-label">Aventura</span>
+                    <h3>Vuelo Privado en Globo</h3>
+                    <p>Una experiencia única sobrevolando paisajes increíbles.</p>
+                    <div class="card-footer">
+                        <span class="price">299€</span>
+                        <button class="btn-add" onclick="addToCart('Vuelo Privado en Globo', 299)">Añadir</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card vip-card">
+                <div class="card-img" style="background-image: url('https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?auto=format&fit=crop&w=500&q=80');">
+                    <div class="wishlist-heart" onclick="toggleFavorite(this)"><i class="fa-regular fa-heart"></i></div>
+                    <span class="tag-vip">💎 EXCLUSIVO VIP</span>
+                </div>
+                <div class="card-body">
+                    <span class="cat-label">Gastronomía</span>
+                    <h3>Cata en Bodega Subterránea</h3>
+                    <p>Descubre los mejores vinos en una bodega centenaria.</p>
+                    <div class="card-footer">
+                        <span class="price">180€</span>
+                        <button class="btn-add" onclick="addToCart('Cata en Bodega Subterránea', 180)">Añadir</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-img" style="background-image: url('https://images.unsplash.com/photo-1574629810360-7efbbe195018?auto=format&fit=crop&w=500&q=80');">
+                    <div class="wishlist-heart" onclick="toggleFavorite(this)"><i class="fa-regular fa-heart"></i></div>
+                    <span class="tag">TOUR ⚽</span>
+                </div>
+                <div class="card-body">
+                    <span class="cat-label">Deportes</span>
+                    <h3>Tour Santiago Bernabéu</h3>
+                    <p>Vive una experiencia en uno de los estadios más icónicos.</p>
+                    <div class="card-footer">
+                        <span class="price">25€</span>
+                        <button class="btn-add" onclick="addToCart('Tour Santiago Bernabéu', 25)">Añadir</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-img" style="background-image: url('https://images.unsplash.com/photo-1513885535751-8b9238bd345a?auto=format&fit=crop&w=500&q=80');">
+                    <div class="wishlist-heart" onclick="toggleFavorite(this)"><i class="fa-regular fa-heart"></i></div>
+                    <span class="tag-premium">REGALO 🏷️</span>
+                </div>
+                <div class="card-body">
+                    <span class="cat-label">Tarjetas</span>
+                    <h3>Tarjeta Regalo Flex 50€</h3>
+                    <p>El detalle perfecto para regalar momentos únicos.</p>
+                    <div class="card-footer">
+                        <span class="price">50€</span>
+                        <button class="btn-add" onclick="addToCart('Tarjeta Regalo Flex', 50)">Añadir</button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- Panel lateral de usuario -->
     <div id="userPanel" class="side-panel">
-    <div class="panel-header">
-        <span class="close-panel" onclick="toggleProfile()">&times;</span>
-        <div class="user-avatar">👤</div>
-        <h3>Mi Perfil</h3>
-    </div>
-    <div class="panel-content">
-        <div class="status-badge premium">Membresía Premium ✨</div>
-        <ul class="user-stats">
-            <li><strong>Puntos:</strong> 1,250 🪙</li>
-            <li><strong>Nivel:</strong> Oro 🏆</li>
-            <li><strong>Descuento:</strong> 15% Aplicado</li>
-        </ul>
-        <hr>
-        <div class="vip-benefits">
-            <h4>Tus beneficios VIP:</h4>
-            <p>✅ Acceso prioritario a eventos.</p>
-            <p>✅ Cancelación gratuita 24h.</p>
+        <div class="panel-header">
+            <span class="close-panel" onclick="toggleProfile()">&times;</span>
+            <div class="user-avatar">👤</div>
+            <h3>Mi Perfil</h3>
         </div>
-    </div>
-</div>
-<div class="card vip-card">
-    <div class="card-img" style="background-image: url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=500&q=80');">
-        <div class="wishlist-heart" onclick="toggleFavorite(this)"><i class="fa-regular fa-heart"></i></div>
-        <span class="tag-vip">💎 EXCLUSIVO VIP</span>
-    </div>
-    <div class="card-body">
-        <span class="cat-label">Aventura</span>
-        <h3>Vuelo Privado en Globo</h3>
-        <div class="card-footer">
-            <span class="price">299€</span>
-			<button class="btn-add" onclick="addToCart('Vuelo Privado en Globo', 299)">Añadir</button>
-
-        </div>
-    </div>
-</div>
-
-<div class="card vip-card">
-    <div class="card-img" style="background-image: url('https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?auto=format&fit=crop&w=500&q=80');">
-        <div class="wishlist-heart" onclick="toggleFavorite(this)"><i class="fa-regular fa-heart"></i></div>
-        <span class="tag-vip">💎 EXCLUSIVO VIP</span>
-    </div>
-    <div class="card-body">
-        <span class="cat-label">Gastronomía</span>
-        <h3>Cata en Bodega Subterránea</h3>
-        <div class="card-footer">
-            <span class="price">180€</span>
-            <button class="btn-add" onclick="addToCart('Cata en Bodega Subterránea', 180)">Añadir </button>
-
-        </div>
-    </div>
-</div>
-
-<div class="experience-grid">
-    <div class="card">
-        <div class="card-img" style="background-image: url(../INTERMODULAR/png/real-madrid-stadium-tour-prices.png);">
-            <div class="wishlist-heart" onclick="toggleFavorite(this)"><i class="fa-regular fa-heart"></i></div>
-            <span class="tag">TOUR ⚽</span>
-        </div>
-        <div class="card-body">
-            <span class="cat-label">Deportes</span>
-            <h3>Tour Santiago Bernabéu</h3>
-            <div class="card-footer">
-                <span class="price">25€</span>
-                <button class="btn-add" onclick="addToCart('Tour Santiago Bernabéu', 25)">Añadir </button>
-            </div>
-    </div>
-</div>
-</div>
-    <div class="card">
-        <div class="card-img" style="background-image: url(../INTERMODULAR/png/4466096a56bbbafa1d8b777edff4d229.png);">
-            <div class="wishlist-heart" onclick="toggleFavorite(this)"><i class="fa-regular fa-heart"></i></div>
-            <span class="tag-premium">REGALO 🏷️</span>
-        </div>
-        <div class="card-body">
-            <span class="cat-label">Tarjetas</span>
-            <h3>Tarjeta Regalo Flex 50€</h3>
-            <div class="card-footer">
-                <span class="price">50€</span>
-            <button class="btn-add" onclick="addToCart('Tarjeta Regalo Flex', 50)">Añadir</button>
-
+        <div class="panel-content">
+            <div class="status-badge premium">Membresía Premium ✨</div>
+            <ul class="user-stats">
+                <li><strong>Puntos:</strong> 1,250 🪙</li>
+                <li><strong>Nivel:</strong> Oro 🏆</li>
+                <li><strong>Descuento:</strong> 15% Aplicado</li>
+            </ul>
+            <hr>
+            <div class="vip-benefits">
+                <h4>Tus beneficios VIP:</h4>
+                <p>✅ Acceso prioritario a eventos.</p>
+                <p>✅ Cancelación gratuita 24h.</p>
             </div>
         </div>
     </div>
 
+    <!-- Modal confirmación -->
     <div id="modalConfirmacion" class="modal">
         <div class="modal-content">
             <span class="close-modal" onclick="cerrarModal()">&times;</span>
@@ -174,7 +177,7 @@
         </div>
     </div>
 
-	<script src="js/index.js"></script>
+    <script src="js/index.js"></script>
 
 </body>
 </html>

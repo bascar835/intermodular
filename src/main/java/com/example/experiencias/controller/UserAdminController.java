@@ -10,6 +10,7 @@ import javax.sql.DataSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.example.experiencias.dto.UserResponse;
 import com.example.experiencias.entity.User;
@@ -21,9 +22,11 @@ import com.example.experiencias.repository.UserRepository;
 public class UserAdminController {
 
     private final DataSource ds;
+    private final PasswordEncoder passwordEncoder;
 
-    public UserAdminController(DataSource ds) {
+    public UserAdminController(DataSource ds, PasswordEncoder passwordEncoder) {
         this.ds = ds;
+        this.passwordEncoder = passwordEncoder;
     }
 
     // GET /api/admin/users → lista todos los usuarios
@@ -56,8 +59,14 @@ public class UserAdminController {
     public UserResponse store(@RequestBody User user) {
         try (Connection con = ds.getConnection()) {
             UserRepository repo = new UserRepository(con);
+
             user.setFechaCreacion(LocalDateTime.now());
+
+            // 🔑 Codificar contraseña antes de guardar
+            user.setPassword(passwordEncoder.encode(user.getPassword()));
+
             repo.insert(user);
+
             return new UserResponse(
                 user.getId(),
                 user.getName(),
@@ -74,8 +83,16 @@ public class UserAdminController {
     public UserResponse update(@PathVariable int id, @RequestBody User user) {
         try (Connection con = ds.getConnection()) {
             UserRepository repo = new UserRepository(con);
+
             user.setId(id);
+
+            // 🔑 Solo codificar si viene nueva contraseña
+            if (user.getPassword() != null && !user.getPassword().isEmpty()) {
+                user.setPassword(passwordEncoder.encode(user.getPassword()));
+            }
+
             repo.update(user);
+
             return new UserResponse(
                 user.getId(),
                 user.getName(),
@@ -93,11 +110,13 @@ public class UserAdminController {
     public void destroy(@PathVariable int id) {
         try (Connection con = ds.getConnection()) {
             UserRepository repo = new UserRepository(con);
+
             boolean deleted = repo.delete(id);
             if (!deleted) {
                 throw new ResponseStatusException(
                     HttpStatus.NOT_FOUND, "Usuario no encontrado con id: " + id);
             }
+
         } catch (SQLException e) {
             throw new DataAccessException(e);
         }

@@ -1,97 +1,182 @@
+// index.js — carga experiencias reales desde /api/experiencias
+
 let isProfileOpen = false;
 
-// Cuando cargue la página
-document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener("DOMContentLoaded", async function () {
     actualizarContadorCarrito();
+    await cargarUsuarioSesion();
+    await cargarExperiencias();
 });
 
-// PERFIL LATERAL
-function toggleProfile() {
-    const panel = document.getElementById('userPanel');
+// ─── Sesión ──────────────────────────────────────────────────────────────────
 
-    if (!panel) return;
+async function cargarUsuarioSesion() {
+    try {
+        const res = await fetch("/api/auth/me");
+        if (!res.ok) return; // No logueado, modo público
 
-    isProfileOpen = !isProfileOpen;
+        const user = await res.json();
+        localStorage.setItem("userName", user.name || "");
 
-    if (isProfileOpen) {
-        panel.classList.add('open');
-        createOverlay();
-    } else {
-        panel.classList.remove('open');
-        removeOverlay();
+        // Cambiar el enlace "Iniciar Sesión" por el nombre del usuario
+        const loginLink = document.querySelector('a[href="login.html"]');
+        if (loginLink) {
+            loginLink.textContent = "👤 " + (user.name || "Mi cuenta");
+            loginLink.href = "#";
+            loginLink.onclick = (e) => { e.preventDefault(); toggleProfile(); };
+        }
+
+        // Mostrar nombre en el panel lateral
+        const panelTitle = document.querySelector("#userPanel .panel-header h3");
+        if (panelTitle) panelTitle.textContent = user.name || "Mi Perfil";
+
+    } catch (e) {
+        // Sin sesión, no pasa nada
     }
 }
 
-function createOverlay() {
-    if (document.getElementById('overlay')) return;
+// ─── Experiencias desde la API ───────────────────────────────────────────────
 
-    const div = document.createElement('div');
-    div.id = 'overlay';
-    div.className = 'panel-overlay';
-    div.style.display = 'block';
+async function cargarExperiencias() {
+    try {
+        const res = await fetch("/api/experiencias");
+        if (!res.ok) throw new Error("Error cargando experiencias");
+
+        const experiencias = await res.json();
+        const grid = document.querySelector(".experience-grid");
+        if (!grid) return;
+
+        grid.innerHTML = ""; // Limpiar cards estáticas
+
+        if (experiencias.length === 0) {
+            grid.innerHTML = "<p style='color:var(--color-text-secondary)'>No hay experiencias disponibles.</p>";
+            return;
+        }
+
+        experiencias.forEach(exp => {
+            grid.appendChild(crearCard(exp));
+        });
+
+    } catch (e) {
+        console.error("Error al cargar experiencias:", e);
+    }
+}
+
+// Genera el HTML de una card a partir de un objeto ExperienciaResumen
+function crearCard(exp) {
+    const imagenes = {
+        1: "https://images.unsplash.com/photo-1551632811-561732d1e306?auto=format&fit=crop&w=500&q=80",
+        2: "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&w=500&q=80",
+        3: "https://images.unsplash.com/photo-1554907984-15263bfd63bd?auto=format&fit=crop&w=500&q=80",
+        4: "https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?auto=format&fit=crop&w=500&q=80",
+        5: "https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=500&q=80",
+    };
+    const imgUrl = imagenes[exp.categoria_id] ||
+        "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=500&q=80";
+
+    const card = document.createElement("div");
+    card.className = "card";
+    card.innerHTML = `
+        <div class="card-img" style="background-image: url('${imgUrl}');">
+            <div class="wishlist-heart" onclick="toggleFavorite(this)">
+                <i class="fa-regular fa-heart"></i>
+            </div>
+        </div>
+        <div class="card-body">
+            <span class="cat-label">${exp.ubicacion || "Experiencia"}</span>
+            <h3>${exp.titulo}</h3>
+            <p>${exp.descripcion || ""}</p>
+            <div class="card-footer">
+                <span class="price">${exp.precio.toFixed(2)}€</span>
+                <button class="btn-add" onclick="addToCart(${exp.id}, '${escapar(exp.titulo)}', ${exp.precio})">
+                    Añadir 🛒
+                </button>
+            </div>
+        </div>
+    `;
+    return card;
+}
+
+function escapar(str) {
+    return str.replace(/'/g, "\\'");
+}
+
+// ─── Carrito ─────────────────────────────────────────────────────────────────
+
+// CORREGIDO: ahora guarda también el id de la experiencia
+function addToCart(id, nombre, precio) {
+    let carrito = JSON.parse(localStorage.getItem("carrito")) || [];
+    carrito.push({ id, nombre, precio: parseFloat(precio) });
+    localStorage.setItem("carrito", JSON.stringify(carrito));
+    actualizarContadorCarrito();
+
+    const modal = document.getElementById("modalConfirmacion");
+    if (modal) modal.style.display = "flex";
+}
+
+function actualizarContadorCarrito() {
+    let carrito = JSON.parse(localStorage.getItem("carrito")) || [];
+    const badge = document.getElementById("cart-count");
+    if (badge) badge.innerText = carrito.length;
+}
+
+// ─── Modal ───────────────────────────────────────────────────────────────────
+
+function cerrarModal() {
+    const modal = document.getElementById("modalConfirmacion");
+    if (modal) modal.style.display = "none";
+}
+
+window.onclick = function (event) {
+    const modal = document.getElementById("modalConfirmacion");
+    if (modal && event.target === modal) cerrarModal();
+};
+
+// ─── Panel perfil ─────────────────────────────────────────────────────────────
+
+function toggleProfile() {
+    const panel = document.getElementById("userPanel");
+    if (!panel) return;
+
+    isProfileOpen = !isProfileOpen;
+    panel.classList.toggle("open", isProfileOpen);
+
+    if (isProfileOpen) createOverlay();
+    else removeOverlay();
+}
+
+function createOverlay() {
+    if (document.getElementById("overlay")) return;
+    const div = document.createElement("div");
+    div.id = "overlay";
+    div.className = "panel-overlay";
+    div.style.display = "block";
     div.onclick = toggleProfile;
     document.body.appendChild(div);
 }
 
 function removeOverlay() {
-    const overlay = document.getElementById('overlay');
+    const overlay = document.getElementById("overlay");
     if (overlay) overlay.remove();
 }
 
-// CARRITO
-function addToCart(nombre, precio) {
-    let carrito = JSON.parse(localStorage.getItem("carrito")) || [];
+// ─── Favoritos ───────────────────────────────────────────────────────────────
 
-    carrito.push({
-        nombre: nombre,
-        precio: parseFloat(precio)
-    });
-
-    localStorage.setItem("carrito", JSON.stringify(carrito));
-
-    actualizarContadorCarrito();
-
-    const modal = document.getElementById('modalConfirmacion');
-    if (modal) {
-        modal.style.display = "flex";
-    }
-}
-
-function actualizarContadorCarrito() {
-    let carrito = JSON.parse(localStorage.getItem("carrito")) || [];
-    let cartBadge = document.getElementById('cart-count');
-
-    if (cartBadge) {
-        cartBadge.innerText = carrito.length;
-    }
-}
-
-// MODAL
-function cerrarModal() {
-    const modal = document.getElementById('modalConfirmacion');
-    if (modal) {
-        modal.style.display = "none";
-    }
-}
-
-// Cerrar modal al hacer clic fuera
-window.onclick = function(event) {
-    const modal = document.getElementById('modalConfirmacion');
-
-    if (modal && event.target === modal) {
-        cerrarModal();
-    }
-};
-
-// FAVORITOS
 function toggleFavorite(elemento) {
     const icono = elemento.querySelector("i");
-
+    if (!icono) return;
     if (icono.classList.contains("fa-regular")) {
-        icono.classList.remove("fa-regular");
-        icono.classList.add("fa-solid");
+        icono.classList.replace("fa-regular", "fa-solid");
     } else {
-        icono.classList.remove("fa-solid");
-        icono.classList.add("fa-regular");
+        icono.classList.replace("fa-solid", "fa-regular");
     }
+}
+
+// ─── Logout ──────────────────────────────────────────────────────────────────
+
+async function logout() {
+    await fetch("/api/auth/logout", { method: "POST" });
+    localStorage.removeItem("userName");
+    localStorage.removeItem("carrito");
+    window.location.href = "/experiencias/login.html";
 }
