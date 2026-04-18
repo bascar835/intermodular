@@ -23,20 +23,34 @@
                         <input id="titulo" required>
                     </div>
                     <div class="form-group">
-                        <label>Año</label>
-                        <input id="anyo" type="number" required>
+                        <label>Descripción</label>
+                        <textarea id="descripcion"></textarea>
                     </div>
                     <div class="form-group">
-                        <label>Duración</label>
-                        <input id="duracion" type="number" required>
+                        <label>Precio (€)</label>
+                        <input id="precio" type="number" step="0.01" required>
                     </div>
                     <div class="form-group">
-                        <label>Director</label>
-                        <select id="director"></select>
+                        <label>Ubicación</label>
+                        <input id="ubicacion">
                     </div>
                     <div class="form-group">
-                        <label>Sinopsis</label>
-                        <textarea id="sinopsis"></textarea>
+                        <label>Duración (horas)</label>
+                        <input id="duracion_horas" type="number" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Categoría</label>
+                        <select id="categoria_id"></select>
+                    </div>
+                    <div class="form-group">
+                        <label>Imagen actual</label>
+                        <div>
+                            <img id="imagen-actual" style="display:none;max-width:200px;border-radius:6px;margin-bottom:8px;">
+                            <span id="sin-imagen" style="color:#9ca3af;font-size:0.9em;">Sin imagen</span>
+                        </div>
+                        <label style="margin-top:8px;display:block;">Cambiar imagen (opcional)</label>
+                        <input id="imagen" type="file" accept="image/jpeg,image/png,image/webp" onchange="previewImagen()">
+                        <img id="preview" style="display:none;margin-top:10px;max-width:200px;border-radius:6px;">
                     </div>
 
                     <button class="btn-primary" type="submit">Guardar</button>

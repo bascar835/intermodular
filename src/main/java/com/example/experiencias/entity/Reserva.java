@@ -2,11 +2,15 @@ package com.example.experiencias.entity;
 
 import java.time.LocalDateTime;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 public class Reserva {
 
     private Integer id;
     private int usuario_id;
     private int experiencia_id;
+
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm")
     private LocalDateTime fecha_reserva;
     private int numero_personas;
     private Double precio_total;

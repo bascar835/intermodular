@@ -90,7 +90,15 @@ public class DB {
 
 	private static void bindParams(PreparedStatement stmt, Object[] params) throws SQLException {
 		for (int i = 0; i < params.length; i++) {
-			stmt.setObject(i + 1, params[i]);
+			Object param = params[i];
+			if (param instanceof PgEnum e) {
+				org.postgresql.util.PGobject pgObj = new org.postgresql.util.PGobject();
+				pgObj.setType(e.getPgType());
+				pgObj.setValue(e.getValue());
+				stmt.setObject(i + 1, pgObj);
+			} else {
+				stmt.setObject(i + 1, param);
+			}
 		}
 	}
 

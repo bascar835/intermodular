@@ -1,5 +1,7 @@
 // index.js — carga experiencias reales desde /api/experiencias
 
+const IMG_PLACEHOLDER = "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=500&q=80";
+
 let isProfileOpen = false;
 
 document.addEventListener("DOMContentLoaded", async function () {
@@ -13,12 +15,11 @@ document.addEventListener("DOMContentLoaded", async function () {
 async function cargarUsuarioSesion() {
     try {
         const res = await fetch("/api/auth/me");
-        if (!res.ok) return; // No logueado, modo público
+        if (!res.ok) return;
 
         const user = await res.json();
         localStorage.setItem("userName", user.name || "");
 
-        // Cambiar el enlace "Iniciar Sesión" por el nombre del usuario
         const loginLink = document.querySelector('a[href="login.html"]');
         if (loginLink) {
             loginLink.textContent = "👤 " + (user.name || "Mi cuenta");
@@ -26,7 +27,6 @@ async function cargarUsuarioSesion() {
             loginLink.onclick = (e) => { e.preventDefault(); toggleProfile(); };
         }
 
-        // Mostrar nombre en el panel lateral
         const panelTitle = document.querySelector("#userPanel .panel-header h3");
         if (panelTitle) panelTitle.textContent = user.name || "Mi Perfil";
 
@@ -46,7 +46,7 @@ async function cargarExperiencias() {
         const grid = document.querySelector(".experience-grid");
         if (!grid) return;
 
-        grid.innerHTML = ""; // Limpiar cards estáticas
+        grid.innerHTML = "";
 
         if (experiencias.length === 0) {
             grid.innerHTML = "<p style='color:var(--color-text-secondary)'>No hay experiencias disponibles.</p>";
@@ -62,17 +62,9 @@ async function cargarExperiencias() {
     }
 }
 
-// Genera el HTML de una card a partir de un objeto ExperienciaResumen
 function crearCard(exp) {
-    const imagenes = {
-        1: "https://images.unsplash.com/photo-1551632811-561732d1e306?auto=format&fit=crop&w=500&q=80",
-        2: "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&w=500&q=80",
-        3: "https://images.unsplash.com/photo-1554907984-15263bfd63bd?auto=format&fit=crop&w=500&q=80",
-        4: "https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?auto=format&fit=crop&w=500&q=80",
-        5: "https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=500&q=80",
-    };
-    const imgUrl = imagenes[exp.categoria_id] ||
-        "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=500&q=80";
+    // Usar imagen subida por el admin; si no tiene, mostrar placeholder
+    const imgUrl = exp.imagen_url || IMG_PLACEHOLDER;
 
     const card = document.createElement("div");
     card.className = "card";
@@ -103,7 +95,6 @@ function escapar(str) {
 
 // ─── Carrito ─────────────────────────────────────────────────────────────────
 
-// CORREGIDO: ahora guarda también el id de la experiencia
 function addToCart(id, nombre, precio) {
     let carrito = JSON.parse(localStorage.getItem("carrito")) || [];
     carrito.push({ id, nombre, precio: parseFloat(precio) });

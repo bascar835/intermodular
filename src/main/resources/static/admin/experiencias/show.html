@@ -11,15 +11,18 @@
 
     <div class="admin-main">
         <div class="admin-topbar">
-            <span class="page-title" id="titulo"></span>
+            <span class="page-title" id="titulo-header"></span>
             <div class="topbar-user"><span>👤</span><span class="user-name">Admin</span></div>
         </div>
         <div class="admin-content">
             <div class="admin-card" style="padding:24px;">
-                <p><strong>Año:</strong> <span id="anyo"></span></p>
-                <p><strong>Duración:</strong> <span id="duracion"></span></p>
-                <p><strong>Director:</strong> <span id="director"></span></p>
-                <p id="sinopsis" style="margin-top:16px;"></p>
+                <img id="imagen" style="display:none;max-width:320px;border-radius:8px;margin-bottom:20px;">
+                <p><strong>Título:</strong> <span id="titulo"></span></p>
+                <p style="margin-top:8px;"><strong>Descripción:</strong> <span id="descripcion"></span></p>
+                <p style="margin-top:8px;"><strong>Precio:</strong> <span id="precio"></span> €</p>
+                <p style="margin-top:8px;"><strong>Ubicación:</strong> <span id="ubicacion"></span></p>
+                <p style="margin-top:8px;"><strong>Duración:</strong> <span id="duracion_horas"></span> h</p>
+                <p style="margin-top:8px;"><strong>Categoría ID:</strong> <span id="categoria_id"></span></p>
                 <div style="margin-top:24px;display:flex;gap:8px;">
                     <a id="editar" class="btn-primary" style="background:#b45309;">Editar</a>
                     <a href="index.html" class="btn-primary" style="background:#6b7280;">Volver</a>

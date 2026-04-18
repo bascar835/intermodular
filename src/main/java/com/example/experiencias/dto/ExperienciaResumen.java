@@ -10,5 +10,6 @@ public record ExperienciaResumen(
     String ubicacion,
     int duracion_horas,
     int categoria_id,
-    LocalDateTime fecha_creacion
+    LocalDateTime fecha_creacion,
+    String imagen_url
 ) {}

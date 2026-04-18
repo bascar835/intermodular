@@ -8,11 +8,7 @@ import com.example.experiencias.entity.Experiencia;
 import com.example.experiencias.mapper.ExperienciaMapper;
 import com.example.experiencias.mapper.RowMapper;
 
-
 import database.DB;
-
-
-
 
 public class ExperienciaRepository extends BaseRepository<Experiencia> {
 
@@ -31,7 +27,8 @@ public class ExperienciaRepository extends BaseRepository<Experiencia> {
 
     @Override
     public String[] getColumnNames() {
-        return new String[] { "id", "titulo", "descripcion", "precio", "ubicacion", "duracion_horas", "categoria_id", "fecha_creacion" };
+        // fecha_creacion se excluye: tiene DEFAULT CURRENT_TIMESTAMP en la BD
+        return new String[] { "id", "titulo", "descripcion", "precio", "ubicacion", "duracion_horas", "categoria_id", "imagen_url" };
     }
 
     @Override
@@ -41,17 +38,19 @@ public class ExperienciaRepository extends BaseRepository<Experiencia> {
 
     @Override
     public Object[] getInsertValues(Experiencia e) {
-        return new Object[] { e.getTitulo(), e.getDescripcion(), e.getPrecio(), e.getUbicacion(), e.getDuracion_horas(), e.getCategoria_id(), e.getFecha_creacion() };
+        // 7 valores = columnas sin "id" ni "fecha_creacion"
+        return new Object[] { e.getTitulo(), e.getDescripcion(), e.getPrecio(), e.getUbicacion(), e.getDuracion_horas(), e.getCategoria_id(), e.getImagenUrl() };
     }
 
     @Override
     public Object[] getUpdateValues(Experiencia e) {
-        return new Object[] { e.getTitulo(), e.getDescripcion(), e.getPrecio(), e.getUbicacion(), e.getDuracion_horas(), e.getCategoria_id(), e.getFecha_creacion(), e.getId() };
+        // 7 valores de SET + id al final para el WHERE
+        return new Object[] { e.getTitulo(), e.getDescripcion(), e.getPrecio(), e.getUbicacion(), e.getDuracion_horas(), e.getCategoria_id(), e.getImagenUrl(), e.getId() };
     }
 
     public List<ExperienciaResumen> findResumen() {
         String sql = """
-            SELECT id, titulo, descripcion, precio, ubicacion, duracion_horas, categoria_id, fecha_creacion
+            SELECT id, titulo, descripcion, precio, ubicacion, duracion_horas, categoria_id, fecha_creacion, imagen_url
             FROM experiencias
             ORDER BY titulo
         """;
@@ -65,7 +64,10 @@ public class ExperienciaRepository extends BaseRepository<Experiencia> {
                 rs.getString("ubicacion"),
                 rs.getInt("duracion_horas"),
                 rs.getInt("categoria_id"),
-                rs.getTimestamp("fecha_creacion").toLocalDateTime()
+                rs.getTimestamp("fecha_creacion") != null
+                    ? rs.getTimestamp("fecha_creacion").toLocalDateTime()
+                    : null,
+                rs.getString("imagen_url")
             )
         );
     }

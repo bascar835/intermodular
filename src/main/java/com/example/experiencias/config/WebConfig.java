@@ -2,6 +2,7 @@ package com.example.experiencias.config;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import com.example.experiencias.interceptor.AuthInterceptor;
@@ -22,19 +23,15 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
 
-        // --- AuthInterceptor ---
-        // Protege rutas que requieren sesión activa.
-        // Se excluyen: auth (login/register), recursos estáticos públicos y la home.
         registry.addInterceptor(authInterceptor)
                 .addPathPatterns(
-                    "/api/reservas/**",      // Reservas siempre requieren login
-                   // "/api/users/**",         // Gestión de usuarios
+                    "/api/reservas/**",
                     "/experiencias/reservas.html"
                 )
                 .excludePathPatterns(
-                    "/api/auth/**",          // Login, register, logout
-                    "/api/experiencias/**",  // Catálogo público
-                    "/api/categorias/**",    // Categorías públicas
+                    "/api/auth/**",
+                    "/api/experiencias/**",
+                    "/api/categorias/**",
                     "/api/test",
                     "/**/*.html",
                     "/**/*.css",
@@ -46,13 +43,14 @@ public class WebConfig implements WebMvcConfigurer {
                     "/index.html"
                 );
 
-        // --- RoleInterceptor ---
-        // Solo deja pasar a ROLE_ADMIN.
-        // Se aplica únicamente a rutas /admin/** y /api/admin/**
-       // registry.addInterceptor(roleInterceptor)
-          //      .addPathPatterns(
-                  //  "/admin/**",
-                   // "/api/admin/**"
-              //  );
+        // registry.addInterceptor(roleInterceptor)
+        //         .addPathPatterns("/admin/**", "/api/admin/**");
+    }
+
+    // Sirve los archivos subidos desde uploads/ como recursos estáticos en /uploads/**
+    @Override
+    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        registry.addResourceHandler("/uploads/**")
+                .addResourceLocations("file:uploads/");
     }
 }
