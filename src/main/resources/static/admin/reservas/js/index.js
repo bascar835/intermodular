@@ -1,40 +1,51 @@
-async function cargarReservas() {
-    const response = await authFetch("/api/admin/reservas");
-    if (!response) return;
+async function cargarPeliculas() {
 
-    const reservas = await response.json();
+    const response = await fetch("/api/admin/categorias");
+    const peliculas = await response.json();
 
-    const tabla = document.getElementById("tabla-reservas");
-    tabla.innerHTML = "";
+    const tabla = document.getElementById("tabla-peliculas");
 
-    reservas.forEach(r => {
+    peliculas.forEach(p => {
+
         const tr = document.createElement("tr");
+
         tr.innerHTML = `
-            <td>${r.id}</td>
-            <td>${r.usuario_id}</td>
-            <td>${r.experiencia_id}</td>
-            <td>${r.fecha_reserva}</td>
-            <td>${r.numero_personas}</td>
-            <td>${r.precio_total} €</td>
-            <td>${r.estado}</td>
+            <td>${p.titulo}</td>
+            <td>${p.anyo}</td>
+			<td>${p.duracion}</td>
             <td>
-                <a href="show.html?id=${r.id}" class="btn btn-sm btn-info">Ver</a>
-                <a href="edit.html?id=${r.id}" class="btn btn-sm btn-warning">Editar</a>
-                <button class="btn btn-sm btn-danger" onclick="eliminar(${r.id})">Eliminar</button>
+
+                <a href="show.html?id=${p.id}"
+                   class="btn btn-sm btn-info">
+                   Ver
+                </a>
+
+                <a href="edit.html?id=${p.id}"
+                   class="btn btn-sm btn-warning">
+                   Editar
+                </a>
+
+                <button class="btn btn-sm btn-danger"
+                        onclick="eliminar(${p.id})">
+                        Eliminar
+                </button>
+
             </td>
         `;
+
         tabla.appendChild(tr);
     });
 }
 
 async function eliminar(id) {
-    if (!confirm("¿Eliminar esta reserva?")) return;
 
-    await authFetch(`/api/admin/reservas/${id}`, {
+    if (!confirm("¿Eliminar esta película?")) return;
+
+    await fetch(`/api/admin/peliculas/${id}`, {
         method: "DELETE"
     });
 
     location.reload();
 }
 
-cargarReservas();
+cargarPeliculas();

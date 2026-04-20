@@ -1,48 +1,59 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Nuevo usuario | XPerioPRO Admin</title>
-<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/admin/css/admin-layout.css">
+<title>Nueva película</title>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="/css/app.css">
+
 </head>
+
 <body>
-    <div class="admin-main">
-        <div class="admin-topbar">
-            <span class="page-title">Nuevo usuario</span>
-            <div class="topbar-user"><span>👤</span><span class="user-name">Admin</span></div>
-        </div>
-        <div class="admin-content">
-            <div class="admin-card" style="padding:24px;">
-                <form class="admin-form" onsubmit="guardar(event)">
-                    <div class="form-group">
-                        <label>Nombre</label>
-                        <input id="nombre" placeholder="Nombre" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Email</label>
-                        <input id="email" type="email" placeholder="Email" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Contraseña</label>
-                        <input id="password" type="password" placeholder="Contraseña" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Rol</label>
-                        <select id="rol">
-                            <option value="ROLE_USER">Usuario</option>
-                            <option value="ROLE_ADMIN">Admin</option>
-                        </select>
-                    </div>
-                    <button class="btn-primary" type="submit">Guardar</button>
-                    <a href="index.html" class="btn-primary" style="background:#6b7280;margin-left:8px;">Cancelar</a>
-                </form>
-            </div>
-        </div>
-    </div>
-<script src="/js/auth.js"></script>
+
+<div class="container">
+
+<h1>Nueva película</h1>
+
+<form onsubmit="guardar(event)">
+
+<div class="mb-3">
+<label class="form-label">Título</label>
+<input id="titulo" class="form-control" required>
+</div>
+
+<div class="mb-3">
+<label class="form-label">Año</label>
+<input id="anyo" type="number" class="form-control" required>
+</div>
+
+<div class="mb-3">
+<label class="form-label">Duración</label>
+<input id="duracion" type="number" class="form-control" required>
+</div>
+
+<div class="mb-3">
+<label class="form-label">Director</label>
+<select id="director" class="form-select"></select>
+</div>
+
+<div class="mb-3">
+<label class="form-label">Sinopsis</label>
+<textarea id="sinopsis" class="form-control"></textarea>
+</div>
+
+<button class="btn btn-primary">Guardar</button>
+
+<a href="index.html" class="btn btn-secondary">
+Cancelar
+</a>
+
+</form>
+
+</div>
+
 <script src="js/create.js"></script>
-<script src="/admin/js/admin-sidebar.js"></script>
+
 </body>
 </html>

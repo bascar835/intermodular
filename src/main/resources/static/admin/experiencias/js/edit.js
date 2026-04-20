@@ -1,88 +1,74 @@
 function obtenerId() {
-    return new URLSearchParams(window.location.search).get("id");
+
+    const params = new URLSearchParams(window.location.search);
+    return params.get("id");
 }
 
-function previewImagen() {
-    const file = document.getElementById("imagen").files[0];
-    const preview = document.getElementById("preview");
+async function cargarDirectores() {
 
-    if (!file) {
-        preview.style.display = "none";
-        preview.src = "";
-        return;
-    }
+    const response = await fetch("/api/admin/directores");
+    const directores = await response.json();
 
-    preview.src = URL.createObjectURL(file);
-    preview.style.display = "block";
-}
+    const select = document.getElementById("director");
 
-async function cargarCategorias(selectedId) {
-    const response = await authFetch("/api/admin/categorias");
-    if (!response) return;
-    const categorias = await response.json();
+    directores.forEach(d => {
 
-    const select = document.getElementById("categoria_id");
-    categorias.forEach(c => {
         const option = document.createElement("option");
-        option.value = c.id;
-        option.textContent = c.nombre;
-        if (c.id === selectedId) option.selected = true;
+
+        option.value = d.id;
+        option.textContent = d.nombre;
+
         select.appendChild(option);
     });
 }
 
 async function cargar() {
+
     const id = obtenerId();
-    const response = await authFetch(`/api/admin/experiencias/${id}`);
-    if (!response) return;
-    const exp = await response.json();
 
-    document.getElementById("titulo").value        = exp.titulo;
-    document.getElementById("descripcion").value   = exp.descripcion || "";
-    document.getElementById("precio").value        = exp.precio;
-    document.getElementById("ubicacion").value     = exp.ubicacion || "";
-    document.getElementById("duracion_horas").value= exp.duracion_horas;
+    const response = await fetch(`/api/admin/peliculas/${id}`);
+    const p = await response.json();
 
-    // Mostrar imagen actual si existe
-    const imgActual = document.getElementById("imagen-actual");
-    const sinImagen = document.getElementById("sin-imagen");
-
-    if (exp.imagen_url) {
-        imgActual.src = exp.imagen_url;
-        imgActual.style.display = "block";
-        sinImagen.style.display = "none";
-    } else {
-        imgActual.style.display = "none";
-        sinImagen.style.display = "inline";
-    }
-
-    await cargarCategorias(exp.categoria_id);
+    titulo.value = p.titulo;
+    anyo.value = p.anyo;
+    duracion.value = p.duracion;
+    sinopsis.value = p.sinopsis;
+    director.value = p.director_id;
 }
 
 async function guardar(e) {
+
     e.preventDefault();
 
     const id = obtenerId();
 
-    const fd = new FormData();
-    fd.append("titulo",        document.getElementById("titulo").value);
-    fd.append("descripcion",   document.getElementById("descripcion").value);
-    fd.append("precio",        document.getElementById("precio").value);
-    fd.append("ubicacion",     document.getElementById("ubicacion").value);
-    fd.append("duracion_horas",document.getElementById("duracion_horas").value);
-    fd.append("categoria_id",  document.getElementById("categoria_id").value);
+    const pelicula = {
 
-    const file = document.getElementById("imagen").files[0];
-    if (file) {
-        fd.append("imagen", file);
-    }
+        titulo: titulo.value,
+        anyo: anyo.value,
+        duracion: duracion.value,
+        sinopsis: sinopsis.value,
+        director_id: director.value
+    };
 
-    await authFetch(`/api/admin/experiencias/${id}`, {
+    await fetch(`/api/admin/peliculas/${id}`, {
+
         method: "PUT",
-        body: fd
+
+        headers: {
+            "Content-Type": "application/json"
+        },
+
+        body: JSON.stringify(pelicula)
     });
 
     location.href = "index.html";
 }
 
-cargar();
+async function init() {
+
+    await cargarDirectores();
+    await cargar();
+}
+
+init();

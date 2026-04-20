@@ -1,54 +1,47 @@
-function previewImagen() {
-    const file = document.getElementById("imagen").files[0];
-    const preview = document.getElementById("preview");
+async function cargarDirectores() {
 
-    if (!file) {
-        preview.style.display = "none";
-        preview.src = "";
-        return;
-    }
+    const response = await fetch("/api/admin/directores");
+    const directores = await response.json();
 
-    preview.src = URL.createObjectURL(file);
-    preview.style.display = "block";
-}
+    const select = document.getElementById("director");
 
-async function cargarCategorias() {
-    const response = await authFetch("/api/admin/categorias");
-    if (!response) return;
-    const categorias = await response.json();
+    directores.forEach(d => {
 
-    const select = document.getElementById("categoria_id");
-    categorias.forEach(c => {
         const option = document.createElement("option");
-        option.value = c.id;
-        option.textContent = c.nombre;
+
+        option.value = d.id;
+        option.textContent = d.nombre;
+
         select.appendChild(option);
     });
 }
 
 async function guardar(e) {
+
     e.preventDefault();
 
-    const fd = new FormData();
-    fd.append("titulo",        document.getElementById("titulo").value);
-    fd.append("descripcion",   document.getElementById("descripcion").value);
-    fd.append("precio",        document.getElementById("precio").value);
-    fd.append("ubicacion",     document.getElementById("ubicacion").value);
-    fd.append("duracion_horas",document.getElementById("duracion_horas").value);
-    fd.append("categoria_id",  document.getElementById("categoria_id").value);
+    const pelicula = {
 
-    const file = document.getElementById("imagen").files[0];
-    if (file) {
-        fd.append("imagen", file);
-    }
+        titulo: titulo.value,
+        anyo: anyo.value,
+        duracion: duracion.value,
+        sinopsis: sinopsis.value,
+        director_id: director.value
 
-    await authFetch("/api/admin/experiencias", {
+    };
+
+    await fetch("/api/admin/peliculas", {
+
         method: "POST",
-        body: fd
-        // SIN Content-Type: el navegador lo pone automáticamente con el boundary correcto
+
+        headers: {
+            "Content-Type": "application/json"
+        },
+
+        body: JSON.stringify(pelicula)
     });
 
     location.href = "index.html";
 }
 
-cargarCategorias();
+cargarDirectores();

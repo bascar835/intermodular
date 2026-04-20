@@ -9,15 +9,9 @@ async function cargarCategoria() {
     const c = await response.json();
 
     document.getElementById("titulo-header").textContent = c.nombre;
-    document.getElementById("nombre").textContent        = c.nombre;
-    document.getElementById("descripcion").textContent   = c.descripcion || "-";
+    document.getElementById("nombre").textContent = c.nombre;
+    document.getElementById("descripcion").textContent = c.descripcion;
     document.getElementById("editar").href = `edit.html?id=${id}`;
-
-    const img = document.getElementById("imagen");
-    if (c.imagen_url) {
-        img.src = c.imagen_url;
-        img.style.display = "block";
-    }
 }
 
 cargarCategoria();
