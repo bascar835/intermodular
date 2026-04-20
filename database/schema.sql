@@ -95,3 +95,10 @@ ON reservas(usuario_id);
 
 CREATE INDEX idx_reservas_experiencia
 ON reservas(experiencia_id);
+
+
+ALTER TABLE categorias
+    ADD COLUMN IF NOT EXISTS imagen_url VARCHAR(500);
+
+ALTER TABLE experiencias
+    ADD COLUMN IF NOT EXISTS imagen_url VARCHAR(500);
