@@ -1,20 +1,47 @@
+async function cargarDirectores() {
+
+    const response = await fetch("/api/admin/directores");
+    const directores = await response.json();
+
+    const select = document.getElementById("director");
+
+    directores.forEach(d => {
+
+        const option = document.createElement("option");
+
+        option.value = d.id;
+        option.textContent = d.nombre;
+
+        select.appendChild(option);
+    });
+}
+
 async function guardar(e) {
+
     e.preventDefault();
 
-    const response = await authFetch("/api/admin/users", {
+    const pelicula = {
+
+        titulo: titulo.value,
+        anyo: anyo.value,
+        duracion: duracion.value,
+        sinopsis: sinopsis.value,
+        director_id: director.value
+
+    };
+
+    await fetch("/api/admin/peliculas", {
+
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-            name: document.getElementById("nombre").value,
-            email: document.getElementById("email").value,
-            password: document.getElementById("password").value,
-            role: document.getElementById("rol").value
-        })
+
+        headers: {
+            "Content-Type": "application/json"
+        },
+
+        body: JSON.stringify(pelicula)
     });
 
-    if (response && response.ok) {
-        location.href = "index.html";
-    } else {
-        alert("Error al crear el usuario. Revisa los datos.");
-    }
+    location.href = "index.html";
 }
+
+cargarDirectores();

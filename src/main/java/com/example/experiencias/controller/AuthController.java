@@ -43,12 +43,14 @@ public class AuthController {
         try (Connection con = ds.getConnection()) {
             UserRepository repo = new UserRepository(con);
 
+            // Comprobar que el email no está ya en uso
             if (repo.findByEmail(body.email()).isPresent()) {
                 throw new ResponseStatusException(
                     HttpStatus.CONFLICT, "El email ya está registrado"
                 );
             }
 
+            // Crear el usuario con la contraseña hasheada
             User user = new User();
             user.setName(body.name());
             user.setEmail(body.email());
@@ -58,10 +60,10 @@ public class AuthController {
 
             repo.insert(user);
 
+            // Abrir sesión automáticamente tras el registro
             HttpSession session = request.getSession(true);
             session.setAttribute("userId", user.getId());
             session.setAttribute("role", user.getRole());
-            session.setAttribute("name", user.getName());
 
             return new UserResponse(
                 user.getId(), user.getName(), user.getEmail(), user.getRole()
@@ -83,21 +85,23 @@ public class AuthController {
         try (Connection con = ds.getConnection()) {
             UserRepository repo = new UserRepository(con);
 
+            // Buscar el usuario por email
             User user = repo.findByEmail(body.email())
                 .orElseThrow(() -> new ResponseStatusException(
                     HttpStatus.UNAUTHORIZED, "Credenciales incorrectas"
                 ));
 
+            // Verificar la contraseña contra el hash almacenado
             if (!encoder.matches(body.password(), user.getPassword())) {
                 throw new ResponseStatusException(
                     HttpStatus.UNAUTHORIZED, "Credenciales incorrectas"
                 );
             }
 
+            // Escribir en sesión — esto es lo que leen AuthInterceptor y RoleInterceptor
             HttpSession session = request.getSession(true);
             session.setAttribute("userId", user.getId());
             session.setAttribute("role", user.getRole());
-            session.setAttribute("name", user.getName());
 
             return new UserResponse(
                 user.getId(), user.getName(), user.getEmail(), user.getRole()
@@ -120,25 +124,5 @@ public class AuthController {
         if (session != null) {
             session.invalidate();
         }
-    }
-
-    // -------------------------
-    // GET /api/auth/me
-    // Devuelve el usuario logueado o 401 si no hay sesión.
-    // Usado desde el frontend para saber si hay sesión activa y qué rol tiene.
-    // -------------------------
-    @GetMapping("/me")
-    public UserResponse me(HttpServletRequest request) {
-        HttpSession session = request.getSession(false);
-
-        if (session == null || session.getAttribute("userId") == null) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "No autenticado");
-        }
-
-        Integer userId = (Integer) session.getAttribute("userId");
-        String role    = (String)  session.getAttribute("role");
-        String name    = (String)  session.getAttribute("name");
-
-        return new UserResponse(userId, name, null, role);
     }
 }

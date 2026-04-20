@@ -1,23 +1,23 @@
 function obtenerId() {
-    return new URLSearchParams(window.location.search).get("id");
+
+    const params = new URLSearchParams(window.location.search);
+    return params.get("id");
 }
 
-async function cargarReserva() {
+async function cargarPelicula() {
+
     const id = obtenerId();
-    const response = await authFetch(`/api/admin/reservas/${id}`);
-    if (!response) return;
 
-    const r = await response.json();
+    const response = await fetch(`/api/admin/peliculas/${id}`);
+    const p = await response.json();
 
-    document.getElementById("titulo-header").textContent = `Reserva #${r.id}';
-    document.getElementById("id").textContent = r.id;
-    document.getElementById("usuario_id").textContent = r.usuario_id;
-    document.getElementById("experiencia_id").textContent = r.experiencia_id;
-    document.getElementById("fecha_reserva").textContent = r.fecha_reserva;
-    document.getElementById("numero_personas").textContent = r.numero_personas;
-    document.getElementById("precio_total").textContent = r.precio_total + " €";
-    document.getElementById("estado").textContent = r.estado;
+    document.getElementById("titulo").textContent = p.titulo;
+    document.getElementById("anyo").textContent = p.anyo;
+    document.getElementById("duracion").textContent = p.duracion;
+    document.getElementById("director").textContent = p.director;
+    document.getElementById("sinopsis").textContent = p.sinopsis;
+
     document.getElementById("editar").href = `edit.html?id=${id}`;
 }
 
-cargarReserva();
+cargarPelicula();

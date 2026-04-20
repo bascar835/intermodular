@@ -5,15 +5,13 @@ public class Categoria {
     private Integer id;
     private String nombre;
     private String descripcion;
-    private String imagenUrl;
 
     public Categoria() {}
 
-    public Categoria(Integer id, String nombre, String descripcion, String imagenUrl) {
+    public Categoria(Integer id, String nombre, String descripcion) {
         this.id = id;
         this.nombre = nombre;
         this.descripcion = descripcion;
-        this.imagenUrl = imagenUrl;
     }
 
     public Integer getId() { return id; }
@@ -24,9 +22,6 @@ public class Categoria {
 
     public String getDescripcion() { return descripcion; }
     public void setDescripcion(String descripcion) { this.descripcion = descripcion; }
-
-    public String getImagenUrl() { return imagenUrl; }
-    public void setImagenUrl(String imagenUrl) { this.imagenUrl = imagenUrl; }
 
     @Override
     public String toString() {

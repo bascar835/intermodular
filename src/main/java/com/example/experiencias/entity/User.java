@@ -73,16 +73,4 @@ public class User {
     public void setFechaCreacion(LocalDateTime fechaCreacion) {
         this.fechaCreacion = fechaCreacion;
     }
-
-
-@Override
-public String toString() {
-    return "User{" +
-            "id=" + id +
-            ", name='" + name + '\'' +
-            ", email='" + email + '\'' +
-            ", role='" + role + '\'' +
-            ", fechaCreacion=" + fechaCreacion +
-            '}';
-}
 }
