@@ -1,3 +1,7 @@
+import {app} from "/js/core/app.js";
+import {api} from "/js/core/api.js";
+
+
 function obtenerId() {
     return new URLSearchParams(window.location.search).get("id");
 }
