@@ -43,8 +43,8 @@ public class WebConfig implements WebMvcConfigurer {
                     "/index.html"
                 );
 
-        // registry.addInterceptor(roleInterceptor)
-        //         .addPathPatterns("/admin/**", "/api/admin/**");
+        registry.addInterceptor(roleInterceptor)
+                .addPathPatterns("/admin/**", "/api/admin/**");
     }
 
     // Sirve los archivos subidos desde uploads/ como recursos estáticos en /uploads/**

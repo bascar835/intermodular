@@ -12,13 +12,12 @@ public class Experiencia {
     private int duracion_horas;
     private int categoria_id;
     private LocalDateTime fecha_creacion;
-    private String imagenUrl;
 
     public Experiencia() {}
 
     public Experiencia(Integer id, String titulo, String descripcion, double precio,
                        String ubicacion, int duracion_horas, int categoria_id,
-                       LocalDateTime fecha_creacion, String imagenUrl) {
+                       LocalDateTime fecha_creacion) {
         this.id = id;
         this.titulo = titulo;
         this.descripcion = descripcion;
@@ -27,7 +26,6 @@ public class Experiencia {
         this.duracion_horas = duracion_horas;
         this.categoria_id = categoria_id;
         this.fecha_creacion = fecha_creacion;
-        this.imagenUrl = imagenUrl;
     }
 
     public Integer getId() { return id; }
@@ -46,8 +44,6 @@ public class Experiencia {
     public void setCategoria_id(int categoria_id) { this.categoria_id = categoria_id; }
     public LocalDateTime getFecha_creacion() { return fecha_creacion; }
     public void setFecha_creacion(LocalDateTime fecha_creacion) { this.fecha_creacion = fecha_creacion; }
-    public String getImagenUrl() { return imagenUrl; }
-    public void setImagenUrl(String imagenUrl) { this.imagenUrl = imagenUrl; }
 
     @Override
     public String toString() {

@@ -62,14 +62,15 @@ public class UserRepository extends BaseRepository<User> {
         };
     }
 
-    // ✅ INSERT con cast explícito al ENUM de PostgreSQL
+    // ✅ INSERT con cast explícito al ENUM de PostgreSQL + RETURNING id (necesario en PostgreSQL)
     @Override
     public int insert(User user) {
         String sql = """
             INSERT INTO usuarios (nombre, email, password, rol, fecha_registro)
             VALUES (?, ?, ?, ?::rol_usuario, ?)
+            RETURNING id
         """;
-        int id = DB.insert(con, sql, getInsertValues(user));
+        int id = DB.insertReturning(con, sql, getInsertValues(user));
         setPrimaryKey(user, id);
         return id;
     }

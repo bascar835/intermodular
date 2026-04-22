@@ -43,12 +43,10 @@
                         <select id="categoria_id"></select>
                     </div>
                     <div class="form-group">
-                        <label>Imagen actual</label>
-                        <div>
-                            <img id="imagen-actual" style="display:none;max-width:200px;border-radius:6px;margin-bottom:8px;">
-                            <span id="sin-imagen" style="color:#9ca3af;font-size:0.9em;">Sin imagen</span>
-                        </div>
-                        <label style="margin-top:8px;display:block;">Cambiar imagen (opcional)</label>
+                        <label>Imágenes actuales</label>
+                        <div id="galeria-actual" style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:12px;"></div>
+                        <span id="sin-imagen" style="color:#9ca3af;font-size:0.9em;display:none;">Sin imágenes</span>
+                        <label style="margin-top:8px;display:block;">Añadir nueva imagen</label>
                         <input id="imagen" type="file" accept="image/jpeg,image/png,image/webp" onchange="previewImagen()">
                         <img id="preview" style="display:none;margin-top:10px;max-width:200px;border-radius:6px;">
                     </div>

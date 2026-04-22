@@ -16,7 +16,13 @@
         </div>
         <div class="admin-content">
             <div class="admin-card" style="padding:24px;">
-                <img id="imagen" style="display:none;max-width:320px;border-radius:8px;margin-bottom:20px;">
+                <!-- Galería de imágenes -->
+                <div id="galeria-wrap" style="margin-bottom:20px;display:none;">
+                    <div style="width:100%;max-width:480px;aspect-ratio:16/9;background:#111;border-radius:10px;overflow:hidden;margin-bottom:10px;">
+                        <img id="galeria-principal" src="" alt="" style="width:100%;height:100%;object-fit:cover;display:block;transition:opacity .2s;">
+                    </div>
+                    <div id="galeria-thumbs" style="display:flex;gap:8px;flex-wrap:wrap;"></div>
+                </div>
                 <p><strong>Título:</strong> <span id="titulo"></span></p>
                 <p style="margin-top:8px;"><strong>Descripción:</strong> <span id="descripcion"></span></p>
                 <p style="margin-top:8px;"><strong>Precio:</strong> <span id="precio"></span> €</p>

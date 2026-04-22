@@ -76,8 +76,9 @@ public class ReservaRepository extends BaseRepository<Reserva> {
         String sql = """
             INSERT INTO reservas (usuario_id, experiencia_id, fecha_reserva, numero_personas, precio_total, estado)
             VALUES (?, ?, ?, ?, ?, ?::estado_reserva)
+            RETURNING id
         """;
-        int id = DB.insert(con, sql,
+        int id = DB.insertReturning(con, sql,
             r.getUsuario_id(),
             r.getExperiencia_id(),
             r.getFecha_reserva(),

@@ -18,8 +18,7 @@ public class ExperienciaMapper implements RowMapper<Experiencia> {
             rs.getInt("categoria_id"),
             rs.getTimestamp("fecha_creacion") != null
                 ? rs.getTimestamp("fecha_creacion").toLocalDateTime()
-                : null,
-            rs.getString("imagen_url")
+                : null
         );
     }
 }
