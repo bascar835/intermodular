@@ -1,4 +1,4 @@
-/*
+
 package com.example.experiencias.security;
 
 import jakarta.servlet.http.HttpSession;
@@ -36,4 +36,3 @@ public class CurrentUser {
 		return this.role != null && this.role.equals(role);
 	}
 }
-*/

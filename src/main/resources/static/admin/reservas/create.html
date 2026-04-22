@@ -17,12 +17,16 @@
             <div class="admin-card" style="padding:24px;">
                 <form class="admin-form" onsubmit="guardar(event)">
                     <div class="form-group">
-                        <label>Usuario ID</label>
-                        <input id="usuario_id" type="number" required>
+                        <label>Usuario</label>
+                        <select id="usuario_id" required>
+                            <option value="">Cargando usuarios…</option>
+                        </select>
                     </div>
                     <div class="form-group">
-                        <label>Experiencia ID</label>
-                        <input id="experiencia_id" type="number" required>
+                        <label>Experiencia</label>
+                        <select id="experiencia_id" required>
+                            <option value="">Cargando experiencias…</option>
+                        </select>
                     </div>
                     <div class="form-group">
                         <label>Fecha Reserva</label>
@@ -30,15 +34,19 @@
                     </div>
                     <div class="form-group">
                         <label>Número de personas</label>
-                        <input id="numero_personas" type="number" required>
+                        <input id="numero_personas" type="number" min="1" value="1" required>
                     </div>
                     <div class="form-group">
-                        <label>Precio total</label>
-                        <input id="precio_total" type="number" step="0.01" required>
+                        <label>Precio total (€)</label>
+                        <input id="precio_total" type="number" step="0.01" min="0.01" required>
                     </div>
                     <div class="form-group">
                         <label>Estado</label>
-                        <input id="estado" value="pendiente" required>
+                        <select id="estado" required>
+                            <option value="pendiente">Pendiente</option>
+                            <option value="confirmada">Confirmada</option>
+                            <option value="cancelada">Cancelada</option>
+                        </select>
                     </div>
                     <button class="btn-primary" type="submit">Guardar</button>
                     <a href="index.html" class="btn-primary" style="background:#6b7280;margin-left:8px;">Cancelar</a>

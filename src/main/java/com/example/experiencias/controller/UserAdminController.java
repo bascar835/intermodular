@@ -12,10 +12,13 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import com.example.experiencias.dto.UserRequest;
 import com.example.experiencias.dto.UserResponse;
 import com.example.experiencias.entity.User;
 import com.example.experiencias.exception.DataAccessException;
 import com.example.experiencias.repository.UserRepository;
+
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/admin/users")
@@ -29,23 +32,21 @@ public class UserAdminController {
         this.passwordEncoder = passwordEncoder;
     }
 
-    // GET /api/admin/users → lista todos los usuarios
+    // GET /api/admin/users
     @GetMapping
     public List<UserResponse> index() {
         try (Connection con = ds.getConnection()) {
-            UserRepository repo = new UserRepository(con);
-            return repo.findAllResponses();
+            return new UserRepository(con).findAllResponses();
         } catch (SQLException e) {
             throw new DataAccessException(e);
         }
     }
 
-    // GET /api/admin/users/{id} → detalle de un usuario
+    // GET /api/admin/users/{id}
     @GetMapping("/{id}")
     public UserResponse show(@PathVariable int id) {
         try (Connection con = ds.getConnection()) {
-            UserRepository repo = new UserRepository(con);
-            return repo.findResponseById(id)
+            return new UserRepository(con).findResponseById(id)
                 .orElseThrow(() -> new ResponseStatusException(
                     HttpStatus.NOT_FOUND, "Usuario no encontrado con id: " + id));
         } catch (SQLException e) {
@@ -53,70 +54,62 @@ public class UserAdminController {
         }
     }
 
-    // POST /api/admin/users → crear usuario
+    // POST /api/admin/users
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public UserResponse store(@RequestBody User user) {
+    public UserResponse store(@Valid @RequestBody UserRequest req) {
         try (Connection con = ds.getConnection()) {
-            UserRepository repo = new UserRepository(con);
-
+            User user = new User();
+            user.setName(req.name());
+            user.setEmail(req.email());
+            user.setPassword(passwordEncoder.encode(req.password()));
+            user.setRole(req.role() != null ? req.role() : "ROLE_USER");
             user.setFechaCreacion(LocalDateTime.now());
 
-            // 🔑 Codificar contraseña antes de guardar
-            user.setPassword(passwordEncoder.encode(user.getPassword()));
+            new UserRepository(con).insert(user);
 
-            repo.insert(user);
-
-            return new UserResponse(
-                user.getId(),
-                user.getName(),
-                user.getEmail(),
-                user.getRole()
-            );
+            return new UserResponse(user.getId(), user.getName(), user.getEmail(), user.getRole());
         } catch (SQLException e) {
             throw new DataAccessException(e);
         }
     }
 
-    // PUT /api/admin/users/{id} → actualizar usuario
+    // PUT /api/admin/users/{id}
     @PutMapping("/{id}")
-    public UserResponse update(@PathVariable int id, @RequestBody User user) {
+    public UserResponse update(@PathVariable int id, @Valid @RequestBody UserRequest req) {
         try (Connection con = ds.getConnection()) {
             UserRepository repo = new UserRepository(con);
 
-            user.setId(id);
+            // Verificar que existe
+            repo.findResponseById(id)
+                .orElseThrow(() -> new ResponseStatusException(
+                    HttpStatus.NOT_FOUND, "Usuario no encontrado con id: " + id));
 
-            // 🔑 Solo codificar si viene nueva contraseña
-            if (user.getPassword() != null && !user.getPassword().isEmpty()) {
-                user.setPassword(passwordEncoder.encode(user.getPassword()));
-            }
+            User user = new User();
+            user.setId(id);
+            user.setName(req.name());
+            user.setEmail(req.email());
+            user.setPassword(passwordEncoder.encode(req.password()));
+            user.setRole(req.role() != null ? req.role() : "ROLE_USER");
 
             repo.update(user);
 
-            return new UserResponse(
-                user.getId(),
-                user.getName(),
-                user.getEmail(),
-                user.getRole()
-            );
+            return new UserResponse(user.getId(), user.getName(), user.getEmail(), user.getRole());
         } catch (SQLException e) {
             throw new DataAccessException(e);
         }
     }
 
-    // DELETE /api/admin/users/{id} → eliminar usuario
+    // DELETE /api/admin/users/{id}
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void destroy(@PathVariable int id) {
         try (Connection con = ds.getConnection()) {
-            UserRepository repo = new UserRepository(con);
-
-            boolean deleted = repo.delete(id);
+            boolean deleted = new UserRepository(con).delete(id);
             if (!deleted) {
                 throw new ResponseStatusException(
                     HttpStatus.NOT_FOUND, "Usuario no encontrado con id: " + id);
             }
-
         } catch (SQLException e) {
             throw new DataAccessException(e);
         }
