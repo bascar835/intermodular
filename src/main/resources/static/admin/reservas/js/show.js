@@ -19,6 +19,8 @@ async function cargarReserva() {
     }
 
     const r = await response.json();
+	
+	console.log(r);
 
     // Actualizar el título del topbar con el número de reserva
     document.querySelector(".page-title").textContent = `Reserva #${r.id}`;
