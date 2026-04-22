@@ -17,6 +17,15 @@ public class RoleInterceptor implements HandlerInterceptor {
 
 		HttpSession session = request.getSession(false);
 
+		if (session == null) {
+			if (request.getRequestURI().startsWith("/api/")) {
+				response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+			} else {
+				response.sendRedirect("/");
+			}
+			return false;
+		}
+
 		String role = (String) session.getAttribute("role");
 
 		if (!"ROLE_ADMIN".equals(role)) {

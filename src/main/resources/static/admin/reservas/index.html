@@ -1,40 +1,57 @@
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Administración de Reservas</title>
-
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="/css/reservas.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reservas | XPerioPRO Admin</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/admin/css/admin-layout.css">
 </head>
 <body>
-<div class="container">
 
-    <h1>Reservas</h1>
+    <div class="admin-main">
 
-    <a href="create.html" class="btn btn-primary mb-3">Nueva Reserva</a>
+        <div class="admin-topbar">
+            <span class="page-title">Reservas</span>
+            <div class="topbar-user">
+                <span>👤</span>
+                <span class="user-name">Admin</span>
+            </div>
+        </div>
 
-    <table class="table table-bordered table-striped">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Usuario</th>
-                <th>Experiencia</th>
-                <th>Fecha</th>
-                <th>Personas</th>
-                <th>Precio</th>
-                <th>Estado</th>
-                <th>Acciones</th>
-            </tr>
-        </thead>
-        <tbody id="tabla-reservas">
-            <!-- Se rellena con JS -->
-        </tbody>
-    </table>
+        <div class="admin-content">
+            <div class="admin-card">
+                <div class="admin-card-header">
+                    <h2>Listado de reservas</h2>
+                    <a href="create.html" class="btn-primary">+ Nueva reserva</a>
+                </div>
+                <div class="table-wrapper">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Usuario</th>
+                                <th>Experiencia</th>
+                                <th>Fecha</th>
+                                <th>Personas</th>
+                                <th>Precio</th>
+                                <th>Estado</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabla-reservas"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
 
-</div>
+    </div>
 
-<script type="module" src="/js/admin/resevas/index.js"></script>
+    <script src="/admin/js/admin-sidebar.js"></script>
+	<script src="/js/auth.js"></script>
+    <script src="js/index.js"></script>
+	
 
 </body>
 </html>

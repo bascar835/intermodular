@@ -1,12 +1,17 @@
 package com.example.experiencias.repository;
 
 import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.List;
 
+import database.DB;
+import com.example.experiencias.dto.DirectorResumenResponse;
 import com.example.experiencias.entity.Director;
-import com.example.experiencias.mapper.DirectorMapper;
+import com.example.experiencias.exception.DataAccessException;
 import com.example.experiencias.mapper.RowMapper;
+import com.example.experiencias.mapper.DirectorMapper;
 
-public class DirectorRepository extends BaseRepository<Director> {
+public class DirectorRepository extends BaseRepository1<Director> {
 
 	public DirectorRepository(Connection con) {
 		super(con, new DirectorMapper());
@@ -27,6 +32,11 @@ public class DirectorRepository extends BaseRepository<Director> {
 	}
 	
 	@Override
+	public Integer getPrimaryKey(Director d) {
+		return d.getId();
+	}
+	
+	@Override
 	public void setPrimaryKey(Director p, int id) {
 		p.setId(id);
 	}
@@ -39,5 +49,32 @@ public class DirectorRepository extends BaseRepository<Director> {
 	@Override
 	public Object[] getUpdateValues(Director d) {
 		return new Object[] { d.getNombre(), d.getPais(), d.getId() };
+	}
+	
+	public List<DirectorResumenResponse> findAllResumen() {
+
+		String sql = """
+				SELECT d.id, d.nombre, d.pais,
+				(
+					SELECT url
+					FROM director_imagenes di
+					WHERE di.director_id = d.id
+					ORDER BY di.id ASC
+					LIMIT 1
+				) AS imagen
+				FROM directores d
+				ORDER BY d.nombre
+				""";
+
+		
+			return DB.queryMany(con, sql, 
+				rs -> new DirectorResumenResponse(
+					rs.getInt("id"), 
+					rs.getString("nombre"),
+					rs.getString("pais"), 
+					rs.getString("imagen")
+				)
+			);
+		
 	}
 }

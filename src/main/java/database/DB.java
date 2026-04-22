@@ -56,7 +56,7 @@ public class DB {
 
 	public static int insert(Connection con, String sql, Object... params) {
 		debug(sql, params);
-		
+
 		try (PreparedStatement stmt = con.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS)) {
 			bindParams(stmt, params);
 			stmt.executeUpdate();
@@ -67,6 +67,28 @@ public class DB {
 			}
 
 			throw new DataAccessException("Falta AUTO_INCREMENT en la PK de la tabla");
+
+		} catch (SQLException e) {
+			throw new DataAccessException("Error ejecutando SQL insert: " + sql, e);
+		}
+	}
+
+	/**
+	 * INSERT con cláusula RETURNING para PostgreSQL.
+	 * Usar cuando el SQL incluye "RETURNING id" al final.
+	 * Necesario para PostgreSQL con ENUMs u otros tipos especiales.
+	 */
+	public static int insertReturning(Connection con, String sql, Object... params) {
+		debug(sql, params);
+
+		try (PreparedStatement stmt = con.prepareStatement(sql)) {
+			bindParams(stmt, params);
+			ResultSet rs = stmt.executeQuery(); // executeQuery porque RETURNING devuelve filas
+			if (rs.next()) {
+				return rs.getInt(1);
+			}
+
+			throw new DataAccessException("INSERT RETURNING no devolvió ningún ID generado");
 
 		} catch (SQLException e) {
 			throw new DataAccessException("Error ejecutando SQL insert: " + sql, e);
@@ -90,7 +112,15 @@ public class DB {
 
 	private static void bindParams(PreparedStatement stmt, Object[] params) throws SQLException {
 		for (int i = 0; i < params.length; i++) {
-			stmt.setObject(i + 1, params[i]);
+			Object param = params[i];
+			if (param instanceof PgEnum e) {
+				org.postgresql.util.PGobject pgObj = new org.postgresql.util.PGobject();
+				pgObj.setType(e.getPgType());
+				pgObj.setValue(e.getValue());
+				stmt.setObject(i + 1, pgObj);
+			} else {
+				stmt.setObject(i + 1, param);
+			}
 		}
 	}
 

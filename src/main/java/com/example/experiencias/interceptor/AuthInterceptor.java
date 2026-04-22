@@ -23,7 +23,7 @@ public class AuthInterceptor implements HandlerInterceptor {
 			if (path.startsWith("/api/")) {
 				response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 			} else {
-				response.sendRedirect("/login.html");
+				response.sendRedirect("experiencias/login.html");
 			}
 
 			return false;
