@@ -80,10 +80,12 @@ public class UserAdminController {
         try (Connection con = ds.getConnection()) {
             UserRepository repo = new UserRepository(con);
 
-            // Verificar que existe
-            repo.findResponseById(id)
-                .orElseThrow(() -> new ResponseStatusException(
-                    HttpStatus.NOT_FOUND, "Usuario no encontrado con id: " + id));
+            // Verificar que existe y obtener la fecha original para no sobreescribirla
+            User existing = repo.find(id);
+            if (existing == null) {
+                throw new ResponseStatusException(
+                    HttpStatus.NOT_FOUND, "Usuario no encontrado con id: " + id);
+            }
 
             User user = new User();
             user.setId(id);
@@ -91,6 +93,7 @@ public class UserAdminController {
             user.setEmail(req.email());
             user.setPassword(passwordEncoder.encode(req.password()));
             user.setRole(req.role() != null ? req.role() : "ROLE_USER");
+            user.setFechaCreacion(existing.getFechaCreacion()); // preservar fecha original
 
             repo.update(user);
 

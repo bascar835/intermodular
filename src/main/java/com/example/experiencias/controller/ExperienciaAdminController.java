@@ -15,6 +15,7 @@ import org.springframework.web.server.ResponseStatusException;
 import com.example.experiencias.dto.ExperienciaDetalle;
 import com.example.experiencias.dto.ExperienciaRequest;
 import com.example.experiencias.dto.ExperienciaResumen;
+import com.example.experiencias.dto.ImagenResponse;
 import com.example.experiencias.entity.Experiencia;
 import com.example.experiencias.entity.ExperienciaImagen;
 import com.example.experiencias.exception.DataAccessException;
@@ -60,7 +61,7 @@ public class ExperienciaAdminController extends BaseController {
         }
     }
 
-    // POST /api/admin/experiencias  (multipart/form-data: datos validados + imagen opcional)
+    // POST /api/admin/experiencias  (multipart/form-data)
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public Experiencia store(
@@ -70,32 +71,26 @@ public class ExperienciaAdminController extends BaseController {
         try (Connection con = ds.getConnection()) {
             Experiencia exp = new Experiencia(
                     null,
-                    req.titulo(),
-                    req.descripcion(),
-                    req.precio(),
-                    req.ubicacion(),
-                    req.duracion_horas(),
-                    req.categoria_id(),
+                    req.titulo(), req.descripcion(), req.precio(),
+                    req.ubicacion(), req.duracion_horas(), req.categoria_id(),
                     null);
             new ExperienciaRepository(con).insert(exp);
 
             if (imagen != null && !imagen.isEmpty()) {
                 ImageValidator.validate(imagen);
                 String url = storage.save(imagen, "experiencias");
-                ExperienciaImagen img = new ExperienciaImagen(null, exp.getId(), url);
-                new ExperienciaImagenRepository(con).insert(img);
+                new ExperienciaImagenRepository(con).insert(new ExperienciaImagen(null, exp.getId(), url));
             }
 
             return exp;
         } catch (SQLException e) {
             throw new DataAccessException(e);
         } catch (IOException e) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
-                    "Error al guardar la imagen");
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error al guardar la imagen");
         }
     }
 
-    // PUT /api/admin/experiencias/{id}  (multipart/form-data: datos validados + imagen opcional)
+    // PUT /api/admin/experiencias/{id}  (multipart/form-data)
     @PutMapping("/{id}")
     public Experiencia update(
             @PathVariable int id,
@@ -108,29 +103,22 @@ public class ExperienciaAdminController extends BaseController {
 
             Experiencia exp = new Experiencia(
                     id,
-                    req.titulo(),
-                    req.descripcion(),
-                    req.precio(),
-                    req.ubicacion(),
-                    req.duracion_horas(),
-                    req.categoria_id(),
+                    req.titulo(), req.descripcion(), req.precio(),
+                    req.ubicacion(), req.duracion_horas(), req.categoria_id(),
                     existing.getFecha_creacion());
             repo.update(exp);
 
             if (imagen != null && !imagen.isEmpty()) {
                 ImageValidator.validate(imagen);
                 String url = storage.save(imagen, "experiencias");
-                ExperienciaImagen img = new ExperienciaImagen(null, id, url);
-                new ExperienciaImagenRepository(con).insert(img);
+                new ExperienciaImagenRepository(con).insert(new ExperienciaImagen(null, id, url));
             }
 
             return exp;
-
         } catch (SQLException e) {
             throw new DataAccessException(e);
         } catch (IOException e) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
-                    "Error al guardar la imagen");
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error al guardar la imagen");
         }
     }
 
@@ -139,22 +127,18 @@ public class ExperienciaAdminController extends BaseController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void destroy(@PathVariable int id) {
         try (Connection con = ds.getConnection()) {
-
             ExperienciaRepository repo = new ExperienciaRepository(con);
             repo.findOrThrow(id);
 
-            List<ExperienciaImagen> imagenes = new ExperienciaImagenRepository(con)
-                    .findAll()
-                    .stream()
-                    .filter(img -> img.getExperienciaId().equals(id))
-                    .toList();
+            // Usar findByExperienciaId en lugar de findAll()+filter
+            List<ImagenResponse> imagenes = new ExperienciaImagenRepository(con)
+                    .findByExperienciaId(id);
 
-            for (ExperienciaImagen img : imagenes) {
-                storage.deleteByUrl(img.getUrl());
+            for (ImagenResponse img : imagenes) {
+                storage.deleteByUrl(img.url());
             }
 
             repo.delete(id);
-
         } catch (SQLException e) {
             throw new DataAccessException(e);
         }

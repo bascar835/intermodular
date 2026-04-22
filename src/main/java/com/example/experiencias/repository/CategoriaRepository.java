@@ -46,6 +46,18 @@ public class CategoriaRepository extends BaseRepository<Categoria> {
         return new Object[] { c.getNombre(), c.getDescripcion(), c.getImagenUrl(), c.getId() };
     }
 
+    @Override
+    public int insert(Categoria c) {
+        String sql = """
+            INSERT INTO categorias (nombre, descripcion, imagen_url)
+            VALUES (?, ?, ?)
+            RETURNING id
+        """;
+        int id = DB.insertReturning(con, sql, c.getNombre(), c.getDescripcion(), c.getImagenUrl());
+        setPrimaryKey(c, id);
+        return id;
+    }
+
     public List<CategoriaResumen> findResumen() {
         String sql = """
             SELECT id, nombre, descripcion, imagen_url

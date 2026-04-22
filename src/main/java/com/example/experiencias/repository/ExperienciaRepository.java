@@ -56,6 +56,18 @@ public class ExperienciaRepository extends BaseRepository<Experiencia> {
         };
     }
 
+    @Override
+    public int insert(Experiencia e) {
+        String sql = """
+            INSERT INTO experiencias (titulo, descripcion, precio, ubicacion, duracion_horas, categoria_id)
+            VALUES (?, ?, ?, ?, ?, ?)
+            RETURNING id
+        """;
+        int id = DB.insertReturning(con, sql, getInsertValues(e));
+        setPrimaryKey(e, id);
+        return id;
+    }
+
     // Necesario para ExperienciaRepository.findOrThrow() (usado en ExperienciaImagenController)
     public Experiencia findOrThrow(int id) {
         String sql = "SELECT * FROM experiencias WHERE id = ?";

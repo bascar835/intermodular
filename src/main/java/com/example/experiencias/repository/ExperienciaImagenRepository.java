@@ -4,13 +4,12 @@ import java.sql.Connection;
 import java.util.List;
 
 import database.DB;
-
 import com.example.experiencias.dto.ImagenResponse;
 import com.example.experiencias.entity.ExperienciaImagen;
 import com.example.experiencias.mapper.ExperienciaImagenMapper;
 import com.example.experiencias.mapper.RowMapper;
 
-public class ExperienciaImagenRepository extends BaseRepository1<ExperienciaImagen> {
+public class ExperienciaImagenRepository extends BaseRepository<ExperienciaImagen> {
 
     public ExperienciaImagenRepository(Connection con) {
         super(con, new ExperienciaImagenMapper());
@@ -31,11 +30,6 @@ public class ExperienciaImagenRepository extends BaseRepository1<ExperienciaImag
     }
 
     @Override
-    public Integer getPrimaryKey(ExperienciaImagen ei) {
-        return ei.getId();
-    }
-
-    @Override
     public void setPrimaryKey(ExperienciaImagen ei, int id) {
         ei.setId(id);
     }
@@ -50,14 +44,25 @@ public class ExperienciaImagenRepository extends BaseRepository1<ExperienciaImag
         return new Object[] { ei.getExperienciaId(), ei.getUrl(), ei.getId() };
     }
 
-    // Devuelve todas las imágenes de una experiencia como ImagenResponse (id + url)
+    @Override
+    public int insert(ExperienciaImagen ei) {
+        String sql = """
+            INSERT INTO experiencia_imagenes (experiencia_id, url)
+            VALUES (?, ?)
+            RETURNING id
+        """;
+        int id = DB.insertReturning(con, sql, ei.getExperienciaId(), ei.getUrl());
+        setPrimaryKey(ei, id);
+        return id;
+    }
+
     public List<ImagenResponse> findByExperienciaId(int experienciaId) {
         String sql = """
                 SELECT id, url
                 FROM experiencia_imagenes
                 WHERE experiencia_id = ?
                 ORDER BY id ASC
-            """;
+                """;
 
         return DB.queryMany(con, sql, rs -> new ImagenResponse(
             rs.getInt("id"),

@@ -10,7 +10,6 @@ import javax.sql.DataSource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import com.example.experiencias.dto.CategoriaFiltroDTO;
 import com.example.experiencias.dto.CategoriaResumen;
 import com.example.experiencias.dto.ExperienciaResumen;
 import com.example.experiencias.exception.DataAccessException;
@@ -26,18 +25,17 @@ public class CategoriaController {
         this.ds = ds;
     }
 
-    // ── LISTADO DE CATEGORÍAS ─────────────────────────────
+    // GET /api/categorias
     @GetMapping
     public List<CategoriaResumen> index() {
         try (Connection con = ds.getConnection()) {
-            CategoriaRepository repo = new CategoriaRepository(con);
-            return repo.findResumen();
+            return new CategoriaRepository(con).findResumen();
         } catch (SQLException e) {
             throw new DataAccessException(e);
         }
     }
 
-    // ── EXPERIENCIAS POR CATEGORÍA (HITO 2 CORRECTO) ──────
+    // POST /api/categorias/experiencias  → body: { "categoriaId": 1 }
     @PostMapping("/experiencias")
     public ResponseEntity<?> experienciasPorCategoria(@RequestBody Map<String, Object> body) {
 
@@ -51,11 +49,8 @@ public class CategoriaController {
         Long categoriaId = Long.valueOf(body.get("categoriaId").toString());
 
         try (Connection con = ds.getConnection()) {
-
-            CategoriaRepository repo = new CategoriaRepository(con);
-
             List<ExperienciaResumen> experiencias =
-                repo.findExperienciasPorCategoria(categoriaId);
+                new CategoriaRepository(con).findExperienciasPorCategoria(categoriaId);
 
             return ResponseEntity.ok(Map.of(
                 "ok", true,
@@ -63,21 +58,8 @@ public class CategoriaController {
                 "total", experiencias.size(),
                 "data", experiencias
             ));
-
         } catch (SQLException e) {
             throw new DataAccessException(e);
         }
     }
 }
-
-
-    /*@GetMapping("/{id}")
-    public PeliculaDetalle show(@PathVariable int id) {
-        try (Connection con = ds.getConnection()) {
-            CategoriaRepository repo = new CategoriaRepository(con);
-            return repo.findDetalle(id);
-        } catch (SQLException e) {
-            throw new DataAccessException(e);
-        }
-    }*/
-

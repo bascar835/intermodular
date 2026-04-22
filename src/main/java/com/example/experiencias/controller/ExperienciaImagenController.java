@@ -49,7 +49,8 @@ public class ExperienciaImagenController extends BaseController {
             // Persistir la relación en BD
             ExperienciaImagenRepository repo = new ExperienciaImagenRepository(con);
             ExperienciaImagen img = new ExperienciaImagen(null, experienciaId, url);
-            return repo.insert(img);
+            repo.insert(img);
+            return img;
 
         } catch (SQLException e) {
             throw new DataAccessException(e);
