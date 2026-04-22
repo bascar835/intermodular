@@ -2,8 +2,6 @@
 -- PostgreSQL database dump
 --
 
-\restrict Gnc6N1sUAlzamwSQWySJy5ABA4zq23J0kLUmdX7tqmnUf8alcnRCkebSUzFfx66
-
 -- Dumped from database version 17.6
 -- Dumped by pg_dump version 17.6
 
@@ -403,6 +401,4 @@ ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA public GRANT SELECT,INSERT,
 --
 -- PostgreSQL database dump complete
 --
-
-\unrestrict Gnc6N1sUAlzamwSQWySJy5ABA4zq23J0kLUmdX7tqmnUf8alcnRCkebSUzFfx66
 
