@@ -66,8 +66,10 @@ public class CategoriaRepository extends BaseRepository<Categoria> {
     public List<ExperienciaResumen> findExperienciasPorCategoria(Long categoriaId) {
         String sql = """
             SELECT e.id, e.titulo, e.descripcion, e.precio,
-                   e.ubicacion, e.duracion_horas, e.categoria_id, e.fecha_creacion, e.imagen_url
+                   e.ubicacion, e.duracion_horas, e.categoria_id, e.fecha_creacion, e.imagen_url,
+                   c.nombre AS categoria_nombre
             FROM experiencias e
+            JOIN categorias c ON c.id = e.categoria_id
             WHERE e.categoria_id = ?
             ORDER BY e.titulo
         """;
@@ -84,7 +86,8 @@ public class CategoriaRepository extends BaseRepository<Categoria> {
                 rs.getTimestamp("fecha_creacion") != null
                     ? rs.getTimestamp("fecha_creacion").toLocalDateTime()
                     : null,
-                rs.getString("imagen_url")
+                rs.getString("imagen_url"),
+                rs.getString("categoria_nombre")
             ),
             categoriaId
         );

@@ -1,6 +1,7 @@
 package com.example.experiencias.exception;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
@@ -35,6 +36,22 @@ public class GlobalExceptionHandler {
 			"message", "Error de validación", "errors", errors));
 	}
 	
+	// VALIDACIÓN @ModelAttribute (multipart) -> 400
+	@ExceptionHandler(BindException.class)
+	public ResponseEntity<Map<String, Object>> handleBind(BindException e) {
+
+		logError(e);
+
+		Map<String, String> errors = new LinkedHashMap<>();
+
+		e.getBindingResult().getFieldErrors().forEach(error -> {
+			errors.put(error.getField(), error.getDefaultMessage());
+		});
+
+		return ResponseEntity.badRequest().body(Map.of(
+			"message", "Error de validación", "errors", errors));
+	}
+
 	// NOT FOUND -> 404
 	@ExceptionHandler(NotFoundException.class)
 	public ResponseEntity<Map<String, String>> handleNotFound(NotFoundException e) {
@@ -64,7 +81,10 @@ public class GlobalExceptionHandler {
 	@ExceptionHandler(ResponseStatusException.class)
 	public ResponseEntity<Map<String, String>> handleResponseStatus(ResponseStatusException e) {
 
-		logError(e);
+		// Solo loguear errores de servidor (5xx); los 4xx son comportamiento esperado
+		if (e.getStatusCode().is5xxServerError()) {
+			logError(e);
+		}
 
 		return ResponseEntity.status(e.getStatusCode())
 				.body(Map.of("message", e.getReason() != null ? e.getReason() : "Error"));

@@ -2,7 +2,7 @@ async function authFetch(url, options = {}) {
     const response = await fetch(url, options);
 
     if (response.status === 401) {
-        window.location.href = "/login.html";
+        window.location.href = "/experiencias/login.html";
         return null;
     }
 
@@ -16,5 +16,5 @@ async function authFetch(url, options = {}) {
 
 async function logout() {
     await fetch("/api/auth/logout", { method: "POST" });
-    window.location.href = "/login.html";
+    window.location.href = "/experiencias/login.html";
 }

@@ -12,29 +12,35 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
+import com.example.experiencias.dto.ExperienciaDetalle;
+import com.example.experiencias.dto.ExperienciaRequest;
+import com.example.experiencias.dto.ExperienciaResumen;
 import com.example.experiencias.entity.Experiencia;
+import com.example.experiencias.entity.ExperienciaImagen;
 import com.example.experiencias.exception.DataAccessException;
 import com.example.experiencias.helper.StorageHelper;
+import com.example.experiencias.repository.ExperienciaImagenRepository;
 import com.example.experiencias.repository.ExperienciaRepository;
 import com.example.experiencias.validation.ImageValidator;
 
+import jakarta.validation.Valid;
+
 @RestController
 @RequestMapping("/api/admin/experiencias")
-public class ExperienciaAdminController {
+public class ExperienciaAdminController extends BaseController {
 
-    private final DataSource ds;
     private final StorageHelper storage;
 
     public ExperienciaAdminController(DataSource ds, StorageHelper storage) {
-        this.ds = ds;
+        super(ds);
         this.storage = storage;
     }
 
     // GET /api/admin/experiencias
     @GetMapping
-    public List<Experiencia> index() {
+    public List<ExperienciaResumen> index() {
         try (Connection con = ds.getConnection()) {
-            return new ExperienciaRepository(con).findAll();
+            return new ExperienciaRepository(con).findResumen();
         } catch (SQLException e) {
             throw new DataAccessException(e);
         }
@@ -42,102 +48,113 @@ public class ExperienciaAdminController {
 
     // GET /api/admin/experiencias/{id}
     @GetMapping("/{id}")
-    public Experiencia show(@PathVariable int id) {
+    public ExperienciaDetalle show(@PathVariable int id) {
         try (Connection con = ds.getConnection()) {
-            return new ExperienciaRepository(con).find(id);
+            ExperienciaDetalle detalle = new ExperienciaRepository(con).findDetalle(id);
+            if (detalle == null) {
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Experiencia no encontrada");
+            }
+            return detalle;
         } catch (SQLException e) {
             throw new DataAccessException(e);
         }
     }
 
-    // POST /api/admin/experiencias  (multipart/form-data)
+    // POST /api/admin/experiencias  (multipart/form-data: datos validados + imagen opcional)
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public Experiencia store(
-            @RequestParam("titulo") String titulo,
-            @RequestParam("descripcion") String descripcion,
-            @RequestParam("precio") double precio,
-            @RequestParam("ubicacion") String ubicacion,
-            @RequestParam("duracion_horas") int duracionHoras,
-            @RequestParam("categoria_id") int categoriaId,
+            @Valid @ModelAttribute ExperienciaRequest req,
             @RequestParam(value = "imagen", required = false) MultipartFile imagen) {
 
-        String imagenUrl = null;
-
-        if (imagen != null && !imagen.isEmpty()) {
-            ImageValidator.validate(imagen);
-            try {
-                imagenUrl = storage.save(imagen, "experiencias");
-            } catch (IOException e) {
-                throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error al guardar imagen");
-            }
-        }
-
         try (Connection con = ds.getConnection()) {
-            Experiencia exp = new Experiencia(null, titulo, descripcion, precio,
-                    ubicacion, duracionHoras, categoriaId, null, imagenUrl);
+            Experiencia exp = new Experiencia(
+                    null,
+                    req.titulo(),
+                    req.descripcion(),
+                    req.precio(),
+                    req.ubicacion(),
+                    req.duracion_horas(),
+                    req.categoria_id(),
+                    null);
             new ExperienciaRepository(con).insert(exp);
-            return exp;
-        } catch (SQLException e) {
-            throw new DataAccessException(e);
-        }
-    }
-
-    // PUT /api/admin/experiencias/{id}  (multipart/form-data)
-    @PutMapping("/{id}")
-    public Experiencia update(
-            @PathVariable int id,
-            @RequestParam("titulo") String titulo,
-            @RequestParam("descripcion") String descripcion,
-            @RequestParam("precio") double precio,
-            @RequestParam("ubicacion") String ubicacion,
-            @RequestParam("duracion_horas") int duracionHoras,
-            @RequestParam("categoria_id") int categoriaId,
-            @RequestParam(value = "imagen", required = false) MultipartFile imagen) {
-
-        try (Connection con = ds.getConnection()) {
-
-            ExperienciaRepository repo = new ExperienciaRepository(con);
-            Experiencia existing = repo.find(id);
-            if (existing == null) {
-                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Experiencia no encontrada");
-            }
-
-            String imagenUrl = existing.getImagenUrl(); // conservar la anterior por defecto
 
             if (imagen != null && !imagen.isEmpty()) {
                 ImageValidator.validate(imagen);
-                try {
-                    // borrar la imagen anterior si existía
-                    if (imagenUrl != null) {
-                        storage.deleteByUrl(imagenUrl);
-                    }
-                    imagenUrl = storage.save(imagen, "experiencias");
-                } catch (IOException e) {
-                    throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error al guardar imagen");
-                }
+                String url = storage.save(imagen, "experiencias");
+                ExperienciaImagen img = new ExperienciaImagen(null, exp.getId(), url);
+                new ExperienciaImagenRepository(con).insert(img);
             }
 
-            Experiencia exp = new Experiencia(id, titulo, descripcion, precio,
-                    ubicacion, duracionHoras, categoriaId, existing.getFecha_creacion(), imagenUrl);
+            return exp;
+        } catch (SQLException e) {
+            throw new DataAccessException(e);
+        } catch (IOException e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
+                    "Error al guardar la imagen");
+        }
+    }
+
+    // PUT /api/admin/experiencias/{id}  (multipart/form-data: datos validados + imagen opcional)
+    @PutMapping("/{id}")
+    public Experiencia update(
+            @PathVariable int id,
+            @Valid @ModelAttribute ExperienciaRequest req,
+            @RequestParam(value = "imagen", required = false) MultipartFile imagen) {
+
+        try (Connection con = ds.getConnection()) {
+            ExperienciaRepository repo = new ExperienciaRepository(con);
+            Experiencia existing = repo.findOrThrow(id);
+
+            Experiencia exp = new Experiencia(
+                    id,
+                    req.titulo(),
+                    req.descripcion(),
+                    req.precio(),
+                    req.ubicacion(),
+                    req.duracion_horas(),
+                    req.categoria_id(),
+                    existing.getFecha_creacion());
             repo.update(exp);
+
+            if (imagen != null && !imagen.isEmpty()) {
+                ImageValidator.validate(imagen);
+                String url = storage.save(imagen, "experiencias");
+                ExperienciaImagen img = new ExperienciaImagen(null, id, url);
+                new ExperienciaImagenRepository(con).insert(img);
+            }
+
             return exp;
 
         } catch (SQLException e) {
             throw new DataAccessException(e);
+        } catch (IOException e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
+                    "Error al guardar la imagen");
         }
     }
 
     // DELETE /api/admin/experiencias/{id}
     @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void destroy(@PathVariable int id) {
         try (Connection con = ds.getConnection()) {
+
             ExperienciaRepository repo = new ExperienciaRepository(con);
-            Experiencia existing = repo.find(id);
-            if (existing != null && existing.getImagenUrl() != null) {
-                storage.deleteByUrl(existing.getImagenUrl());
+            repo.findOrThrow(id);
+
+            List<ExperienciaImagen> imagenes = new ExperienciaImagenRepository(con)
+                    .findAll()
+                    .stream()
+                    .filter(img -> img.getExperienciaId().equals(id))
+                    .toList();
+
+            for (ExperienciaImagen img : imagenes) {
+                storage.deleteByUrl(img.getUrl());
             }
+
             repo.delete(id);
+
         } catch (SQLException e) {
             throw new DataAccessException(e);
         }

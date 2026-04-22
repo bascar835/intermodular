@@ -67,7 +67,7 @@
                 fetch('/api/reservas').then(r => r.json()),
                 fetch('/api/users').then(r => r.json()),
             ]);
-            document.getElementById('stat-experiencias').textContent = exp.length;
+            document.getElementById('stat-experiencias').textContent = exp.total ?? (exp.data ? exp.data.length : exp.length);
             document.getElementById('stat-categorias').textContent = cat.length;
             document.getElementById('stat-reservas').textContent = res.length;
             document.getElementById('stat-usuarios').textContent = usr.length;

@@ -9,6 +9,8 @@ import javax.sql.DataSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+
+import jakarta.validation.Valid;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.example.experiencias.dto.UserResponse;
@@ -38,7 +40,7 @@ public class AuthController {
     // -------------------------
     @PostMapping("/register")
     @ResponseStatus(HttpStatus.CREATED)
-    public UserResponse register(@RequestBody RegisterRequest body,
+    public UserResponse register(@Valid @RequestBody RegisterRequest body,
                                  HttpServletRequest request) {
         try (Connection con = ds.getConnection()) {
             UserRepository repo = new UserRepository(con);
@@ -78,7 +80,7 @@ public class AuthController {
     // POST /api/auth/login
     // -------------------------
     @PostMapping("/login")
-    public UserResponse login(@RequestBody LoginRequest body,
+    public UserResponse login(@Valid @RequestBody LoginRequest body,
                               HttpServletRequest request) {
         try (Connection con = ds.getConnection()) {
             UserRepository repo = new UserRepository(con);

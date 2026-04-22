@@ -12,11 +12,14 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
+import com.example.experiencias.dto.CategoriaRequest;
 import com.example.experiencias.entity.Categoria;
 import com.example.experiencias.exception.DataAccessException;
 import com.example.experiencias.helper.StorageHelper;
 import com.example.experiencias.repository.CategoriaRepository;
 import com.example.experiencias.validation.ImageValidator;
+
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/admin/categorias")
@@ -50,12 +53,11 @@ public class CategoriaAdminController {
         }
     }
 
-    // POST /api/admin/categorias  (multipart/form-data)
+    // POST /api/admin/categorias  (multipart/form-data: datos validados + imagen opcional)
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public Categoria store(
-            @RequestParam("nombre") String nombre,
-            @RequestParam("descripcion") String descripcion,
+            @Valid @ModelAttribute CategoriaRequest req,
             @RequestParam(value = "imagen", required = false) MultipartFile imagen) {
 
         String imagenUrl = null;
@@ -70,7 +72,7 @@ public class CategoriaAdminController {
         }
 
         try (Connection con = ds.getConnection()) {
-            Categoria cat = new Categoria(null, nombre, descripcion, imagenUrl);
+            Categoria cat = new Categoria(null, req.nombre(), req.descripcion(), imagenUrl);
             new CategoriaRepository(con).insert(cat);
             return cat;
         } catch (SQLException e) {
@@ -78,12 +80,11 @@ public class CategoriaAdminController {
         }
     }
 
-    // PUT /api/admin/categorias/{id}  (multipart/form-data)
+    // PUT /api/admin/categorias/{id}  (multipart/form-data: datos validados + imagen opcional)
     @PutMapping("/{id}")
     public Categoria update(
             @PathVariable int id,
-            @RequestParam("nombre") String nombre,
-            @RequestParam("descripcion") String descripcion,
+            @Valid @ModelAttribute CategoriaRequest req,
             @RequestParam(value = "imagen", required = false) MultipartFile imagen) {
 
         try (Connection con = ds.getConnection()) {
@@ -94,7 +95,7 @@ public class CategoriaAdminController {
                 throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Categoría no encontrada");
             }
 
-            String imagenUrl = existing.getImagenUrl(); // conservar la anterior por defecto
+            String imagenUrl = existing.getImagenUrl();
 
             if (imagen != null && !imagen.isEmpty()) {
                 ImageValidator.validate(imagen);
@@ -108,7 +109,7 @@ public class CategoriaAdminController {
                 }
             }
 
-            Categoria cat = new Categoria(id, nombre, descripcion, imagenUrl);
+            Categoria cat = new Categoria(id, req.nombre(), req.descripcion(), imagenUrl);
             repo.update(cat);
             return cat;
 
