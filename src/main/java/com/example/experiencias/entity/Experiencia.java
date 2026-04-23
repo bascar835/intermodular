@@ -13,10 +13,8 @@ public class Experiencia {
     private int categoria_id;
     private LocalDateTime fecha_creacion;
 
-    // Constructor vacío (necesario para deserialización JSON)
     public Experiencia() {}
 
-    // Constructor completo
     public Experiencia(Integer id, String titulo, String descripcion, double precio,
                        String ubicacion, int duracion_horas, int categoria_id,
                        LocalDateTime fecha_creacion) {
@@ -30,9 +28,7 @@ public class Experiencia {
         this.fecha_creacion = fecha_creacion;
     }
 
-    public Integer getId() {
-    	return id; 
-    }
+    public Integer getId() { return id; }
     public void setId(Integer id) { this.id = id; }
     public String getTitulo() { return titulo; }
     public void setTitulo(String titulo) { this.titulo = titulo; }

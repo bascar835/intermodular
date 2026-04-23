@@ -3,12 +3,13 @@ package com.example.experiencias.repository;
 import java.sql.Connection;
 import java.util.List;
 
-import com.example.experiencias.db.DB;
 import com.example.experiencias.dto.CategoriaResumen;
 import com.example.experiencias.dto.ExperienciaResumen;
 import com.example.experiencias.entity.Categoria;
 import com.example.experiencias.mapper.CategoriaMapper;
 import com.example.experiencias.mapper.RowMapper;
+
+import database.DB;
 
 public class CategoriaRepository extends BaseRepository<Categoria> {
 
@@ -27,7 +28,7 @@ public class CategoriaRepository extends BaseRepository<Categoria> {
 
     @Override
     public String[] getColumnNames() {
-        return new String[] { "id", "nombre", "descripcion" };
+        return new String[] { "id", "nombre", "descripcion", "imagen_url" };
     }
 
     @Override
@@ -37,17 +38,29 @@ public class CategoriaRepository extends BaseRepository<Categoria> {
 
     @Override
     public Object[] getInsertValues(Categoria c) {
-        return new Object[] { c.getNombre(), c.getDescripcion() };
+        return new Object[] { c.getNombre(), c.getDescripcion(), c.getImagenUrl() };
     }
 
     @Override
     public Object[] getUpdateValues(Categoria c) {
-        return new Object[] { c.getNombre(), c.getDescripcion(), c.getId() };
+        return new Object[] { c.getNombre(), c.getDescripcion(), c.getImagenUrl(), c.getId() };
+    }
+
+    @Override
+    public int insert(Categoria c) {
+        String sql = """
+            INSERT INTO categorias (nombre, descripcion, imagen_url)
+            VALUES (?, ?, ?)
+            RETURNING id
+        """;
+        int id = DB.insertReturning(con, sql, c.getNombre(), c.getDescripcion(), c.getImagenUrl());
+        setPrimaryKey(c, id);
+        return id;
     }
 
     public List<CategoriaResumen> findResumen() {
         String sql = """
-            SELECT id, nombre, descripcion
+            SELECT id, nombre, descripcion, imagen_url
             FROM categorias
             ORDER BY nombre
         """;
@@ -56,18 +69,19 @@ public class CategoriaRepository extends BaseRepository<Categoria> {
             new CategoriaResumen(
                 rs.getInt("id"),
                 rs.getString("nombre"),
-                rs.getString("descripcion")
+                rs.getString("descripcion"),
+                rs.getString("imagen_url")
             )
         );
     }
 
-    // ── HITO 2 ────────────────────────────────────────────────────────────────
-    // Devuelve todas las experiencias que pertenecen a una categoría concreta.
     public List<ExperienciaResumen> findExperienciasPorCategoria(Long categoriaId) {
         String sql = """
             SELECT e.id, e.titulo, e.descripcion, e.precio,
-                   e.ubicacion, e.duracion_horas, e.categoria_id, e.fecha_creacion
+                   e.ubicacion, e.duracion_horas, e.categoria_id, e.fecha_creacion, e.imagen_url,
+                   c.nombre AS categoria_nombre
             FROM experiencias e
+            JOIN categorias c ON c.id = e.categoria_id
             WHERE e.categoria_id = ?
             ORDER BY e.titulo
         """;
@@ -83,7 +97,9 @@ public class CategoriaRepository extends BaseRepository<Categoria> {
                 rs.getInt("categoria_id"),
                 rs.getTimestamp("fecha_creacion") != null
                     ? rs.getTimestamp("fecha_creacion").toLocalDateTime()
-                    : null
+                    : null,
+                rs.getString("imagen_url"),
+                rs.getString("categoria_nombre")
             ),
             categoriaId
         );

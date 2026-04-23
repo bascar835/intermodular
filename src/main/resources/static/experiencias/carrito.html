@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Mi Carrito · Xperiabox</title>
+    <link rel="stylesheet" href="/experiencias/css/experiencia.css">
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+	<link rel="stylesheet" href="css/carrito.css">
+	<style>
+       
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="cart-container" id="cartContainer">
+
+            <!-- ESTADO VACÍO -->
+            <div class="cart-empty-state" id="emptyCart">
+                <h1>🛒 Tu carrito está vacío</h1>
+                <p>Inicia sesión para ver tus productos guardados o sigue comprando para descubrir nuevas experiencias.</p>
+                <div class="cart-actions">
+                    <a href="/experiencias/login.html" class="btn-main">Iniciar Sesión</a>
+                    <a href="/experiencias/index.html" class="btn-secondary">Seguir comprando</a>
+                </div>
+            </div>
+
+            <!-- PRODUCTOS DEL CARRITO -->
+            <div id="cartProducts" style="display: none;">
+                <h1>🛒 Tu Carrito</h1>
+                <div id="productsList"></div>
+                <div class="cart-total-box">
+                    <h2 id="totalCarrito"></h2>
+                    <button class="btn-main" onclick="abrirModalCompra()">💳 Finalizar compra</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ── Modal paso a paso ── -->
+    <div id="modal-compra" class="modal-compra-overlay">
+        <div class="modal-compra-box">
+
+            <!-- Barra de progreso -->
+            <div class="modal-progreso">
+                <div class="modal-progreso-bar" id="modal-progreso-bar"></div>
+            </div>
+
+            <!-- Cabecera dinámica -->
+            <p class="modal-paso-label" id="modal-paso-label">Experiencia 1 de 1</p>
+            <h2 class="modal-nombre-exp" id="modal-nombre-exp"></h2>
+            <p class="modal-precio-exp" id="modal-precio-exp"></p>
+
+            <!-- Error -->
+            <div id="modal-compra-error" class="modal-compra-error"></div>
+
+            <!-- Campos -->
+            <label for="input-fecha">📅 Fecha y hora</label>
+            <input type="datetime-local" id="input-fecha">
+
+            <label for="input-personas">👥 Número de personas</label>
+            <input type="number" id="input-personas" min="1" max="20" value="1">
+
+            <!-- Acciones -->
+            <div class="modal-compra-actions">
+                <button class="btn-cancelar-modal" onclick="cerrarModalCompra()">Cancelar</button>
+                <button class="btn-siguiente-modal" id="btn-siguiente" onclick="siguientePaso()">
+                    Siguiente →
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+    <script src="/experiencias/js/navbar.js"></script>
+    <script src="js/carrito.js"></script>
+</body>
+</html>

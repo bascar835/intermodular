@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Categorías · XperiaBox</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="/experiencias/css/experiencia.css"/>
+  <style>
+    /* ── Grid de categorías ── */
+    .cat-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 24px;
+      padding: 40px 0 64px;
+    }
+
+    .cat-card {
+      border-radius: var(--r-md);
+      overflow: hidden;
+      background: var(--white);
+      box-shadow: var(--shadow-md);
+      cursor: pointer;
+      text-decoration: none;
+      color: inherit;
+      display: block;
+      transition: transform var(--ease), box-shadow var(--ease);
+    }
+    .cat-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .cat-img {
+      height: 200px;
+      background: #2a2420;
+      background-size: cover;
+      background-position: center;
+      position: relative;
+      display: flex;
+      align-items: flex-end;
+    }
+    .cat-img-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(to top, rgba(24,19,15,.7) 0%, transparent 55%);
+    }
+    .cat-img-icon {
+      position: absolute;
+      top: 16px; right: 16px;
+      font-size: 2rem;
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,.4));
+    }
+
+    .cat-body {
+      padding: 20px;
+    }
+    .cat-nombre {
+      font-family: var(--font-d);
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin-bottom: 6px;
+      color: var(--ink);
+    }
+    .cat-desc {
+      font-size: .875rem;
+      color: var(--ink-m);
+      margin-bottom: 14px;
+      line-height: 1.5;
+    }
+    .cat-foot {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .cat-count {
+      font-size: .8rem;
+      color: var(--ink-f);
+    }
+    .cat-btn {
+      font-size: .8rem;
+      font-weight: 600;
+      color: var(--coral);
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 0;
+      font-family: var(--font-b);
+    }
+
+    /* spinner */
+    .spinner-wrap {
+      display: flex; flex-direction: column; align-items: center;
+      gap: 14px; padding: 80px 0;
+    }
+    .ring {
+      width: 40px; height: 40px;
+      border: 3px solid rgba(232,96,60,.15);
+      border-top-color: var(--coral);
+      border-radius: 50%;
+      animation: spin .8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spin-txt { font-size: .9rem; color: var(--ink-m); }
+  </style>
+</head>
+<body>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-inner">
+      <span class="eyebrow">Explora · Filtra · Vive</span>
+      <h1 class="hero-title">Elige tu tipo de<br/><em>experiencia</em></h1>
+      <p class="hero-sub">Selecciona una categoría para ver todas las experiencias disponibles</p>
+    </div>
+  </section>
+
+  <!-- CONTENIDO -->
+  <main class="container">
+
+    <div id="spinner" class="spinner-wrap">
+      <div class="ring"></div>
+      <p class="spin-txt">Cargando categorías…</p>
+    </div>
+
+    <div id="cat-grid" class="cat-grid" style="display:none"></div>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="site-footer">
+    <div class="container">© 2025 Xperiabox · Vive experiencias únicas</div>
+  </footer>
+
+  <script>
+    const IMG_PLACEHOLDER = 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=600&q=80';
+
+    function iconoCategoria(nombre) {
+      if (!nombre) return '🌍';
+      const n = nombre.toLowerCase().normalize('NFD').replace(/\p{Diacritic}/gu, '');
+      if (n.includes('aventura')) return '🏔';
+      if (n.includes('cultura'))  return '🎭';
+      if (n.includes('relax'))    return '🧘';
+      if (n.includes('gastro'))   return '🍽';
+      if (n.includes('deporte'))  return '⚽';
+      if (n.includes('musica'))   return '🎵';
+      return '🌍';
+    }
+
+    function esc(s) {
+      return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    async function cargarCategorias() {
+      try {
+        const [resCat, resExp] = await Promise.all([
+          fetch('/api/categorias'),
+          fetch('/api/experiencias')
+        ]);
+
+        const categorias = await resCat.json();
+        const datosExp   = await resExp.json();
+        const experiencias = Array.isArray(datosExp) ? datosExp : (datosExp.data ?? []);
+
+        // Contar experiencias por categoria_id
+        const conteo = {};
+        experiencias.forEach(e => {
+          conteo[e.categoria_id] = (conteo[e.categoria_id] || 0) + 1;
+        });
+
+        const grid = document.getElementById('cat-grid');
+        grid.innerHTML = '';
+
+        categorias.forEach(c => {
+          const imgUrl = c.imagen_url || IMG_PLACEHOLDER;
+          const total  = conteo[c.id] ?? 0;
+          const icono  = iconoCategoria(c.nombre);
+
+          const a = document.createElement('a');
+          a.className = 'cat-card';
+          // Al hacer clic redirige al index de experiencias con ?cat=ID
+          a.href = `/experiencias/index.html?cat=${c.id}`;
+          a.innerHTML = `
+            <div class="cat-img" style="background-image:url('${imgUrl}')">
+              <div class="cat-img-overlay"></div>
+              <span class="cat-img-icon">${icono}</span>
+            </div>
+            <div class="cat-body">
+              <div class="cat-nombre">${esc(c.nombre)}</div>
+              <div class="cat-desc">${esc(c.descripcion ?? '')}</div>
+              <div class="cat-foot">
+                <span class="cat-count">${total} experiencia${total !== 1 ? 's' : ''}</span>
+                <span class="cat-btn">Ver experiencias →</span>
+              </div>
+            </div>
+          `;
+          grid.appendChild(a);
+        });
+
+        document.getElementById('spinner').style.display = 'none';
+        grid.style.display = 'grid';
+
+      } catch (e) {
+        console.error('[cargarCategorias]', e);
+        document.getElementById('spinner').innerHTML = '<p style="color:#E8603C">Error cargando categorías</p>';
+      }
+    }
+
+    cargarCategorias();
+  </script>
+  <script src="/experiencias/js/navbar.js"></script>
+
+</body>
+</html>

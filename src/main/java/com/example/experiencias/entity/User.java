@@ -10,6 +10,7 @@ public class User {
     private String password; // ⚠️ aquí debe ir HASH, no texto plano
     private String role;
     private LocalDateTime fechaCreacion;
+    private Boolean deleted;
 
     // Constructor vacío (IMPORTANTE)
     public User() {}
@@ -22,6 +23,18 @@ public class User {
         this.password = password;
         this.role = role;
         this.fechaCreacion = fechaCreacion;
+        this.deleted = false;
+    }
+
+    // Constructor con deleted
+    public User(Integer id, String name, String email, String password, String role, LocalDateTime fechaCreacion, Boolean deleted) {
+        this.id = id;
+        this.name = name;
+        this.email = email;
+        this.password = password;
+        this.role = role;
+        this.fechaCreacion = fechaCreacion;
+        this.deleted = deleted;
     }
 
     // Getters y Setters
@@ -73,4 +86,24 @@ public class User {
     public void setFechaCreacion(LocalDateTime fechaCreacion) {
         this.fechaCreacion = fechaCreacion;
     }
+
+    public Boolean getDeleted() {
+        return deleted;
+    }
+
+    public void setDeleted(Boolean deleted) {
+        this.deleted = deleted;
+    }
+
+
+@Override
+public String toString() {
+    return "User{" +
+            "id=" + id +
+            ", name='" + name + '\'' +
+            ", email='" + email + '\'' +
+            ", role='" + role + '\'' +
+            ", fechaCreacion=" + fechaCreacion +
+            '}';
+}
 }

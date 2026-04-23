@@ -1,47 +1,30 @@
-async function cargarDirectores() {
-
-    const response = await fetch("/api/admin/directores");
-    const directores = await response.json();
-
-    const select = document.getElementById("director");
-
-    directores.forEach(d => {
-
-        const option = document.createElement("option");
-
-        option.value = d.id;
-        option.textContent = d.nombre;
-
-        select.appendChild(option);
-    });
-}
-
 async function guardar(e) {
-
     e.preventDefault();
 
-    const pelicula = {
-
-        titulo: titulo.value,
-        anyo: anyo.value,
-        duracion: duracion.value,
-        sinopsis: sinopsis.value,
-        director_id: director.value
-
-    };
-
-    await fetch("/api/admin/peliculas", {
-
+    const response = await authFetch("/api/admin/users", {
         method: "POST",
-
-        headers: {
-            "Content-Type": "application/json"
-        },
-
-        body: JSON.stringify(pelicula)
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            name: document.getElementById("nombre").value,
+            email: document.getElementById("email").value,
+            password: document.getElementById("password").value,
+            role: document.getElementById("rol").value
+        })
     });
 
-    location.href = "index.html";
-}
+    if (!response) return;
 
-cargarDirectores();
+    if (response.status === 409) {
+        // Email duplicado
+        alert("Este correo ya está en uso. Introduce otro email.");
+        document.getElementById("email").focus();
+        return;
+    }
+
+    if (response.ok) {
+        location.href = "index.html";
+    } else {
+        const msg = await response.text();
+        alert("Error al crear el usuario: " + (msg || "Revisa los datos."));
+    }
+}

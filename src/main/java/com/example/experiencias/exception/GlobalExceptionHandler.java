@@ -1,52 +1,103 @@
-/*
 package com.example.experiencias.exception;
 
-import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
+	// BAD REQUEST -> 400
+	@ExceptionHandler(BadRequestException.class)
+	public ResponseEntity<?> handleBadRequest(BadRequestException e) {
+		logError(e);
+	    return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
+	}
+	
 	// VALIDACIÓN -> 400
 	@ExceptionHandler(MethodArgumentNotValidException.class)
-	public ResponseEntity<Map<String, Object>> handleValidation(MethodArgumentNotValidException ex) {
+	public ResponseEntity<Map<String, Object>> handleValidation(MethodArgumentNotValidException e) {
 
+		logError(e);
+		
 		Map<String, String> errors = new LinkedHashMap<>();
 
-		ex.getBindingResult().getFieldErrors().forEach(error -> {
+		e.getBindingResult().getFieldErrors().forEach(error -> {
 			errors.put(error.getField(), error.getDefaultMessage());
 		});
 
-		Map<String, Object> response = new HashMap<>();
-		response.put("errors", errors);
-
-		return ResponseEntity.badRequest().body(response);
+		return ResponseEntity.badRequest().body(Map.of(
+			"message", "Error de validación", "errors", errors));
 	}
 	
+	// VALIDACIÓN @ModelAttribute (multipart) -> 400
+	@ExceptionHandler(BindException.class)
+	public ResponseEntity<Map<String, Object>> handleBind(BindException e) {
+
+		logError(e);
+
+		Map<String, String> errors = new LinkedHashMap<>();
+
+		e.getBindingResult().getFieldErrors().forEach(error -> {
+			errors.put(error.getField(), error.getDefaultMessage());
+		});
+
+		return ResponseEntity.badRequest().body(Map.of(
+			"message", "Error de validación", "errors", errors));
+	}
+
+	// NOT FOUND -> 404
+	@ExceptionHandler(NotFoundException.class)
+	public ResponseEntity<Map<String, String>> handleNotFound(NotFoundException e) {
+		logError(e);
+		return ResponseEntity.status(404).body(Map.of("message", e.getMessage()));
+	}
+	
+	@ExceptionHandler(NoResourceFoundException.class)
+	public ResponseEntity<Void> handleNoResource() {
+		return ResponseEntity.notFound().build();
+	}
+
 	// DUPLICATE KEY -> 409
-    @ExceptionHandler(DuplicateKeyException.class)
-    public ResponseEntity<Map<String, Object>> handleDuplicate(DuplicateKeyException e) {
+	@ExceptionHandler(DuplicateKeyException.class)
+	public ResponseEntity<Map<String, String>> handleDuplicate(DuplicateKeyException e) {
+		logError(e);
+		return ResponseEntity.status(409).body(Map.of("message", "El recurso ya existe"));
+	}
 
-        Map<String, Object> response = new HashMap<>();
-        response.put("message", "El recurso ya existe");
+	// DATA ACCESS -> 500
+	@ExceptionHandler(DataAccessException.class)
+	public ResponseEntity<Map<String, String>> handleData(DataAccessException e) {
+		logError(e);
+		return ResponseEntity.status(500).body(Map.of("message", "Error de acceso a datos"));
+	}
+	
+	@ExceptionHandler(ResponseStatusException.class)
+	public ResponseEntity<Map<String, String>> handleResponseStatus(ResponseStatusException e) {
 
-        return ResponseEntity.status(409).body(response);
-    }
+		// Solo loguear errores de servidor (5xx); los 4xx son comportamiento esperado
+		if (e.getStatusCode().is5xxServerError()) {
+			logError(e);
+		}
 
-    // DATA ACCESS -> 500
-    @ExceptionHandler(DataAccessException.class)
-    public ResponseEntity<Map<String, Object>> handleData(DataAccessException e) {
+		return ResponseEntity.status(e.getStatusCode())
+				.body(Map.of("message", e.getReason() != null ? e.getReason() : "Error"));
+	}
+	
+	@ExceptionHandler(Exception.class)
+	public ResponseEntity<Map<String, String>> handleGeneric(Exception e) {
+		logError(e);
+		return ResponseEntity.status(500).body(Map.of("message", "Error interno del servidor"));
+	}
 
-        Map<String, Object> response = new HashMap<>();
-        response.put("message", "Error de acceso a datos");
-
-        return ResponseEntity.status(500).body(response);
-    }
+	private void logError(Exception e) {
+		System.err.println(e.getMessage());
+		e.printStackTrace();
+	}
 }
-*/

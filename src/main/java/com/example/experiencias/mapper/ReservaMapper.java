@@ -12,7 +12,8 @@ public class ReservaMapper implements RowMapper<Reserva> {
         Reserva r = new Reserva();
         r.setId(rs.getInt("id"));
         r.setUsuario_id(rs.getInt("usuario_id"));
-        r.setData_reserva(rs.getTimestamp("data_reserva").toLocalDateTime());
+        r.setExperiencia_id(rs.getInt("experiencia_id"));
+        r.setFecha_reserva(rs.getTimestamp("fecha_reserva").toLocalDateTime());
         r.setNumero_personas(rs.getInt("numero_personas"));
         r.setPrecio_total(rs.getDouble("precio_total"));
         r.setEstado(rs.getString("estado"));

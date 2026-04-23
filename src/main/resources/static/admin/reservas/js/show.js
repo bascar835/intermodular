@@ -1,23 +1,40 @@
 function obtenerId() {
-
-    const params = new URLSearchParams(window.location.search);
-    return params.get("id");
+    return new URLSearchParams(window.location.search).get("id");
 }
 
-async function cargarPelicula() {
-
+async function cargarReserva() {
     const id = obtenerId();
 
-    const response = await fetch(`/api/admin/peliculas/${id}`);
-    const p = await response.json();
+    if (!id) {
+        document.querySelector(".admin-card").innerHTML = "<p style='color:red'>No se proporcionó un ID de reserva.</p>";
+        return;
+    }
 
-    document.getElementById("titulo").textContent = p.titulo;
-    document.getElementById("anyo").textContent = p.anyo;
-    document.getElementById("duracion").textContent = p.duracion;
-    document.getElementById("director").textContent = p.director;
-    document.getElementById("sinopsis").textContent = p.sinopsis;
+    const response = await authFetch(`/api/admin/reservas/${id}`);
+    if (!response) return;
 
-    document.getElementById("editar").href = `edit.html?id=${id}`;
+    if (!response.ok) {
+        document.querySelector(".admin-card").innerHTML = "<p style='color:red'>Reserva no encontrada.</p>";
+        return;
+    }
+
+    const r = await response.json();
+	
+	console.log(r);
+
+    // Actualizar el título del topbar con el número de reserva
+    document.querySelector(".page-title").textContent = `Reserva #${r.id}`;
+
+    document.getElementById("id").textContent             = r.id;
+    document.getElementById("usuario_id").textContent     = r.usuario_id;
+    document.getElementById("experiencia_id").textContent = r.experiencia_id;
+    document.getElementById("fecha_reserva").textContent  = r.fecha_reserva
+        ? r.fecha_reserva.replace("T", " ").substring(0, 16)
+        : "—";
+    document.getElementById("numero_personas").textContent = r.numero_personas;
+    document.getElementById("precio_total").textContent   = parseFloat(r.precio_total).toFixed(2) + " €";
+    document.getElementById("estado").textContent         = r.estado;
+    document.getElementById("editar").href                = `edit.html?id=${id}`;
 }
 
-cargarPelicula();
+cargarReserva();

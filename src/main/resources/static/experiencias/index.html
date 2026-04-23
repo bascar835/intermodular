@@ -1,36 +1,72 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-
-<meta charset="UTF-8">
-<title>Categorias</title>
-
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-<link rel="stylesheet" href="/css/app.css">
-
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Experiencias · Xperiabox</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="css/experiencia.css"/>
 </head>
-
 <body>
-	
-	<nav class="navbar">
-	    <a class="navbar-brand"><span></span> Experiencias</a>
-
-	    <ul class="navbar-nav">
-	        <li><a href="#">Inicio</a></li>
-	        <li><a href="#"> Experiencias</a></li>
-	        <li><a href="#"> Iniciar sesión</a></li>
-	    </ul>
-	</nav>
-
-<div class="container">
-
-<h1 class="mb-4">Categorias</h1>
-
-<ul id="lista-categorias" class="list-group"></ul>
-
-</div>
-
-<script src="js/index.js"></script>
-
+ 
+  <!-- HERO + BUSCADOR -->
+  <section class="hero">
+    <div class="hero-inner">
+      <span class="eyebrow">Descubre · Vive · Recuerda</span>
+      <h1 class="hero-title">Todas nuestras<br/><em>experiencias</em></h1>
+      <p class="hero-sub">15 aventuras únicas en toda España</p>
+ 
+      <div class="search-wrap">
+        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+        <input id="buscador" type="search" placeholder="Busca por nombre, lugar o actividad…" autocomplete="off"/>
+        <button class="search-clear" id="btn-clear" aria-label="Limpiar">✕</button>
+      </div>
+    </div>
+  </section>
+ 
+  <!-- CONTENIDO PRINCIPAL -->
+  <main class="container">
+ 
+    <!-- Filtros de categoría — se generan dinámicamente desde /api/categorias -->
+    <div class="filters-bar" id="filters-bar">
+      <button class="f-btn active" data-cat="0">Todas <span class="f-count">–</span></button>
+    </div>
+ 
+    <!-- Fila resultados -->
+    <div class="results-row">
+      <p id="contador"></p>
+      <span class="sort-label">Ordenado por categoría</span>
+    </div>
+ 
+    <!-- Spinner -->
+    <div id="spinner" class="spinner-wrap" style="display:none">
+      <div class="ring"></div>
+      <p class="spin-txt">Cargando experiencias…</p>
+    </div>
+ 
+    <!-- Estado vacío -->
+    <div id="vacio" class="empty" style="display:none">
+      <span class="empty-emoji">🗺️</span>
+      <p class="empty-title">Sin resultados</p>
+      <p class="empty-sub">No encontramos experiencias que coincidan con tu búsqueda.</p>
+      <button class="empty-reset" id="btn-reset">Ver todas las experiencias</button>
+    </div>
+ 
+    <!-- Grid de cards -->
+    <div id="grid" class="grid-exp"></div>
+ 
+  </main>
+ 
+  <!-- FOOTER -->
+  <footer class="site-footer">
+    <div class="container">© 2025 Xperiabox · Vive experiencias únicas</div>
+  </footer>
+ 
+  <script src="/experiencias/js/navbar.js"></script>
+  <script src="js/index.js"></script>
 </body>
 </html>

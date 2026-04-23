@@ -2,83 +2,96 @@ package com.example.experiencias.entity;
 
 import java.time.LocalDateTime;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 public class Reserva {
 
-	private Integer id;
-	private int usuario_id;
-	private LocalDateTime data_reserva;
-	private int numero_personas;
-	private Double precio_total;
-	private String estado;
+    private Integer id;
+    private int usuario_id;
+    private int experiencia_id;
 
-	//CONSTRUCTORES
-	public Reserva(Integer id, int usuario_id, LocalDateTime data_reserva, int numero_personas, Double precio_total,
-			String estado) {
-		super();
-		this.id = id;
-		this.usuario_id = usuario_id;
-		this.data_reserva = data_reserva;
-		this.numero_personas = numero_personas;
-		this.precio_total = precio_total;
-		this.estado = estado;
-	}
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm")
+    private LocalDateTime fecha_reserva;
+    private int numero_personas;
+    private Double precio_total;
+    private String estado;
 
-	public Reserva() {
-		// TODO Auto-generated constructor stub
-	}
+    // Constructor completo
+    public Reserva(Integer id, int usuario_id, int experiencia_id, LocalDateTime fecha_reserva,
+                   int numero_personas, Double precio_total, String estado) {
+        this.id = id;
+        this.usuario_id = usuario_id;
+        this.experiencia_id = experiencia_id;
+        this.fecha_reserva = fecha_reserva;
+        this.numero_personas = numero_personas;
+        this.precio_total = precio_total;
+        this.estado = estado;
+    }
 
-	public Integer getId() {
-		return id;
-	}
+    // Constructor vacío (Spring y Mapper lo necesitan)
+    public Reserva() {
+    }
 
-	public int getUsuario_id() {
-		return usuario_id;
-	}
+    public Integer getId() {
+        return id;
+    }
 
-	public LocalDateTime getData_reserva() {
-		return data_reserva;
-	}
+    public int getUsuario_id() {
+        return usuario_id;
+    }
 
-	public int getNumero_personas() {
-		return numero_personas;
-	}
+    public int getExperiencia_id() {
+        return experiencia_id;
+    }
 
-	public Double getPrecio_total() {
-		return precio_total;
-	}
+    public LocalDateTime getFecha_reserva() {
+        return fecha_reserva;
+    }
 
-	public String getEstado() {
-		return estado;
-	}
+    public int getNumero_personas() {
+        return numero_personas;
+    }
 
-	public void setId(Integer id) {
-		this.id = id;
-	}
+    public Double getPrecio_total() {
+        return precio_total;
+    }
 
-	public void setUsuario_id(int usuario_id) {
-		this.usuario_id = usuario_id;
-	}
+    public String getEstado() {
+        return estado;
+    }
 
-	public void setData_reserva(LocalDateTime data_reserva) {
-		this.data_reserva = data_reserva;
-	}
+    public void setId(Integer id) {
+        this.id = id;
+    }
 
-	public void setNumero_personas(int numero_personas) {
-		this.numero_personas = numero_personas;
-	}
+    public void setUsuario_id(int usuario_id) {
+        this.usuario_id = usuario_id;
+    }
 
-	public void setPrecio_total(Double precio_total) {
-		this.precio_total = precio_total;
-	}
+    public void setExperiencia_id(int experiencia_id) {
+        this.experiencia_id = experiencia_id;
+    }
 
-	public void setEstado(String estado) {
-		this.estado = estado;
-	}
+    public void setFecha_reserva(LocalDateTime fecha_reserva) {
+        this.fecha_reserva = fecha_reserva;
+    }
 
-	@Override
-	public String toString() {
-		return "Reserva [id=" + id + ", usuario_id=" + usuario_id + ", data_reserva=" + data_reserva
-				+ ", numero_personas=" + numero_personas + ", precio_total=" + precio_total + ", estado=" + estado
-				+ "]";
-	}
+    public void setNumero_personas(int numero_personas) {
+        this.numero_personas = numero_personas;
+    }
+
+    public void setPrecio_total(Double precio_total) {
+        this.precio_total = precio_total;
+    }
+
+    public void setEstado(String estado) {
+        this.estado = estado;
+    }
+
+    @Override
+    public String toString() {
+        return "Reserva [id=" + id + ", usuario_id=" + usuario_id + ", experiencia_id=" + experiencia_id
+                + ", fecha_reserva=" + fecha_reserva + ", numero_personas=" + numero_personas
+                + ", precio_total=" + precio_total + ", estado=" + estado + "]";
+    }
 }

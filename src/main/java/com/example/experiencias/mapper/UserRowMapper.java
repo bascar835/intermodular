@@ -9,13 +9,14 @@ public class UserRowMapper implements RowMapper<User> {
 
     @Override
     public User map(ResultSet rs) throws SQLException {
-        return new User(
-            rs.getInt("id"),
-            rs.getString("nombre"),      // era "name"
-            rs.getString("email"),
-            rs.getString("password"),
-            rs.getString("rol"),         // era "role"
-            rs.getTimestamp("fecha_registro").toLocalDateTime()  // era "fecha_creacion"
-        );
+    	return new User(
+    			rs.getInt("id"),
+    			rs.getString("nombre"),
+    			rs.getString("email"),
+    			rs.getString("password"),
+    			rs.getString("rol"),
+    			rs.getTimestamp("fecha_registro").toLocalDateTime(),
+    			rs.getBoolean("deleted")
+    			);
     }
 }

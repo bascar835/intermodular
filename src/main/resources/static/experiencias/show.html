@@ -1,44 +1,182 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-
-<meta charset="UTF-8">
-<title>Película</title>
-
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-<link rel="stylesheet" href="/css/app.css">
-
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Detalle experiencia · Xperiabox</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="css/experiencia.css"/>
+  <link rel="stylesheet" href="css/show.css"/>
 </head>
-
 <body>
+ 
+  <!-- HEADER -->
+  <header class="site-header">
+    <div class="hdr-inner">
+      <a href="/experiencias/index.html" class="logo">Xperiabox<span class="logo-dot">.</span></a>
+      <nav class="nav">
+        <a href="/experiencias/index.html" class="nav-a">← Volver a experiencias</a>
+        <a href="/experiencias/categorias.html" class="nav-a">Categorías</a>
+        <a href="/experiencias/carrito.html" class="nav-a">🛒 Carrito</a>
+        <a href="/experiencias/login.html" class="nav-a" id="nav-auth-link">👤 Iniciar sesión</a>
+      </nav>
+    </div>
+  </header>
+ 
+  <!-- SPINNER de carga -->
+  <div id="spinner" class="spinner-wrap">
+    <div class="ring"></div>
+    <p class="spin-txt">Cargando experiencia…</p>
+  </div>
+ 
+  <!-- ERROR (404 / 500) -->
+  <div id="error-box" class="error-box" style="display:none">
+    <span class="error-emoji">😕</span>
+    <p class="error-title">Experiencia no encontrada</p>
+    <p class="error-sub">Es posible que haya sido eliminada o el enlace sea incorrecto.</p>
+    <a href="/experiencias/index.html" class="btn-volver">Ver todas las experiencias</a>
+  </div>
+ 
+  <!-- CONTENIDO PRINCIPAL — se rellena con JS -->
+  <main id="detalle" style="display:none">
+ 
+    <!-- HERO de la experiencia -->
+    <section class="det-hero" id="det-hero">
+      <div class="det-hero-inner">
+        <div class="det-breadcrumb">
+          <a href="/experiencias/index.html">Experiencias</a>
+          <span>›</span>
+          <span id="bc-categoria"></span>
+          <span>›</span>
+          <span id="bc-titulo"></span>
+        </div>
+        <span class="det-badge" id="det-badge"></span>
+        <h1 class="det-titulo" id="det-titulo"></h1>
+        <div class="det-hero-meta">
+          <span class="det-meta-item" id="det-ubicacion"></span>
+          <span class="det-meta-sep">·</span>
+          <span class="det-meta-item" id="det-duracion"></span>
+        </div>
+      </div>
+      <!-- Decoración geométrica -->
+      <div class="hero-deco"></div>
+    </section>
+ 
+    <!-- CUERPO: info + sidebar -->
+    <div class="det-layout container">
+ 
+      <!-- COLUMNA IZQUIERDA: descripción + detalles + recomendaciones -->
+      <div class="det-content">
+ 
+                <!-- Galería de imágenes -->
+        <section class="det-section" id="galeria-section" style="display:none">
+          <h2 class="det-section-title">Galería</h2>
+          <div class="galeria-main">
+            <img id="galeria-img-principal" src="" alt="Imagen principal" class="galeria-principal">
+          </div>
+          <div class="galeria-thumbs" id="galeria-thumbs"></div>
+        </section>
 
-<div class="container">
-
-<h1 id="titulo" class="mb-3"></h1>
-
-<ul class="list-group mb-3">
-
-<li class="list-group-item">
-<strong>Año:</strong> <span id="anyo"></span>
-</li>
-
-<li class="list-group-item">
-<strong>Duración:</strong> <span id="duracion"></span>
-</li>
-
-<li class="list-group-item">
-<strong>Director:</strong> <span id="director"></span>
-</li>
-
-</ul>
-
-<p id="sinopsis" class="sinopsis"></p>
-
-<a href="index.html" class="btn btn-secondary mt-3">Volver</a>
-
-</div>
-
-<script src="js/show.js"></script>
-
+        <!-- Descripción general -->
+        <section class="det-section">
+          <h2 class="det-section-title">Sobre esta experiencia</h2>
+          <p class="det-desc" id="det-desc"></p>
+        </section>
+ 
+        <!-- Detalles rápidos -->
+        <section class="det-section">
+          <h2 class="det-section-title">Detalles</h2>
+          <div class="det-detalles-grid" id="det-detalles-grid">
+            <!-- Se genera con JS -->
+          </div>
+        </section>
+ 
+        <!-- Recomendaciones — texto estático enriquecido por categoría -->
+        <section class="det-section">
+          <h2 class="det-section-title">¿Qué te recomendamos?</h2>
+          <div class="det-recomendaciones" id="det-recomendaciones">
+            <!-- Se genera con JS según la categoría -->
+          </div>
+        </section>
+ 
+        <!-- Incluido en el precio -->
+        <section class="det-section">
+          <h2 class="det-section-title">¿Qué incluye?</h2>
+          <ul class="det-incluye" id="det-incluye">
+            <!-- Se genera con JS según la categoría -->
+          </ul>
+        </section>
+ 
+      </div>
+ 
+      <!-- COLUMNA DERECHA: tarjeta de compra -->
+      <aside class="det-sidebar">
+        <div class="det-compra-card">
+ 
+          <div class="compra-precio-wrap">
+            <span class="compra-precio" id="compra-precio"></span>
+            <span class="compra-por">por persona</span>
+          </div>
+ 
+          <div class="compra-info-row">
+            <span>📍</span>
+            <span id="compra-ubicacion"></span>
+          </div>
+          <div class="compra-info-row">
+            <span>⏱</span>
+            <span id="compra-duracion"></span>
+          </div>
+          <div class="compra-info-row">
+            <span>🏷</span>
+            <span id="compra-categoria"></span>
+          </div>
+ 
+          <hr class="compra-sep"/>
+ 
+          <!-- Selector de personas -->
+          <div class="compra-personas">
+            <label class="compra-label">Número de personas</label>
+            <div class="personas-ctrl">
+              <button class="personas-btn" id="btn-menos">−</button>
+              <span class="personas-num" id="num-personas">1</span>
+              <button class="personas-btn" id="btn-mas">+</button>
+            </div>
+          </div>
+ 
+          <!-- Total calculado -->
+          <div class="compra-total-wrap">
+            <span class="compra-total-label">Total</span>
+            <span class="compra-total" id="compra-total"></span>
+          </div>
+ 
+          <!-- BOTÓN AÑADIR AL CARRITO -->
+          <!-- Este botón está preparado para conectarse con el carrito
+               de tu compañero. Emite un evento 'añadirAlCarrito' con
+               los datos de la experiencia para facilitar la integración. -->
+          <button class="btn-carrito" id="btn-carrito">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
+              <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+            </svg>
+            Añadir al carrito
+          </button>
+ 
+          <p class="compra-nota">✓ Reserva flexible · Cancela gratis 48h antes</p>
+        </div>
+      </aside>
+ 
+    </div>
+ 
+  </main>
+ 
+  <!-- FOOTER -->
+  <footer class="site-footer">
+    <div class="container">© 2025 Xperiabox · Vive experiencias únicas</div>
+  </footer>
+ 
+  <script src="/experiencias/js/navbar.js"></script>
+  <script src="/experiencias/js/show.js"></script>
 </body>
 </html>

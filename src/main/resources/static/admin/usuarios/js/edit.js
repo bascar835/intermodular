@@ -1,74 +1,49 @@
 function obtenerId() {
-
-    const params = new URLSearchParams(window.location.search);
-    return params.get("id");
-}
-
-async function cargarDirectores() {
-
-    const response = await fetch("/api/admin/directores");
-    const directores = await response.json();
-
-    const select = document.getElementById("director");
-
-    directores.forEach(d => {
-
-        const option = document.createElement("option");
-
-        option.value = d.id;
-        option.textContent = d.nombre;
-
-        select.appendChild(option);
-    });
+    return new URLSearchParams(window.location.search).get("id");
 }
 
 async function cargar() {
-
     const id = obtenerId();
+    const response = await authFetch(`/api/admin/users/${id}`);
+    if (!response) return;
+    const u = await response.json();
 
-    const response = await fetch(`/api/admin/peliculas/${id}`);
-    const p = await response.json();
-
-    titulo.value = p.titulo;
-    anyo.value = p.anyo;
-    duracion.value = p.duracion;
-    sinopsis.value = p.sinopsis;
-    director.value = p.director_id;
+    document.getElementById("nombre").value = u.name;
+    document.getElementById("email").value = u.email;
+    document.getElementById("rol").value = u.role;
+    document.getElementById("password").value = "";
 }
 
 async function guardar(e) {
-
     e.preventDefault();
-
     const id = obtenerId();
 
-    const pelicula = {
-
-        titulo: titulo.value,
-        anyo: anyo.value,
-        duracion: duracion.value,
-        sinopsis: sinopsis.value,
-        director_id: director.value
-    };
-
-    await fetch(`/api/admin/peliculas/${id}`, {
-
+    const response = await authFetch(`/api/admin/users/${id}`, {
         method: "PUT",
-
-        headers: {
-            "Content-Type": "application/json"
-        },
-
-        body: JSON.stringify(pelicula)
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            name: document.getElementById("nombre").value,
+            email: document.getElementById("email").value,
+            password: document.getElementById("password").value,
+            role: document.getElementById("rol").value
+        })
     });
 
-    location.href = "index.html";
+    if (!response) return;
+
+    if (response.status === 409) {
+        // Email duplicado al editar
+        alert("Ese correo ya pertenece a otro usuario. Elige un email diferente.");
+        document.getElementById("email").focus();
+        return;
+    }
+
+    if (response.ok) {
+        location.href = "index.html";
+    } else {
+        const msg = await response.text();
+        alert("Error al guardar: " + (msg || "Revisa los datos."));
+    }
 }
 
-async function init() {
-
-    await cargarDirectores();
-    await cargar();
-}
-
-init();
+cargar();
