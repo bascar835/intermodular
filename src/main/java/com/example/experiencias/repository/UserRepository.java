@@ -165,25 +165,13 @@ public class UserRepository extends BaseRepository<User> {
         return count != null ? count : 0;
     }
 
-    // ✅ Verificar si el usuario tiene reservas (usa columna usuario_id de peliculas-v4)
-    public boolean hasReservas(int userId) {
+    // ✅ Eliminar todas las reservas de un usuario
+    public void eliminarReservas(int userId) {
         String sql = """
-            SELECT COUNT(*)
-            FROM reservas
+            DELETE FROM reservas
             WHERE usuario_id = ?
         """;
-        Integer total = DB.queryOne(con, sql, rs -> rs.getInt(1), userId);
-        return total != null && total > 0;
-    }
-
-    // ✅ Migrar reservas de un usuario a otro
-    public void migrarReservas(int origen, int destino) {
-        String sql = """
-            UPDATE reservas
-            SET usuario_id = ?
-            WHERE usuario_id = ?
-        """;
-        DB.update(con, sql, destino, origen);
+        DB.update(con, sql, userId);
     }
 
     // ✅ Soft delete: marca deleted=true en lugar de borrar

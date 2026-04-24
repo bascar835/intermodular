@@ -24,49 +24,15 @@ async function cargarUsuarios() {
 }
 
 async function eliminar(id) {
-    // Comprobar si tiene reservas
-    const checkRes = await authFetch(`/api/admin/users/${id}/has-reservas`);
-    const tieneReservas = checkRes && await checkRes.json();
+    if (!confirm("¿Eliminar este usuario? Se eliminarán también todas sus reservas asociadas.")) return;
 
-    if (tieneReservas) {
-        const migrar = confirm(
-            "Este usuario tiene reservas activas.\n\n" +
-            "¿Deseas migrar sus reservas a otro usuario antes de eliminar?\n\n" +
-            "Pulsa Aceptar para migrar, Cancelar para eliminar sin migrar."
-        );
+    const res = await authFetch(`/api/admin/users/${id}`, { method: "DELETE" });
+    const msg = await res.text();
 
-        if (migrar) {
-            const destino = prompt("Introduce el ID del usuario destino para las reservas:");
-            if (!destino) return;
-
-            const res = await authFetch(
-                `/api/admin/users/${id}?migrateTo=${destino}`,
-                { method: "DELETE" }
-            );
-            const msg = await res.text();
-            alert(res.ok ? "Usuario eliminado y reservas migradas correctamente." : msg);
-        } else {
-            const confirmar = confirm(
-                "¿Seguro que deseas eliminar el usuario SIN migrar sus reservas?\n" +
-                "Las reservas quedarán huérfanas."
-            );
-            if (!confirmar) return;
-
-            const res = await authFetch(`/api/admin/users/${id}`, { method: "DELETE" });
-            const msg = await res.text();
-            alert(res.ok ? "Usuario eliminado." : msg);
-        }
+    if (res.ok) {
+        alert("Usuario y sus reservas eliminados correctamente.");
     } else {
-        if (!confirm("¿Eliminar este usuario?")) return;
-
-        const res = await authFetch(`/api/admin/users/${id}`, { method: "DELETE" });
-        if (res && res.ok) {
-            // ok
-        } else {
-            const msg = await res.text();
-            // Puede ser error de último admin
-            alert(msg || "Error al eliminar el usuario");
-        }
+        alert(msg || "Error al eliminar el usuario.");
     }
 
     cargarUsuarios();

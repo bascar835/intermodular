@@ -61,7 +61,6 @@ public class UserAdminController {
         try (Connection con = ds.getConnection()) {
             UserRepository repo = new UserRepository(con);
 
-            // ✅ Validar email único al crear
             if (repo.emailExists(req.email())) {
                 throw new ResponseStatusException(
                     HttpStatus.CONFLICT, "El correo ya está en uso por otro usuario");
@@ -97,7 +96,6 @@ public class UserAdminController {
                     HttpStatus.NOT_FOUND, "Usuario no encontrado con id: " + id);
             }
 
-            // ✅ Validar email único al editar (excluye el propio usuario)
             if (repo.emailExistsForOtherUser(req.email(), id)) {
                 throw new ResponseStatusException(
                     HttpStatus.CONFLICT, "El correo está duplicado: ya pertenece a otro usuario");
@@ -109,7 +107,7 @@ public class UserAdminController {
             user.setEmail(req.email());
             user.setPassword(passwordEncoder.encode(req.password()));
             user.setRole(req.role() != null ? req.role() : "ROLE_USER");
-            user.setFechaCreacion(existing.getFechaCreacion()); // preservar fecha original
+            user.setFechaCreacion(existing.getFechaCreacion());
             user.setDeleted(existing.getDeleted() != null ? existing.getDeleted() : false);
 
             repo.update(user);
@@ -123,10 +121,8 @@ public class UserAdminController {
     }
 
     // DELETE /api/admin/users/{id}
-    // Opcional: ?migrateTo=<otroUserId> para migrar reservas antes de eliminar
     @DeleteMapping("/{id}")
-    public String destroy(@PathVariable int id,
-                          @RequestParam(required = false) Integer migrateTo) {
+    public String destroy(@PathVariable int id) {
         try (Connection con = ds.getConnection()) {
             UserRepository repo = new UserRepository(con);
 
@@ -136,49 +132,24 @@ public class UserAdminController {
                     HttpStatus.NOT_FOUND, "Usuario no encontrado con id: " + id);
             }
 
-            // ✅ No permitir eliminar el último admin
             if ("ROLE_ADMIN".equals(existing.getRole()) && repo.countAdmins() <= 1) {
                 throw new ResponseStatusException(
                     HttpStatus.CONFLICT,
                     "No se puede eliminar el último administrador del sistema");
             }
 
-            // ✅ Si tiene reservas y se pide migración
-            if (migrateTo != null) {
-                User destino = repo.find(migrateTo);
-                if (destino == null || Boolean.TRUE.equals(destino.getDeleted())) {
-                    throw new ResponseStatusException(
-                        HttpStatus.NOT_FOUND,
-                        "Usuario destino no encontrado con id: " + migrateTo);
-                }
-                repo.migrarReservas(id, migrateTo);
-            } else if (repo.hasReservas(id)) {
-                // Tiene reservas pero no se indicó migración: informar al frontend
-                throw new ResponseStatusException(
-                    HttpStatus.CONFLICT,
-                    "El usuario tiene reservas activas. Usa ?migrateTo=<id> para migrarlas antes de eliminar, o confirma la eliminación directa");
-            }
+            // Eliminar reservas del usuario antes de eliminarlo
+            repo.eliminarReservas(id);
 
-            // ✅ Soft delete
             boolean deleted = repo.softDelete(id);
             if (!deleted) {
                 throw new ResponseStatusException(
                     HttpStatus.INTERNAL_SERVER_ERROR, "No se pudo eliminar el usuario");
             }
 
-            return "Usuario eliminado correctamente";
+            return "Usuario y sus reservas eliminados correctamente";
         } catch (ResponseStatusException e) {
             throw e;
-        } catch (SQLException e) {
-            throw new DataAccessException(e);
-        }
-    }
-
-    // GET /api/admin/users/{id}/has-reservas — consulta previa para el frontend
-    @GetMapping("/{id}/has-reservas")
-    public boolean hasReservas(@PathVariable int id) {
-        try (Connection con = ds.getConnection()) {
-            return new UserRepository(con).hasReservas(id);
         } catch (SQLException e) {
             throw new DataAccessException(e);
         }
