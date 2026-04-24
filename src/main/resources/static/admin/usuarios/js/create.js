@@ -12,9 +12,19 @@ async function guardar(e) {
         })
     });
 
-    if (response && response.ok) {
+    if (!response) return;
+
+    if (response.status === 409) {
+        // Email duplicado
+        alert("Este correo ya está en uso. Introduce otro email.");
+        document.getElementById("email").focus();
+        return;
+    }
+
+    if (response.ok) {
         location.href = "index.html";
     } else {
-        alert("Error al crear el usuario. Revisa los datos.");
+        const msg = await response.text();
+        alert("Error al crear el usuario: " + (msg || "Revisa los datos."));
     }
 }

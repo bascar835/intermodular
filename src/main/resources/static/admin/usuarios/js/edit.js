@@ -18,7 +18,7 @@ async function guardar(e) {
     e.preventDefault();
     const id = obtenerId();
 
-    await authFetch(`/api/admin/users/${id}`, {
+    const response = await authFetch(`/api/admin/users/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -29,7 +29,21 @@ async function guardar(e) {
         })
     });
 
-    location.href = "index.html";
+    if (!response) return;
+
+    if (response.status === 409) {
+        // Email duplicado al editar
+        alert("Ese correo ya pertenece a otro usuario. Elige un email diferente.");
+        document.getElementById("email").focus();
+        return;
+    }
+
+    if (response.ok) {
+        location.href = "index.html";
+    } else {
+        const msg = await response.text();
+        alert("Error al guardar: " + (msg || "Revisa los datos."));
+    }
 }
 
 cargar();

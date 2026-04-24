@@ -59,16 +59,27 @@ public class UserAdminController {
     @ResponseStatus(HttpStatus.CREATED)
     public UserResponse store(@Valid @RequestBody UserRequest req) {
         try (Connection con = ds.getConnection()) {
+            UserRepository repo = new UserRepository(con);
+
+            // ✅ Validar email único al crear
+            if (repo.emailExists(req.email())) {
+                throw new ResponseStatusException(
+                    HttpStatus.CONFLICT, "El correo ya está en uso por otro usuario");
+            }
+
             User user = new User();
             user.setName(req.name());
             user.setEmail(req.email());
             user.setPassword(passwordEncoder.encode(req.password()));
             user.setRole(req.role() != null ? req.role() : "ROLE_USER");
             user.setFechaCreacion(LocalDateTime.now());
+            user.setDeleted(false);
 
-            new UserRepository(con).insert(user);
+            repo.insert(user);
 
             return new UserResponse(user.getId(), user.getName(), user.getEmail(), user.getRole());
+        } catch (ResponseStatusException e) {
+            throw e;
         } catch (SQLException e) {
             throw new DataAccessException(e);
         }
@@ -80,11 +91,16 @@ public class UserAdminController {
         try (Connection con = ds.getConnection()) {
             UserRepository repo = new UserRepository(con);
 
-            // Verificar que existe y obtener la fecha original para no sobreescribirla
             User existing = repo.find(id);
             if (existing == null) {
                 throw new ResponseStatusException(
                     HttpStatus.NOT_FOUND, "Usuario no encontrado con id: " + id);
+            }
+
+            // ✅ Validar email único al editar (excluye el propio usuario)
+            if (repo.emailExistsForOtherUser(req.email(), id)) {
+                throw new ResponseStatusException(
+                    HttpStatus.CONFLICT, "El correo está duplicado: ya pertenece a otro usuario");
             }
 
             User user = new User();
@@ -94,25 +110,75 @@ public class UserAdminController {
             user.setPassword(passwordEncoder.encode(req.password()));
             user.setRole(req.role() != null ? req.role() : "ROLE_USER");
             user.setFechaCreacion(existing.getFechaCreacion()); // preservar fecha original
+            user.setDeleted(existing.getDeleted() != null ? existing.getDeleted() : false);
 
             repo.update(user);
 
             return new UserResponse(user.getId(), user.getName(), user.getEmail(), user.getRole());
+        } catch (ResponseStatusException e) {
+            throw e;
         } catch (SQLException e) {
             throw new DataAccessException(e);
         }
     }
 
     // DELETE /api/admin/users/{id}
+    // Opcional: ?migrateTo=<otroUserId> para migrar reservas antes de eliminar
     @DeleteMapping("/{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void destroy(@PathVariable int id) {
+    public String destroy(@PathVariable int id,
+                          @RequestParam(required = false) Integer migrateTo) {
         try (Connection con = ds.getConnection()) {
-            boolean deleted = new UserRepository(con).delete(id);
-            if (!deleted) {
+            UserRepository repo = new UserRepository(con);
+
+            User existing = repo.find(id);
+            if (existing == null || Boolean.TRUE.equals(existing.getDeleted())) {
                 throw new ResponseStatusException(
                     HttpStatus.NOT_FOUND, "Usuario no encontrado con id: " + id);
             }
+
+            // ✅ No permitir eliminar el último admin
+            if ("ROLE_ADMIN".equals(existing.getRole()) && repo.countAdmins() <= 1) {
+                throw new ResponseStatusException(
+                    HttpStatus.CONFLICT,
+                    "No se puede eliminar el último administrador del sistema");
+            }
+
+            // ✅ Si tiene reservas y se pide migración
+            if (migrateTo != null) {
+                User destino = repo.find(migrateTo);
+                if (destino == null || Boolean.TRUE.equals(destino.getDeleted())) {
+                    throw new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Usuario destino no encontrado con id: " + migrateTo);
+                }
+                repo.migrarReservas(id, migrateTo);
+            } else if (repo.hasReservas(id)) {
+                // Tiene reservas pero no se indicó migración: informar al frontend
+                throw new ResponseStatusException(
+                    HttpStatus.CONFLICT,
+                    "El usuario tiene reservas activas. Usa ?migrateTo=<id> para migrarlas antes de eliminar, o confirma la eliminación directa");
+            }
+
+            // ✅ Soft delete
+            boolean deleted = repo.softDelete(id);
+            if (!deleted) {
+                throw new ResponseStatusException(
+                    HttpStatus.INTERNAL_SERVER_ERROR, "No se pudo eliminar el usuario");
+            }
+
+            return "Usuario eliminado correctamente";
+        } catch (ResponseStatusException e) {
+            throw e;
+        } catch (SQLException e) {
+            throw new DataAccessException(e);
+        }
+    }
+
+    // GET /api/admin/users/{id}/has-reservas — consulta previa para el frontend
+    @GetMapping("/{id}/has-reservas")
+    public boolean hasReservas(@PathVariable int id) {
+        try (Connection con = ds.getConnection()) {
+            return new UserRepository(con).hasReservas(id);
         } catch (SQLException e) {
             throw new DataAccessException(e);
         }

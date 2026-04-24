@@ -15,7 +15,8 @@ public class UserMapper implements RowMapper<User> {
             rs.getString("email"),
             rs.getString("password"),
             rs.getString("rol"),         // era "role"
-            rs.getTimestamp("fecha_registro").toLocalDateTime()  // era "fecha_creacion"
+            rs.getTimestamp("fecha_registro").toLocalDateTime(),  // era "fecha_creacion"
+            rs.getBoolean("deleted")
         );
     }
 }
