@@ -18,6 +18,7 @@
         <div class="hdr-inner">
             <a href="/experiencias/index.html" class="logo">Xperiabox<span class="logo-dot">.</span></a>
             <nav class="nav">
+				<a href="/experiencias/como-funciona.html" class="nav-a${isActive('/como-funciona')}">Cómo funciona</a>
                 <a href="/experiencias/index.html"   class="nav-a${isActive('/experiencias/index')}">Experiencias</a>
                 <a href="/experiencias/categorias.html" class="nav-a${isActive('/experiencias/categorias')}">Categorías</a>
                 <a href="/experiencias/carrito.html" class="nav-a${isActive('/experiencias/carrito')}">🛒 Carrito</a>
