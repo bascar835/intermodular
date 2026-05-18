@@ -12,7 +12,8 @@ public class CategoriaMapper implements RowMapper<Categoria> {
             rs.getInt("id"),
             rs.getString("nombre"),
             rs.getString("descripcion"),
-            rs.getString("imagen_url")
+            rs.getString("imagen_url"),
+            rs.getBoolean("activo")
         );
     }
 }

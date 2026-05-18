@@ -42,7 +42,7 @@ public class UserController {
 
     // GET /api/users/{id} → usuario por id
     @GetMapping("/{id}")
-    public UserResponse getUserById(@PathVariable int id) {
+    public UserResponse getUserById(@PathVariable("id") int id) {
         try (Connection con = ds.getConnection()) {
             Optional<UserResponse> user = new UserRepository(con).findResponseById(id);
             return user.orElseThrow(() ->
@@ -73,7 +73,7 @@ public class UserController {
 
     // PUT /api/users/{id} → actualizar usuario
     @PutMapping("/{id}")
-    public UserResponse updateUser(@PathVariable int id, @RequestBody User user) {
+    public UserResponse updateUser(@PathVariable("id") int id, @RequestBody User user) {
         try (Connection con = ds.getConnection()) {
             user.setId(id);
             if (user.getPassword() != null && !user.getPassword().isBlank()) {
@@ -93,7 +93,7 @@ public class UserController {
 
     // DELETE /api/users/{id} → eliminar usuario
     @DeleteMapping("/{id}")
-    public String deleteUser(@PathVariable int id) {
+    public String deleteUser(@PathVariable("id") int id) {
         try (Connection con = ds.getConnection()) {
             boolean deleted = new UserRepository(con).delete(id);
             return deleted ? "Usuario eliminado" : "No se pudo eliminar el usuario";

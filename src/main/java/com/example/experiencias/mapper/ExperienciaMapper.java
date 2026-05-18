@@ -14,7 +14,7 @@ public class ExperienciaMapper implements RowMapper<Experiencia> {
             rs.getString("descripcion"),
             rs.getDouble("precio"),
             rs.getString("ubicacion"),
-            rs.getInt("duracion_horas"),
+            (int) rs.getDouble("duracion_horas"),   // numeric(4,2) en PG → castear via double
             rs.getInt("categoria_id"),
             rs.getTimestamp("fecha_creacion") != null
                 ? rs.getTimestamp("fecha_creacion").toLocalDateTime()

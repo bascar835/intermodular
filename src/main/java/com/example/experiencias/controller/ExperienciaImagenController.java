@@ -32,7 +32,7 @@ public class ExperienciaImagenController extends BaseController {
     // POST /api/admin/experiencias/{experienciaId}/imagenes
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public ExperienciaImagen store(@PathVariable int experienciaId,
+    public ExperienciaImagen store(@PathVariable("experienciaId") int experienciaId,
                                    @RequestParam("file") MultipartFile file) {
 
         try (Connection con = ds.getConnection()) {
@@ -63,7 +63,7 @@ public class ExperienciaImagenController extends BaseController {
     // DELETE /api/admin/experiencias/{experienciaId}/imagenes/{id}
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void delete(@PathVariable int id) {
+    public void delete(@PathVariable("id") int id) {
 
         try (Connection con = ds.getConnection()) {
 

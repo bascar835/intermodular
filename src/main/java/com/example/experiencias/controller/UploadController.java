@@ -20,7 +20,7 @@ public class UploadController {
     private static final String BASE_DIR = "uploads";
 
     @PostMapping("/{folder}")
-    public ResponseEntity<?> upload(@PathVariable String folder,
+    public ResponseEntity<?> upload(@PathVariable("folder") String folder,
                                     @RequestParam("file") MultipartFile file) {
 
         if (!List.of("experiencias", "categorias", "usuarios").contains(folder)) {

@@ -15,17 +15,6 @@ import com.example.experiencias.dto.ExperienciaResumen;
 import com.example.experiencias.exception.DataAccessException;
 import com.example.experiencias.repository.ExperienciaRepository;
 
-/**
- * Controlador público — apartado Experiencias
- *
- * GET  /api/experiencias          → todas (con categoria_nombre)
- * POST /api/experiencias/filtrar  → body: { "categoria_id": 1 }
- * POST /api/experiencias/buscar   → body: { "q": "texto" }
- * GET  /api/experiencias/{id}     → detalle de una experiencia
- *
- * SNAKE_CASE activo en application.properties:
- *   el frontend envía "categoria_id" y recibe "duracion_horas", "categoria_nombre", etc.
- */
 @RestController
 @RequestMapping("/api/experiencias")
 public class ExperienciaController {
@@ -53,23 +42,30 @@ public class ExperienciaController {
 
     // ── GET /api/experiencias/{id} ───────────────────────────────────
     @GetMapping("/{id}")
-    public ResponseEntity<?> detalle(@PathVariable int id) {
+    public ResponseEntity<?> detalle(@PathVariable("id") int id) {
         try (Connection con = ds.getConnection()) {
             ExperienciaDetalle exp = new ExperienciaRepository(con).findDetalle(id);
             if (exp == null) {
                 return ResponseEntity.status(404).body(Map.of(
-                    "ok",    false,
-                    "error", "Experiencia no encontrada"
+                    "ok",      false,
+                    "error",   "Experiencia no encontrada",
+                    "message", "Experiencia no encontrada"
                 ));
             }
             return ResponseEntity.ok(Map.of("ok", true, "data", exp));
-        } catch (SQLException e) {
-            throw new DataAccessException(e);
+        } catch (Exception e) {
+            // Log completo para diagnóstico
+            System.err.println("[ExperienciaController.detalle] id=" + id + " ERROR: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.status(500).body(Map.of(
+                "ok",      false,
+                "message", "Error cargando experiencia: " + e.getMessage(),
+                "causa",   e.getCause() != null ? e.getCause().getMessage() : "sin causa"
+            ));
         }
     }
 
     // ── POST /api/experiencias/filtrar ───────────────────────────────
-    // Body JSON: { "categoria_id": 1 }
     @PostMapping("/filtrar")
     public ResponseEntity<?> filtrar(@RequestBody Map<String, Object> body) {
         if (body == null || !body.containsKey("categoria_id")) {
@@ -101,7 +97,6 @@ public class ExperienciaController {
     }
 
     // ── POST /api/experiencias/buscar ────────────────────────────────
-    // Body JSON: { "q": "valencia" }
     @PostMapping("/buscar")
     public ResponseEntity<?> buscar(@RequestBody Map<String, Object> body) {
         if (body == null || !body.containsKey("q")) {
@@ -112,7 +107,6 @@ public class ExperienciaController {
         }
         String termino = body.get("q").toString().trim();
 
-        // Si vacío → devolver todas
         if (termino.isEmpty()) {
             try (Connection con = ds.getConnection()) {
                 List<ExperienciaResumen> todas = new ExperienciaRepository(con).findAllActivas();
@@ -122,10 +116,7 @@ public class ExperienciaController {
             }
         }
         if (termino.length() < 2) {
-            return ResponseEntity.badRequest().body(Map.of(
-                "ok",    false,
-                "error", "Mínimo 2 caracteres"
-            ));
+            return ResponseEntity.badRequest().body(Map.of("ok", false, "error", "Mínimo 2 caracteres"));
         }
         try (Connection con = ds.getConnection()) {
             List<ExperienciaResumen> lista = new ExperienciaRepository(con).buscarPorTexto(termino);

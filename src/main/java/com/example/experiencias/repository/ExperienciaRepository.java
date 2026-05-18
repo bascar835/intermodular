@@ -63,7 +63,17 @@ public class ExperienciaRepository extends BaseRepository<Experiencia> {
             VALUES (?, ?, ?, ?, ?, ?)
             RETURNING id
         """;
-        int id = DB.insertReturning(con, sql, getInsertValues(e));
+        // IMPORTANTE: pasar parámetros individualmente, NO como Object[]
+        // DB.insertReturning usa varargs (Object...) y si se pasa un Object[]
+        // Java lo trata como un único elemento en lugar de 6 parámetros separados.
+        int id = DB.insertReturning(con, sql,
+            e.getTitulo(),
+            e.getDescripcion(),
+            e.getPrecio(),
+            e.getUbicacion(),
+            e.getDuracion_horas(),
+            e.getCategoria_id()
+        );
         setPrimaryKey(e, id);
         return id;
     }
@@ -97,7 +107,7 @@ public class ExperienciaRepository extends BaseRepository<Experiencia> {
                 rs.getString("descripcion"),
                 rs.getDouble("precio"),
                 rs.getString("ubicacion"),
-                rs.getInt("duracion_horas"),
+                (int) rs.getDouble("duracion_horas"),
                 rs.getInt("categoria_id"),
                 rs.getTimestamp("fecha_creacion") != null
                     ? rs.getTimestamp("fecha_creacion").toLocalDateTime() : null,
@@ -126,7 +136,7 @@ public class ExperienciaRepository extends BaseRepository<Experiencia> {
                 rs.getString("descripcion"),
                 rs.getDouble("precio"),
                 rs.getString("ubicacion"),
-                rs.getInt("duracion_horas"),
+                (int) rs.getDouble("duracion_horas"),
                 rs.getInt("categoria_id"),
                 rs.getTimestamp("fecha_creacion") != null
                     ? rs.getTimestamp("fecha_creacion").toLocalDateTime() : null,
@@ -156,7 +166,7 @@ public class ExperienciaRepository extends BaseRepository<Experiencia> {
                 rs.getString("descripcion"),
                 rs.getDouble("precio"),
                 rs.getString("ubicacion"),
-                rs.getInt("duracion_horas"),
+                (int) rs.getDouble("duracion_horas"),
                 rs.getInt("categoria_id"),
                 rs.getTimestamp("fecha_creacion") != null
                     ? rs.getTimestamp("fecha_creacion").toLocalDateTime() : null,
@@ -189,7 +199,7 @@ public class ExperienciaRepository extends BaseRepository<Experiencia> {
                 rs.getString("descripcion"),
                 rs.getDouble("precio"),
                 rs.getString("ubicacion"),
-                rs.getInt("duracion_horas"),
+                (int) rs.getDouble("duracion_horas"),
                 rs.getInt("categoria_id"),
                 rs.getTimestamp("fecha_creacion") != null
                     ? rs.getTimestamp("fecha_creacion").toLocalDateTime() : null,
@@ -215,7 +225,7 @@ public class ExperienciaRepository extends BaseRepository<Experiencia> {
             rs.getString("descripcion"),
             rs.getDouble("precio"),
             rs.getString("ubicacion"),
-            rs.getInt("duracion_horas"),
+            (int) rs.getDouble("duracion_horas"),
             rs.getInt("categoria_id"),
             rs.getString("categoria_nombre"),
             null  // imagenes se cargan aparte

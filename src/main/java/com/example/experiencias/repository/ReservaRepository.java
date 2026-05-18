@@ -118,16 +118,16 @@ public class ReservaRepository extends BaseRepository<Reserva> {
             ORDER BY fecha_reserva DESC
         """;
 
-        return DB.queryMany(con, sql, rs ->
-            new ReservaResumen(
+        return DB.queryMany(con, sql, rs -> {
+            var ts = rs.getTimestamp("fecha_reserva");
+            return new ReservaResumen(
                 rs.getInt("id"),
                 rs.getInt("experiencia_id"),
-                rs.getTimestamp("fecha_reserva").toLocalDateTime(),
+                ts != null ? ts.toLocalDateTime() : null,
                 rs.getInt("numero_personas"),
                 rs.getDouble("precio_total"),
                 rs.getString("estado")
-            ),
-            usuarioId
-        );
+            );
+        }, usuarioId);
     }
 }

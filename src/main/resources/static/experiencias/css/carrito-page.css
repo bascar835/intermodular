@@ -1,0 +1,131 @@
+/* ── Layout carrito ── */
+.carrito-page {
+    max-width: 760px;
+    margin: 48px auto;
+    padding: 0 20px 60px;
+}
+.carrito-page h1 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 28px;
+    color: #1a1a2e;
+}
+
+/* ── Item del carrito ── */
+.cart-product {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 20px 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+.cart-product-info { flex: 1; }
+.cart-product-info h3 {
+    margin: 0 0 6px;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #1a1a2e;
+}
+.cart-product-info p {
+    margin: 4px 0;
+    color: #666;
+    font-size: .88rem;
+}
+.cart-subtotal {
+    color: #1a1a2e !important;
+    font-size: .95rem !important;
+    font-weight: 600;
+    margin-top: 10px !important;
+}
+
+/* ── Control personas ── */
+.cart-personas-control {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 10px 0 6px;
+}
+.cart-personas-control label {
+    font-size: .85rem;
+    color: #666;
+    font-weight: 600;
+}
+.cart-personas-num {
+    font-weight: 700;
+    font-size: 1rem;
+    min-width: 28px;
+    text-align: center;
+    color: #1a1a2e;
+}
+.btn-persona-menos,
+.btn-persona-mas {
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    border: 1.5px solid #ddd;
+    background: #fff;
+    font-size: 1.1rem;
+    line-height: 1;
+    cursor: pointer;
+    transition: all .15s;
+    color: #333;
+    padding: 0;
+}
+.btn-persona-menos:hover,
+.btn-persona-mas:hover {
+    background: #f5f5f5;
+    border-color: #aaa;
+}
+
+/* ── Botón eliminar ── */
+.btn-delete {
+    background: none;
+    border: 1px solid #fca5a5;
+    color: #dc2626;
+    font-size: .82rem;
+    padding: 6px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background .15s;
+    margin-top: 4px;
+}
+.btn-delete:hover { background: #fff5f5; }
+
+/* ── Total box ── */
+.cart-total-box {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 24px 0 0;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+.cart-total-box h2 {
+    font-size: 1.15rem;
+    color: #1a1a2e;
+    margin: 0;
+}
+
+/* ── Estado vacío ── */
+.cart-empty-state {
+    text-align: center;
+    padding: 64px 20px;
+}
+.cart-empty-state h1 { font-size: 1.6rem; margin-bottom: 12px; }
+.cart-empty-state p  { color: #666; margin-bottom: 28px; }
+.cart-actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+
+/* ── Botón vaciar ── */
+.btn-vaciar {
+    background: none;
+    border: 1.5px solid #ddd;
+    color: #666;
+    padding: 8px 18px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: .85rem;
+    margin-top: 20px;
+    transition: all .15s;
+}
+.btn-vaciar:hover { border-color: #aaa; color: #333; }

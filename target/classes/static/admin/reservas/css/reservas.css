@@ -1,0 +1,31 @@
+body {
+    background-color: #f8f9fa;
+    font-family: Arial, sans-serif;
+    padding-top: 30px;
+}
+
+h1 {
+    margin-bottom: 25px;
+    font-weight: bold;
+    color: #333;
+}
+
+.container {
+    max-width: 1100px;
+}
+
+.card {
+    border-radius: 12px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+    border: none;
+}
+
+.table {
+    background: white;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.btn {
+    border-radius: 8px;
+}

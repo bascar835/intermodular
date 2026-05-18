@@ -23,15 +23,11 @@ public class GlobalExceptionHandler {
 	// VALIDACIÓN -> 400
 	@ExceptionHandler(MethodArgumentNotValidException.class)
 	public ResponseEntity<Map<String, Object>> handleValidation(MethodArgumentNotValidException e) {
-
 		logError(e);
-		
 		Map<String, String> errors = new LinkedHashMap<>();
-
 		e.getBindingResult().getFieldErrors().forEach(error -> {
 			errors.put(error.getField(), error.getDefaultMessage());
 		});
-
 		return ResponseEntity.badRequest().body(Map.of(
 			"message", "Error de validación", "errors", errors));
 	}
@@ -39,15 +35,11 @@ public class GlobalExceptionHandler {
 	// VALIDACIÓN @ModelAttribute (multipart) -> 400
 	@ExceptionHandler(BindException.class)
 	public ResponseEntity<Map<String, Object>> handleBind(BindException e) {
-
 		logError(e);
-
 		Map<String, String> errors = new LinkedHashMap<>();
-
 		e.getBindingResult().getFieldErrors().forEach(error -> {
 			errors.put(error.getField(), error.getDefaultMessage());
 		});
-
 		return ResponseEntity.badRequest().body(Map.of(
 			"message", "Error de validación", "errors", errors));
 	}
@@ -71,6 +63,20 @@ public class GlobalExceptionHandler {
 		return ResponseEntity.status(409).body(Map.of("message", "El recurso ya existe"));
 	}
 
+	// BUSINESS LOGIC -> 400
+	@ExceptionHandler(BusinessException.class)
+	public ResponseEntity<Map<String, String>> handleBusiness(BusinessException e) {
+		logError(e);
+		return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
+	}
+
+	// CONFLICT -> 409
+	@ExceptionHandler(ConflictException.class)
+	public ResponseEntity<Map<String, String>> handleConflict(ConflictException e) {
+		logError(e);
+		return ResponseEntity.status(409).body(Map.of("message", e.getMessage()));
+	}
+
 	// DATA ACCESS -> 500
 	@ExceptionHandler(DataAccessException.class)
 	public ResponseEntity<Map<String, String>> handleData(DataAccessException e) {
@@ -80,12 +86,9 @@ public class GlobalExceptionHandler {
 	
 	@ExceptionHandler(ResponseStatusException.class)
 	public ResponseEntity<Map<String, String>> handleResponseStatus(ResponseStatusException e) {
-
-		// Solo loguear errores de servidor (5xx); los 4xx son comportamiento esperado
 		if (e.getStatusCode().is5xxServerError()) {
 			logError(e);
 		}
-
 		return ResponseEntity.status(e.getStatusCode())
 				.body(Map.of("message", e.getReason() != null ? e.getReason() : "Error"));
 	}

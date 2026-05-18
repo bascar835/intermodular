@@ -13,7 +13,8 @@ public class ReservaMapper implements RowMapper<Reserva> {
         r.setId(rs.getInt("id"));
         r.setUsuario_id(rs.getInt("usuario_id"));
         r.setExperiencia_id(rs.getInt("experiencia_id"));
-        r.setFecha_reserva(rs.getTimestamp("fecha_reserva").toLocalDateTime());
+        var ts = rs.getTimestamp("fecha_reserva");
+        r.setFecha_reserva(ts != null ? ts.toLocalDateTime() : null);
         r.setNumero_personas(rs.getInt("numero_personas"));
         r.setPrecio_total(rs.getDouble("precio_total"));
         r.setEstado(rs.getString("estado"));

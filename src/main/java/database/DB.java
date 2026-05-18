@@ -111,6 +111,11 @@ public class DB {
 	}
 
 	private static void bindParams(PreparedStatement stmt, Object[] params) throws SQLException {
+		// Si se pasa un Object[] como único argumento varargs, Java lo anida.
+		// Detectamos y desempaquetamos ese caso automáticamente.
+		if (params.length == 1 && params[0] instanceof Object[]) {
+			params = (Object[]) params[0];
+		}
 		for (int i = 0; i < params.length; i++) {
 			Object param = params[i];
 			if (param instanceof PgEnum e) {

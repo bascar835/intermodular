@@ -44,7 +44,7 @@ public class UserAdminController {
 
     // GET /api/admin/users/{id}
     @GetMapping("/{id}")
-    public UserResponse show(@PathVariable int id) {
+    public UserResponse show(@PathVariable("id") int id) {
         try (Connection con = ds.getConnection()) {
             return new UserRepository(con).findResponseById(id)
                 .orElseThrow(() -> new ResponseStatusException(
@@ -86,7 +86,7 @@ public class UserAdminController {
 
     // PUT /api/admin/users/{id}
     @PutMapping("/{id}")
-    public UserResponse update(@PathVariable int id, @Valid @RequestBody UserRequest req) {
+    public UserResponse update(@PathVariable("id") int id, @Valid @RequestBody UserRequest req) {
         try (Connection con = ds.getConnection()) {
             UserRepository repo = new UserRepository(con);
 
@@ -122,7 +122,7 @@ public class UserAdminController {
 
     // DELETE /api/admin/users/{id}
     @DeleteMapping("/{id}")
-    public String destroy(@PathVariable int id) {
+    public String destroy(@PathVariable("id") int id) {
         try (Connection con = ds.getConnection()) {
             UserRepository repo = new UserRepository(con);
 

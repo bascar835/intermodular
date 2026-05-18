@@ -11,6 +11,9 @@ public record CategoriaRequest(
 
     @NotBlank(message = "La descripción es obligatoria")
     @Size(max = 500, message = "La descripción no puede superar los 500 caracteres")
-    String descripcion
+    String descripcion,
+
+    // Si no se envía, se asume true (activa por defecto)
+    Boolean activo
 
 ) {}

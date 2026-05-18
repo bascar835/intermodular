@@ -1,0 +1,7 @@
+/* Badges de estado activo/inactivo */
+.badge-activo   { background:#d1fae5;color:#065f46;padding:3px 10px;border-radius:20px;font-size:.78rem;font-weight:700; }
+.badge-inactivo { background:#fee2e2;color:#991b1b;padding:3px 10px;border-radius:20px;font-size:.78rem;font-weight:700; }
+
+/* Botón de activar (verde) */
+.btn-success       { background:#16a34a;color:#fff; }
+.btn-success:hover { background:#15803d; }

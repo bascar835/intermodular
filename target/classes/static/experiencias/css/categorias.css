@@ -1,0 +1,94 @@
+/* ── Grid de categorías ── */
+.cat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 24px;
+  padding: 40px 0 64px;
+}
+
+.cat-card {
+  border-radius: var(--r-md);
+  overflow: hidden;
+  background: var(--white);
+  box-shadow: var(--shadow-md);
+  cursor: pointer;
+  text-decoration: none;
+  color: inherit;
+  display: block;
+  transition: transform var(--ease), box-shadow var(--ease);
+}
+.cat-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+}
+
+.cat-img {
+  height: 200px;
+  background: #2a2420;
+  background-size: cover;
+  background-position: center;
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+}
+.cat-img-overlay {
+  position: absolute; inset: 0;
+  background: linear-gradient(to top, rgba(24,19,15,.7) 0%, transparent 55%);
+}
+.cat-img-icon {
+  position: absolute;
+  top: 16px; right: 16px;
+  font-size: 2rem;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,.4));
+}
+
+.cat-body {
+  padding: 20px;
+}
+.cat-nombre {
+  font-family: 'Montserrat', Arial, sans-serif;
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 6px;
+  color: var(--ink);
+}
+.cat-desc {
+  font-size: .875rem;
+  color: var(--ink-m);
+  margin-bottom: 14px;
+  line-height: 1.5;
+}
+.cat-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.cat-count {
+  font-size: .8rem;
+  color: var(--ink-f);
+}
+.cat-btn {
+  font-size: .8rem;
+  font-weight: 600;
+  color: var(--coral);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  font-family: 'Montserrat', Arial, sans-serif;
+}
+
+/* ── Spinner ── */
+.spinner-wrap {
+  display: flex; flex-direction: column; align-items: center;
+  gap: 14px; padding: 80px 0;
+}
+.ring {
+  width: 40px; height: 40px;
+  border: 3px solid rgba(232,96,60,.15);
+  border-top-color: var(--coral);
+  border-radius: 50%;
+  animation: spin .8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.spin-txt { font-size: .9rem; color: var(--ink-m); }

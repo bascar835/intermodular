@@ -13,6 +13,9 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.example.experiencias.dto.ExperienciaDetalle;
+import com.example.experiencias.entity.Categoria;
+import com.example.experiencias.exception.BadRequestException;
+import com.example.experiencias.repository.CategoriaRepository;
 import com.example.experiencias.dto.ExperienciaRequest;
 import com.example.experiencias.dto.ExperienciaResumen;
 import com.example.experiencias.dto.ImagenResponse;
@@ -49,7 +52,7 @@ public class ExperienciaAdminController extends BaseController {
 
     // GET /api/admin/experiencias/{id}
     @GetMapping("/{id}")
-    public ExperienciaDetalle show(@PathVariable int id) {
+    public ExperienciaDetalle show(@PathVariable("id") int id) {
         try (Connection con = ds.getConnection()) {
             ExperienciaDetalle detalle = new ExperienciaRepository(con).findDetalle(id);
             if (detalle == null) {
@@ -69,6 +72,15 @@ public class ExperienciaAdminController extends BaseController {
             @RequestParam(value = "imagen", required = false) MultipartFile imagen) {
 
         try (Connection con = ds.getConnection()) {
+            // Validar que la categoría existe y está activa
+            Categoria cat = new CategoriaRepository(con).find(req.categoria_id());
+            if (cat == null) {
+                throw new BadRequestException("La categoría seleccionada no existe");
+            }
+            if (!cat.isActivo()) {
+                throw new BadRequestException("La categoría '" + cat.getNombre() + "' está inactiva. Actívala primero para poder crear experiencias en ella.");
+            }
+
             Experiencia exp = new Experiencia(
                     null,
                     req.titulo(), req.descripcion(), req.precio(),
@@ -93,13 +105,22 @@ public class ExperienciaAdminController extends BaseController {
     // PUT /api/admin/experiencias/{id}  (multipart/form-data)
     @PutMapping("/{id}")
     public Experiencia update(
-            @PathVariable int id,
+            @PathVariable("id") int id,
             @Valid @ModelAttribute ExperienciaRequest req,
             @RequestParam(value = "imagen", required = false) MultipartFile imagen) {
 
         try (Connection con = ds.getConnection()) {
             ExperienciaRepository repo = new ExperienciaRepository(con);
             Experiencia existing = repo.findOrThrow(id);
+
+            // Validar que la nueva categoría (si cambia) está activa
+            Categoria cat = new CategoriaRepository(con).find(req.categoria_id());
+            if (cat == null) {
+                throw new BadRequestException("La categoría seleccionada no existe");
+            }
+            if (!cat.isActivo()) {
+                throw new BadRequestException("La categoría '" + cat.getNombre() + "' está inactiva. Actívala primero.");
+            }
 
             Experiencia exp = new Experiencia(
                     id,
@@ -125,7 +146,7 @@ public class ExperienciaAdminController extends BaseController {
     // DELETE /api/admin/experiencias/{id}
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void destroy(@PathVariable int id) {
+    public void destroy(@PathVariable("id") int id) {
         try (Connection con = ds.getConnection()) {
             ExperienciaRepository repo = new ExperienciaRepository(con);
             repo.findOrThrow(id);

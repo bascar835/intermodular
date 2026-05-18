@@ -13,6 +13,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.example.experiencias.dto.CategoriaRequest;
+import com.example.experiencias.dto.CategoriaResumen;
 import com.example.experiencias.entity.Categoria;
 import com.example.experiencias.exception.DataAccessException;
 import com.example.experiencias.helper.StorageHelper;
@@ -33,11 +34,11 @@ public class CategoriaAdminController {
         this.storage = storage;
     }
 
-    // GET /api/admin/categorias
+    // GET /api/admin/categorias — todas (incluye inactivas para el admin)
     @GetMapping
-    public List<Categoria> index() {
+    public List<CategoriaResumen> index() {
         try (Connection con = ds.getConnection()) {
-            return new CategoriaRepository(con).findAll();
+            return new CategoriaRepository(con).findResumen();
         } catch (SQLException e) {
             throw new DataAccessException(e);
         }
@@ -45,15 +46,17 @@ public class CategoriaAdminController {
 
     // GET /api/admin/categorias/{id}
     @GetMapping("/{id}")
-    public Categoria show(@PathVariable int id) {
+    public Categoria show(@PathVariable("id") int id) {
         try (Connection con = ds.getConnection()) {
-            return new CategoriaRepository(con).find(id);
+            Categoria cat = new CategoriaRepository(con).find(id);
+            if (cat == null) throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Categoría no encontrada");
+            return cat;
         } catch (SQLException e) {
             throw new DataAccessException(e);
         }
     }
 
-    // POST /api/admin/categorias  (multipart/form-data: datos validados + imagen opcional)
+    // POST /api/admin/categorias
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public Categoria store(
@@ -61,18 +64,17 @@ public class CategoriaAdminController {
             @RequestParam(value = "imagen", required = false) MultipartFile imagen) {
 
         String imagenUrl = null;
-
         if (imagen != null && !imagen.isEmpty()) {
             ImageValidator.validate(imagen);
-            try {
-                imagenUrl = storage.save(imagen, "categorias");
-            } catch (IOException e) {
-                throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error al guardar imagen");
-            }
+            try { imagenUrl = storage.save(imagen, "categorias"); }
+            catch (IOException e) { throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error al guardar imagen"); }
         }
 
+        // activo: true por defecto si no se envía
+        boolean activo = req.activo() == null || req.activo();
+
         try (Connection con = ds.getConnection()) {
-            Categoria cat = new Categoria(null, req.nombre(), req.descripcion(), imagenUrl);
+            Categoria cat = new Categoria(null, req.nombre(), req.descripcion(), imagenUrl, activo);
             new CategoriaRepository(con).insert(cat);
             return cat;
         } catch (SQLException e) {
@@ -80,36 +82,31 @@ public class CategoriaAdminController {
         }
     }
 
-    // PUT /api/admin/categorias/{id}  (multipart/form-data: datos validados + imagen opcional)
+    // PUT /api/admin/categorias/{id}
     @PutMapping("/{id}")
     public Categoria update(
-            @PathVariable int id,
+            @PathVariable("id") int id,
             @Valid @ModelAttribute CategoriaRequest req,
             @RequestParam(value = "imagen", required = false) MultipartFile imagen) {
 
         try (Connection con = ds.getConnection()) {
-
             CategoriaRepository repo = new CategoriaRepository(con);
             Categoria existing = repo.find(id);
-            if (existing == null) {
-                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Categoría no encontrada");
-            }
+            if (existing == null) throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Categoría no encontrada");
 
             String imagenUrl = existing.getImagenUrl();
-
             if (imagen != null && !imagen.isEmpty()) {
                 ImageValidator.validate(imagen);
                 try {
-                    if (imagenUrl != null) {
-                        storage.deleteByUrl(imagenUrl);
-                    }
+                    if (imagenUrl != null) storage.deleteByUrl(imagenUrl);
                     imagenUrl = storage.save(imagen, "categorias");
                 } catch (IOException e) {
                     throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error al guardar imagen");
                 }
             }
 
-            Categoria cat = new Categoria(id, req.nombre(), req.descripcion(), imagenUrl);
+            boolean activo = req.activo() == null ? existing.isActivo() : req.activo();
+            Categoria cat = new Categoria(id, req.nombre(), req.descripcion(), imagenUrl, activo);
             repo.update(cat);
             return cat;
 
@@ -118,9 +115,24 @@ public class CategoriaAdminController {
         }
     }
 
+    // PATCH /api/admin/categorias/{id}/toggle — activa o desactiva sin tocar el resto
+    @PatchMapping("/{id}/toggle")
+    public Categoria toggle(@PathVariable("id") int id) {
+        try (Connection con = ds.getConnection()) {
+            CategoriaRepository repo = new CategoriaRepository(con);
+            Categoria cat = repo.find(id);
+            if (cat == null) throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Categoría no encontrada");
+            cat.setActivo(!cat.isActivo());
+            repo.update(cat);
+            return cat;
+        } catch (SQLException e) {
+            throw new DataAccessException(e);
+        }
+    }
+
     // DELETE /api/admin/categorias/{id}
     @DeleteMapping("/{id}")
-    public void destroy(@PathVariable int id) {
+    public void destroy(@PathVariable("id") int id) {
         try (Connection con = ds.getConnection()) {
             CategoriaRepository repo = new CategoriaRepository(con);
             Categoria existing = repo.find(id);

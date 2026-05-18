@@ -4,5 +4,6 @@ public record CategoriaResumen(
     int id,
     String nombre,
     String descripcion,
-    String imagen_url
+    String imagen_url,
+    boolean activo
 ) {}

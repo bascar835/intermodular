@@ -406,3 +406,30 @@ ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA public GRANT SELECT,INSERT,
 --
 
 
+
+-- ── Migración: campo activo en categorias ─────────────────────────────────────
+-- Ejecutar si la columna no existe todavía:
+ALTER TABLE public.categorias ADD COLUMN IF NOT EXISTS activo boolean NOT NULL DEFAULT true;
+
+-- ── Migración: carrito y checkout (backend real) ───────────────────────────
+-- Ejecutar si las tablas no existen todavía
+
+CREATE TABLE IF NOT EXISTS public.carrito_items (
+    id             bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    user_id        bigint NOT NULL REFERENCES public.usuarios(id) ON DELETE CASCADE,
+    experiencia_id bigint NOT NULL REFERENCES public.experiencias(id) ON DELETE CASCADE,
+    personas       integer NOT NULL CHECK (personas >= 1 AND personas <= 12),
+    precio         numeric(10,2) NOT NULL,
+    UNIQUE (user_id, experiencia_id)  -- un usuario, una línea por experiencia
+);
+
+CREATE TABLE IF NOT EXISTS public.checkout_preview (
+    id         bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    user_id    bigint NOT NULL REFERENCES public.usuarios(id) ON DELETE CASCADE,
+    data       text NOT NULL,          -- formato: expId:personas:precio|expId:personas:precio
+    created_at timestamp NOT NULL DEFAULT NOW()
+);
+
+-- Índice en created_at para que la limpieza automática sea eficiente
+CREATE INDEX IF NOT EXISTS idx_checkout_preview_created_at
+    ON public.checkout_preview(created_at);

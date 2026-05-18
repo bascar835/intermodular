@@ -12,6 +12,6 @@ public record ExperienciaResumen(
     int duracion_horas,
     int categoria_id,
     LocalDateTime fecha_creacion,
-    String imagen,           // primera imagen de experiencia_imagenes (puede ser null)
+    String imagen,
     String categoria_nombre
 ) {}

@@ -39,7 +39,7 @@ public class ReservaAdminController {
 
     // GET /api/admin/reservas/{id}
     @GetMapping("/{id}")
-    public Reserva show(@PathVariable int id) {
+    public Reserva show(@PathVariable("id") int id) {
         try (Connection con = ds.getConnection()) {
             Reserva r = new ReservaRepository(con).find(id);
             if (r == null) {
@@ -78,7 +78,7 @@ public class ReservaAdminController {
 
     // PUT /api/admin/reservas/{id}
     @PutMapping("/{id}")
-    public Reserva update(@PathVariable int id, @Valid @RequestBody ReservaAdminRequest req) {
+    public Reserva update(@PathVariable("id") int id, @Valid @RequestBody ReservaAdminRequest req) {
         String estado = (req.estado() != null && !req.estado().isBlank())
                 ? req.estado().toLowerCase().trim()
                 : "pendiente";
@@ -110,7 +110,7 @@ public class ReservaAdminController {
     // DELETE /api/admin/reservas/{id}
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void destroy(@PathVariable int id) {
+    public void destroy(@PathVariable("id") int id) {
         try (Connection con = ds.getConnection()) {
             new ReservaRepository(con).delete(id);
         } catch (SQLException e) {
