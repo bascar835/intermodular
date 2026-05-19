@@ -42,6 +42,8 @@ async function addToCart(experienciaId, titulo, precio, personas) {
         alert(err.message || "Error al añadir al carrito");
     }
     // El feedback visual lo gestiona show.js
+    // Actualizar badge en esta página y notificar otras pestañas
+    if (typeof actualizarCarritoBadge === "function") actualizarCarritoBadge();
 }
 
 // ── Render del carrito ────────────────────────────────────────────────────────
@@ -79,6 +81,7 @@ async function mostrarCarrito() {
     if (items.length === 0) {
         emptyCart.style.display    = "block";
         cartProducts.style.display = "none";
+        if (typeof actualizarCarritoBadge === "function") actualizarCarritoBadge();
         return;
     }
 
@@ -118,11 +121,13 @@ async function mostrarCarrito() {
         productsList.appendChild(div);
     });
 
-    // Botón vaciar
+    // Botón vaciar (único, generado por JS)
     const btnVaciar = document.createElement("button");
-    btnVaciar.className   = "btn-vaciar";
-    btnVaciar.textContent = "🗑 Vaciar carrito";
-    btnVaciar.onclick     = vaciarCarrito;
+    btnVaciar.className = "btn-vaciar";
+    btnVaciar.innerHTML = "<span style=\'font-size:1rem;\'>🗑️</span> Vaciar carrito";
+    btnVaciar.onclick   = vaciarCarrito;
+    // Actualizar badge del navbar
+    if (typeof actualizarCarritoBadge === "function") actualizarCarritoBadge();
     productsList.appendChild(btnVaciar);
 
     // Aviso de cambios de precio

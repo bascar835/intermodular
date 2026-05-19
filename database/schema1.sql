@@ -433,3 +433,7 @@ CREATE TABLE IF NOT EXISTS public.checkout_preview (
 -- Índice en created_at para que la limpieza automática sea eficiente
 CREATE INDEX IF NOT EXISTS idx_checkout_preview_created_at
     ON public.checkout_preview(created_at);
+    
+ALTER TABLE public.experiencias
+    ADD COLUMN IF NOT EXISTS recomendamos TEXT,
+    ADD COLUMN IF NOT EXISTS incluye TEXT;

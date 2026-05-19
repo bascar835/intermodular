@@ -15,7 +15,7 @@ async function cargarCategorias() {
             ? `<span class="badge-activo">✔ Activa</span>`
             : `<span class="badge-inactivo">✘ Inactiva</span>`;
 
-        const toggleLabel = c.activo ? "Desactivar" : "Activar";
+        const toggleLabel = c.activo ? "🟥" : "🟩";
         const toggleClass = c.activo ? "btn-sm btn-warning" : "btn-sm btn-success";
 
         const tr = document.createElement("tr");
@@ -26,10 +26,10 @@ async function cargarCategorias() {
             <td>${imgHtml}</td>
             <td>${activoBadge}</td>
             <td>
-                <a href="show.html?id=${c.id}"  class="btn-sm btn-info">Ver</a>
-                <a href="edit.html?id=${c.id}"  class="btn-sm btn-warning">Editar</a>
-                <button class="${toggleClass}" onclick="toggleActivo(${c.id}, ${c.activo})">${toggleLabel}</button>
-                <button class="btn-sm btn-danger" onclick="eliminar(${c.id})">Eliminar</button>
+                <a href="show.html?id=${c.id}" title="Ver detalle" style="font-size:1.45rem;line-height:1;padding:3px 6px;cursor:pointer;background:none;border:none;border-radius:6px;text-decoration:none;">👁️‍🗨️</a>
+                <a href="edit.html?id=${c.id}" title="Editar" style="font-size:1.45rem;line-height:1;padding:3px 6px;cursor:pointer;background:none;border:none;border-radius:6px;text-decoration:none;">🖋️</a>
+                <button onclick="toggleActivo(${c.id}, ${c.activo})" title="${c.activo ? 'Desactivar' : 'Activar'}" style="font-size:1.45rem;line-height:1;padding:3px 6px;cursor:pointer;background:none;border:none;border-radius:6px;text-decoration:none;">${toggleLabel}</button>
+                <button onclick="eliminar(${c.id})" title="Eliminar" style="font-size:1.45rem;line-height:1;padding:3px 6px;cursor:pointer;background:none;border:none;border-radius:6px;text-decoration:none;">🗑️</button>
             </td>
         `;
         tabla.appendChild(tr);

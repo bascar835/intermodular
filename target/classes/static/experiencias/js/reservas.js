@@ -11,17 +11,29 @@ async function mostrarReservas() {
     tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;color:var(--color-text-secondary)">Cargando...</td></tr>`;
 
     try {
-        const res = await fetch("/api/reservas/mis-reservas");
+        // Cargar reservas y experiencias en paralelo
+        const [resReservas, resExp] = await Promise.all([
+            fetch("/api/reservas/mis-reservas"),
+            fetch("/api/experiencias")
+        ]);
 
         // Si no hay sesión, redirigir al login
-        if (res.status === 401) {
+        if (resReservas.status === 401) {
             window.location.href = "/experiencias/login.html";
             return;
         }
 
-        if (!res.ok) throw new Error("Error al cargar reservas");
+        if (!resReservas.ok) throw new Error("Error al cargar reservas");
 
-        const reservas = await res.json();
+        const reservas = await resReservas.json();
+
+        // Construir mapa id → titulo de experiencias
+        const expMap = {};
+        if (resExp.ok) {
+            const datosExp = await resExp.json();
+            const lista = Array.isArray(datosExp) ? datosExp : (datosExp.data ?? []);
+            lista.forEach(e => { expMap[e.id] = e.titulo; });
+        }
 
         if (reservas.length === 0) {
             tbody.innerHTML = `
@@ -40,6 +52,9 @@ async function mostrarReservas() {
                 ? new Date(r.fecha_reserva).toLocaleDateString("es-ES")
                 : "-";
 
+            // Usar el título real si existe, si no mostrar el ID como fallback
+            const nombreExp = expMap[r.experiencia_id] || `Experiencia #${r.experiencia_id}`;
+
             const estadoClass = {
                 confirmada: "confirmada",
                 pendiente:  "pendiente",
@@ -49,7 +64,7 @@ async function mostrarReservas() {
             tbody.innerHTML += `
                 <tr>
                     <td>#RES-${r.id}</td>
-                    <td>Experiencia #${r.experiencia_id}</td>
+                    <td>${nombreExp}</td>
                     <td>${fecha}</td>
                     <td>${r.numero_personas}</td>
                     <td><span class="status-badge ${estadoClass}">${capitalizar(r.estado)}</span></td>

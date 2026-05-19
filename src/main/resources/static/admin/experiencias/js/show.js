@@ -16,6 +16,11 @@ async function cargarExperiencia() {
     document.getElementById("duracion_horas").textContent= exp.duracion_horas;
     document.getElementById("categoria_id").textContent  = exp.categoria_id;
 
+    const recEl = document.getElementById("recomendamos");
+    const incEl = document.getElementById("incluye");
+    recEl.textContent = exp.recomendamos && exp.recomendamos.trim() ? exp.recomendamos : "-";
+    incEl.textContent = exp.incluye      && exp.incluye.trim()      ? exp.incluye      : "-";
+
     // Galería
     if (exp.imagenes && exp.imagenes.length > 0) {
         const wrap      = document.getElementById("galeria-wrap");

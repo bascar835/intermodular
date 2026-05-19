@@ -48,6 +48,8 @@ async function guardar(e) {
     fd.append("ubicacion",      document.getElementById("ubicacion").value.trim());
     fd.append("duracion_horas", document.getElementById("duracion_horas").value);
     fd.append("categoria_id",   document.getElementById("categoria_id").value);
+    fd.append("recomendamos",   document.getElementById("recomendamos").value.trim());
+    fd.append("incluye",        document.getElementById("incluye").value.trim());
     const file = document.getElementById("imagen").files[0];
     if (file) fd.append("imagen", file);
 

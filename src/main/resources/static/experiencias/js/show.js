@@ -110,12 +110,8 @@ function renderDetalle(exp) {
         </div>
     `).join('');
 
-    document.getElementById('det-recomendaciones').innerHTML =
-        recomendaciones(exp.titulo, exp.ubicacion, exp.categoria_id);
-
-    const items = queIncluye(exp.categoria_id);
-    document.getElementById('det-incluye').innerHTML =
-        items.map(item => `<li>${esc(item)}</li>`).join('');
+    // Contenido dinámico: usar datos de BD si existen, si no generar con IA
+    mostrarContenidoRecomendaciones(exp);
 
     document.getElementById('compra-precio').textContent    = precioFmt;
     document.getElementById('compra-ubicacion').textContent = exp.ubicacion;
@@ -146,7 +142,8 @@ function actualizarTotal() {
 
 function initCarrito() {
     btnCarrito.addEventListener('click', () => {
-        addToCart(experiencia.id, experiencia.titulo, parseFloat(experiencia.precio), numPersonas);
+        addToCart(experiencia.id, experiencia.titulo, parseFloat(experiencia.precio), numPersonas)
+            .then(() => { if (typeof actualizarCarritoBadge === 'function') actualizarCarritoBadge(); });
         btnCarrito.textContent = '✓ Añadido al carrito';
         btnCarrito.classList.add('añadido');
         setTimeout(() => {
@@ -170,19 +167,121 @@ function textoDescripcion(titulo, ubicacion, categoria) {
     return textos[categoria] ?? `Descubre ${titulo} en ${ubicacion}, una experiencia única.`;
 }
 
-function recomendaciones(titulo, ubicacion, categoriaId) {
-    const textos = {
-        1: `<p><strong>Prepárate bien:</strong> Lleva ropa cómoda, calzado cerrado y protector solar.</p>
-            <p><strong>Antes de la actividad:</strong> Evita comer en abundancia las 2 horas previas.</p>`,
-        2: `<p><strong>Sumérgete en el contexto:</strong> Lee algo sobre la historia de ${ubicacion} antes de llegar.</p>
-            <p><strong>Viste cómodo:</strong> Opta por calzado cómodo, caminarás bastante.</p>`,
-        3: `<p><strong>Llega sin prisas:</strong> Llega unos minutos antes para entrar en modo relajación.</p>
-            <p><strong>Desconecta el móvil:</strong> Silencia las notificaciones y estate presente al 100%.</p>`
-    };
-    return textos[categoriaId] ?? '<p>Consulta con nuestro equipo para sacar el máximo partido.</p>';
+// ── Contenido: BD primero, IA como fallback ──────────────────────────────────
+function mostrarContenidoRecomendaciones(exp) {
+    const recEl  = document.getElementById('det-recomendaciones');
+    const inclEl = document.getElementById('det-incluye');
+
+    const tieneRec    = exp.recomendamos && exp.recomendamos.trim() !== '';
+    const tieneIncl   = exp.incluye      && exp.incluye.trim()      !== '';
+
+    if (tieneRec) {
+        // Renderizar desde BD: convertir saltos de línea en párrafos
+        recEl.innerHTML = exp.recomendamos
+            .split('\n')
+            .filter(l => l.trim())
+            .map(l => `<p>${esc(l)}</p>`)
+            .join('');
+    }
+
+    if (tieneIncl) {
+        inclEl.innerHTML = exp.incluye
+            .split('\n')
+            .filter(l => l.trim())
+            .map(l => `<li>${esc(l)}</li>`)
+            .join('');
+    }
+
+    // Si alguno falta, completar con IA
+    if (!tieneRec || !tieneIncl) {
+        generarContenidoIA(exp.titulo, exp.ubicacion, exp.categoria_nombre, exp.categoria_id, !tieneRec, !tieneIncl);
+    }
 }
 
-function queIncluye(categoriaId) {
+// ── Contenido dinámico IA: recomendaciones + qué incluye ────────────────────
+async function generarContenidoIA(titulo, ubicacion, categoriaNombre, categoriaId, generarRec = true, generarInc = true) {
+    const recEl    = document.getElementById('det-recomendaciones');
+    const inclEl   = document.getElementById('det-incluye');
+
+    // Placeholders solo en los que faltan
+    if (generarRec)  recEl.innerHTML  = '<p style="color:#aaa;font-style:italic;">Cargando recomendaciones…</p>';
+    if (generarInc)  inclEl.innerHTML = '<li style="color:#aaa;font-style:italic;">Cargando…</li>';
+
+    const fallbackRec  = fallbackRecomendaciones(categoriaId, ubicacion);
+    const fallbackInc  = fallbackQueIncluye(categoriaId);
+
+    try {
+        const prompt = `Eres un asistente de una plataforma de experiencias de ocio llamada Xperiabox.
+El usuario está viendo la experiencia llamada "${titulo}", ubicada en "${ubicacion}", categoría "${categoriaNombre}".
+
+Devuelve SOLO un objeto JSON válido con exactamente estas dos claves:
+{
+  "recomendaciones": [
+    { "titulo": "...", "texto": "..." },
+    { "titulo": "...", "texto": "..." },
+    { "titulo": "...", "texto": "..." }
+  ],
+  "incluye": ["item 1", "item 2", "item 3", "item 4", "item 5"]
+}
+
+Las recomendaciones deben ser consejos prácticos y concretos MUY específicos al título de la experiencia.
+Los items de "incluye" deben ser lo que normalmente incluye ese tipo de experiencia concreta.
+Responde ÚNICAMENTE con el JSON, sin texto adicional, sin markdown, sin explicaciones.`;
+
+        const res = await fetch('https://api.anthropic.com/v1/messages', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                model: 'claude-sonnet-4-20250514',
+                max_tokens: 1000,
+                messages: [{ role: 'user', content: prompt }]
+            })
+        });
+
+        if (!res.ok) throw new Error('API error');
+
+        const data = await res.json();
+        const text = data.content?.map(b => b.text || '').join('') || '';
+        const clean = text.replace(/```json|```/g, '').trim();
+        const parsed = JSON.parse(clean);
+
+        // Recomendaciones
+        if (generarRec) {
+            recEl.innerHTML = parsed.recomendaciones
+                .map(r => `<p><strong>${esc(r.titulo)}:</strong> ${esc(r.texto)}</p>`)
+                .join('');
+        }
+
+        // Qué incluye
+        if (generarInc) {
+            inclEl.innerHTML = parsed.incluye
+                .map(item => `<li>${esc(item)}</li>`)
+                .join('');
+        }
+
+    } catch (e) {
+        // Fallback estático si la IA falla
+        if (generarRec) recEl.innerHTML  = fallbackRec;
+        if (generarInc) inclEl.innerHTML = fallbackInc.map(i => `<li>${esc(i)}</li>`).join('');
+    }
+}
+
+function fallbackRecomendaciones(categoriaId, ubicacion) {
+    const textos = {
+        1: `<p><strong>Prepárate bien:</strong> Lleva ropa cómoda, calzado cerrado y protector solar.</p>
+            <p><strong>Antes de la actividad:</strong> Evita comer en abundancia las 2 horas previas.</p>
+            <p><strong>Puntualidad:</strong> Llega 10 minutos antes para recibir el briefing completo.</p>`,
+        2: `<p><strong>Sumérgete en el contexto:</strong> Lee algo sobre la historia de ${ubicacion} antes de llegar.</p>
+            <p><strong>Viste cómodo:</strong> Opta por calzado cómodo, caminarás bastante.</p>
+            <p><strong>Lleva curiosidad:</strong> Anota las preguntas que quieras hacer al guía.</p>`,
+        3: `<p><strong>Llega sin prisas:</strong> Llega unos minutos antes para entrar en modo relajación.</p>
+            <p><strong>Desconecta el móvil:</strong> Silencia las notificaciones y estate presente al 100%.</p>
+            <p><strong>Hidratación:</strong> Bebe agua antes y después para potenciar los beneficios.</p>`
+    };
+    return textos[categoriaId] ?? '<p>Consulta con nuestro equipo para sacar el máximo partido a esta experiencia.</p>';
+}
+
+function fallbackQueIncluye(categoriaId) {
     const listas = {
         1: ['Equipo de seguridad completo', 'Monitor o guía titulado', 'Sesión de instrucción previa', 'Seguro de responsabilidad civil', 'Fotografías del grupo'],
         2: ['Guía experto en historia y cultura local', 'Entrada a los espacios incluidos', 'Material informativo digital', 'Seguro de responsabilidad civil'],

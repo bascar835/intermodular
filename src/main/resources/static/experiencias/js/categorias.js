@@ -1,4 +1,4 @@
-const IMG_PLACEHOLDER = 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=600&q=80';
+const IMG_PLACEHOLDER = 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80';
 
 function iconoCategoria(nombre) {
   if (!nombre) return '🌍';
@@ -33,8 +33,8 @@ async function cargarCategorias() {
       conteo[e.categoria_id] = (conteo[e.categoria_id] || 0) + 1;
     });
 
-    const grid = document.getElementById('cat-grid');
-    grid.innerHTML = '';
+    const list = document.getElementById('cat-list');
+    list.innerHTML = '';
 
     categorias.forEach(c => {
       const imgUrl = c.imagen_url || IMG_PLACEHOLDER;
@@ -42,31 +42,32 @@ async function cargarCategorias() {
       const icono  = iconoCategoria(c.nombre);
 
       const a = document.createElement('a');
-      a.className = 'cat-card';
+      a.className = 'cat-banner';
       a.href = `/experiencias/index.html?cat=${c.id}`;
       a.innerHTML = `
-        <div class="cat-img" style="background-image:url('${imgUrl}')">
-          <div class="cat-img-overlay"></div>
-          <span class="cat-img-icon">${icono}</span>
+        <div class="cat-banner-img" style="background-image:url('${imgUrl}')">
+          <div class="cat-banner-img-overlay"></div>
+          <span class="cat-banner-icon">${icono}</span>
         </div>
-        <div class="cat-body">
-          <div class="cat-nombre">${esc(c.nombre)}</div>
-          <div class="cat-desc">${esc(c.descripcion ?? '')}</div>
-          <div class="cat-foot">
-            <span class="cat-count">${total} experiencia${total !== 1 ? 's' : ''}</span>
-            <span class="cat-btn">Ver experiencias →</span>
+        <div class="cat-banner-body">
+          <span class="cat-banner-tag">Categoría</span>
+          <div class="cat-banner-nombre">${esc(c.nombre)}</div>
+          <div class="cat-banner-desc">${esc(c.descripcion ?? '')}</div>
+          <div class="cat-banner-foot">
+            <span class="cat-banner-count">${total} experiencia${total !== 1 ? 's' : ''} disponible${total !== 1 ? 's' : ''}</span>
+            <span class="cat-banner-cta">Ver experiencias →</span>
           </div>
         </div>
       `;
-      grid.appendChild(a);
+      list.appendChild(a);
     });
 
     document.getElementById('spinner').style.display = 'none';
-    grid.style.display = 'grid';
+    list.style.display = 'flex';
 
   } catch (e) {
     console.error('[cargarCategorias]', e);
-    document.getElementById('spinner').innerHTML = '<p style="color:#E8603C">Error cargando categorías</p>';
+    document.getElementById('spinner').innerHTML = '<p style="color:#e11d48">Error cargando categorías</p>';
   }
 }
 

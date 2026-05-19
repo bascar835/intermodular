@@ -12,5 +12,7 @@ public record ExperienciaDetalle(
     int duracion_horas,
     int categoria_id,
     String categoria_nombre,
-    List<ImagenResponse> imagenes
+    List<ImagenResponse> imagenes,
+    String recomendamos,
+    String incluye
 ) {}

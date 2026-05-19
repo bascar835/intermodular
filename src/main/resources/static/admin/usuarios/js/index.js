@@ -12,11 +12,11 @@ async function cargarUsuarios() {
             <td>${u.id}</td>
             <td>${u.name}</td>
             <td>${u.email}</td>
-            <td>${u.role}</td>
+            <td>${u.role.replace("ROLE_", "")}</td>
             <td>
-                <a href="show.html?id=${u.id}" class="btn btn-sm btn-info">Ver</a>
-                <a href="edit.html?id=${u.id}" class="btn btn-sm btn-warning">Editar</a>
-                <button class="btn btn-sm btn-danger" onclick="eliminar(${u.id})">Eliminar</button>
+                <a href="show.html?id=${u.id}" title="Ver detalle" style="font-size:1.45rem;line-height:1;padding:3px 6px;cursor:pointer;background:none;border:none;border-radius:6px;text-decoration:none;">👁️‍🗨️</a>
+                <a href="edit.html?id=${u.id}" title="Editar" style="font-size:1.45rem;line-height:1;padding:3px 6px;cursor:pointer;background:none;border:none;border-radius:6px;text-decoration:none;">🖋️</a>
+                <button onclick="eliminar(${u.id})" title="Eliminar" style="font-size:1.45rem;line-height:1;padding:3px 6px;cursor:pointer;background:none;border:none;border-radius:6px;text-decoration:none;">🗑️</button>
             </td>
         `;
         tabla.appendChild(tr);

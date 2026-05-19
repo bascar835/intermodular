@@ -85,6 +85,7 @@ public class ExperienciaAdminController extends BaseController {
                     null,
                     req.titulo(), req.descripcion(), req.precio(),
                     req.ubicacion(), req.duracion_horas(), req.categoria_id(),
+                    req.recomendamos(), req.incluye(),
                     null);
             new ExperienciaRepository(con).insert(exp);
 
@@ -126,6 +127,7 @@ public class ExperienciaAdminController extends BaseController {
                     id,
                     req.titulo(), req.descripcion(), req.precio(),
                     req.ubicacion(), req.duracion_horas(), req.categoria_id(),
+                    req.recomendamos(), req.incluye(),
                     existing.getFecha_creacion());
             repo.update(exp);
 

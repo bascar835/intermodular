@@ -1,94 +1,173 @@
-/* ── Grid de categorías ── */
-.cat-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 24px;
+/* ── Banners de categorías (layout horizontal) ── */
+
+.cat-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
   padding: 40px 0 64px;
 }
 
-.cat-card {
-  border-radius: var(--r-md);
+/* ── Banner principal ── */
+.cat-banner {
+  display: flex;
+  border-radius: 16px;
   overflow: hidden;
   background: var(--white);
-  box-shadow: var(--shadow-md);
-  cursor: pointer;
+  box-shadow: 0 2px 12px rgba(24,19,15,.08);
   text-decoration: none;
   color: inherit;
-  display: block;
-  transition: transform var(--ease), box-shadow var(--ease);
+  min-height: 200px;
+  transition: transform .2s ease, box-shadow .2s ease;
 }
-.cat-card:hover {
-  transform: translateY(-4px);
-  box-shadow: var(--shadow-lg);
+.cat-banner:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 32px rgba(24,19,15,.14);
 }
 
-.cat-img {
-  height: 200px;
-  background: #2a2420;
-  background-size: cover;
-  background-position: center;
+/* Banners pares: imagen a la derecha */
+.cat-banner:nth-child(even) {
+  flex-direction: row-reverse;
+}
+
+/* ── Imagen ── */
+.cat-banner-img {
+  flex: 0 0 340px;
   position: relative;
-  display: flex;
-  align-items: flex-end;
+  background: #2a2420 center/cover no-repeat;
+  overflow: hidden;
 }
-.cat-img-overlay {
-  position: absolute; inset: 0;
-  background: linear-gradient(to top, rgba(24,19,15,.7) 0%, transparent 55%);
-}
-.cat-img-icon {
+.cat-banner-img-overlay {
   position: absolute;
-  top: 16px; right: 16px;
-  font-size: 2rem;
-  filter: drop-shadow(0 2px 4px rgba(0,0,0,.4));
+  inset: 0;
+  background: linear-gradient(to right, rgba(24,19,15,.45) 0%, transparent 60%);
+}
+.cat-banner:nth-child(even) .cat-banner-img-overlay {
+  background: linear-gradient(to left, rgba(24,19,15,.45) 0%, transparent 60%);
 }
 
-.cat-body {
-  padding: 20px;
+.cat-banner-icon {
+  position: absolute;
+  bottom: 18px;
+  left: 20px;
+  font-size: 2.2rem;
+  filter: drop-shadow(0 2px 6px rgba(0,0,0,.5));
 }
-.cat-nombre {
+.cat-banner:nth-child(even) .cat-banner-icon {
+  left: auto;
+  right: 20px;
+}
+
+/* ── Cuerpo de texto ── */
+.cat-banner-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 32px 40px;
+  gap: 10px;
+}
+
+.cat-banner-tag {
+  font-size: .72rem;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--coral);
+}
+
+.cat-banner-nombre {
   font-family: 'Montserrat', Arial, sans-serif;
-  font-size: 1.25rem;
-  font-weight: 600;
-  margin-bottom: 6px;
+  font-size: 1.7rem;
+  font-weight: 700;
   color: var(--ink);
+  line-height: 1.2;
 }
-.cat-desc {
-  font-size: .875rem;
+
+.cat-banner-desc {
+  font-size: .9rem;
   color: var(--ink-m);
-  margin-bottom: 14px;
-  line-height: 1.5;
+  line-height: 1.6;
+  max-width: 480px;
 }
-.cat-foot {
+
+.cat-banner-foot {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  gap: 20px;
+  margin-top: 8px;
 }
-.cat-count {
+
+.cat-banner-count {
   font-size: .8rem;
   color: var(--ink-f);
 }
-.cat-btn {
-  font-size: .8rem;
-  font-weight: 600;
-  color: var(--coral);
-  background: none;
+
+.cat-banner-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: .85rem;
+  font-weight: 700;
+  color: var(--white);
+  background: var(--coral);
   border: none;
+  border-radius: 8px;
+  padding: 10px 22px;
   cursor: pointer;
-  padding: 0;
   font-family: 'Montserrat', Arial, sans-serif;
+  transition: background .18s ease;
+  text-decoration: none;
+}
+.cat-banner-cta:hover {
+  background: var(--coral-dk);
 }
 
 /* ── Spinner ── */
 .spinner-wrap {
-  display: flex; flex-direction: column; align-items: center;
-  gap: 14px; padding: 80px 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  padding: 80px 0;
 }
 .ring {
-  width: 40px; height: 40px;
-  border: 3px solid rgba(232,96,60,.15);
+  width: 40px;
+  height: 40px;
+  border: 3px solid rgba(225,29,72,.15);
   border-top-color: var(--coral);
   border-radius: 50%;
   animation: spin .8s linear infinite;
 }
 @keyframes spin { to { transform: rotate(360deg); } }
-.spin-txt { font-size: .9rem; color: var(--ink-m); }
+.spin-txt {
+  font-size: .9rem;
+  color: var(--ink-m);
+}
+
+/* ── Responsive ── */
+@media (max-width: 720px) {
+  .cat-banner,
+  .cat-banner:nth-child(even) {
+    flex-direction: column;
+  }
+  .cat-banner-img {
+    flex: 0 0 200px;
+    width: 100%;
+  }
+  .cat-banner:nth-child(even) .cat-banner-img-overlay,
+  .cat-banner-img-overlay {
+    background: linear-gradient(to top, rgba(24,19,15,.5) 0%, transparent 60%);
+  }
+  .cat-banner-icon,
+  .cat-banner:nth-child(even) .cat-banner-icon {
+    bottom: 14px;
+    left: 16px;
+    right: auto;
+  }
+  .cat-banner-body {
+    padding: 24px 20px;
+  }
+  .cat-banner-nombre {
+    font-size: 1.35rem;
+  }
+}

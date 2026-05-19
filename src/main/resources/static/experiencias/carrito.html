@@ -22,7 +22,7 @@
             <h1>🛒 Tu carrito está vacío</h1>
             <p>Añade experiencias desde el catálogo para verlas aquí.</p>
             <div class="cart-actions">
-                <a href="/experiencias/login.html" class="btn-main">Iniciar Sesión</a>
+                <a href="/experiencias/login.html" class="btn-main" id="btn-login-carrito">Iniciar Sesión</a>
                 <a href="/experiencias/index.html" class="btn-secondary">Ver experiencias</a>
             </div>
         </div>
@@ -31,7 +31,6 @@
         <div id="cartProducts" style="display:none;">
             <h1>🛒 Tu Carrito</h1>
             <div id="productsList"></div>
-            <button class="btn-vaciar" onclick="vaciarCarrito()">🗑 Vaciar carrito</button>
             <div class="cart-total-box">
                 <h2 id="totalCarrito"></h2>
                 <button class="btn-main" id="btn-finalizar" onclick="abrirModalCompra()">💳 Finalizar compra</button>
@@ -67,6 +66,17 @@
         </div>
     </div>
 
+
+    <script>
+        // Ocultar "Iniciar Sesión" si hay sesión activa
+        fetch('/api/auth/me', { credentials: 'include' })
+            .then(res => res.ok ? res.json() : null)
+            .then(user => {
+                const btnLogin = document.getElementById('btn-login-carrito');
+                if (user && btnLogin) btnLogin.style.display = 'none';
+            })
+            .catch(() => {});
+    </script>
     <script src="/experiencias/js/navbar.js"></script>
     <script src="/experiencias/js/carrito.js"></script>
 </body>

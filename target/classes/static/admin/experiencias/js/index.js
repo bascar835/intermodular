@@ -19,9 +19,9 @@ async function cargarExperiencias() {
             <td>${p.categoria_nombre ?? p.categoria_id}</td>
             <td>${imgHtml}</td>
             <td>
-                <a href="show.html?id=${p.id}" class="btn-sm btn-info">Ver</a>
-                <a href="edit.html?id=${p.id}" class="btn-sm btn-warning">Editar</a>
-                <button class="btn-sm btn-danger" onclick="eliminar(${p.id})">Eliminar</button>
+                <a href="show.html?id=${p.id}" title="Ver detalle" style="font-size:1.45rem;line-height:1;padding:3px 6px;cursor:pointer;background:none;border:none;border-radius:6px;text-decoration:none;">👁️‍🗨️</a>
+                <a href="edit.html?id=${p.id}" title="Editar" style="font-size:1.45rem;line-height:1;padding:3px 6px;cursor:pointer;background:none;border:none;border-radius:6px;text-decoration:none;">🖋️</a>
+                <button onclick="eliminar(${p.id})" title="Eliminar" style="font-size:1.45rem;line-height:1;padding:3px 6px;cursor:pointer;background:none;border:none;border-radius:6px;text-decoration:none;">🗑️</button>
             </td>
         `;
         tabla.appendChild(tr);

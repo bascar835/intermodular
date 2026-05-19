@@ -26,5 +26,10 @@ public record ExperienciaRequest(
 
     @NotNull(message = "La categoría es obligatoria")
     @Positive(message = "El ID de categoría debe ser válido")
-    Integer categoria_id
+    Integer categoria_id,
+
+    // Campos opcionales
+    String recomendamos,
+
+    String incluye
 ) {}
