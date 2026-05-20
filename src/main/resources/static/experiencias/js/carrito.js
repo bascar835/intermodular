@@ -202,9 +202,9 @@ async function vaciarCarrito() {
 let _previewId   = null;
 let _pasoActual  = 0;
 let _reservasPendientes = [];
+let _totalPedido = 0;
 
 async function abrirModalCompra() {
-    // 1. Generar el preview en el servidor (snapshot de condiciones)
     const btnFin = document.getElementById("btn-finalizar");
     if (btnFin) { btnFin.disabled = true; btnFin.textContent = "Procesando..."; }
 
@@ -223,6 +223,7 @@ async function abrirModalCompra() {
     const preview = await res.json();
     _previewId  = preview.previewId;
     _pasoActual = 0;
+    _totalPedido = preview.total || 0;
     _reservasPendientes = preview.items.map(i => ({ ...i, fecha: null }));
 
     if (preview.items.some(i => i.hayCambios)) {
@@ -254,7 +255,7 @@ function mostrarPasoModal(index) {
     inputFecha.value = item.fecha || minFecha;
 
     document.getElementById("btn-siguiente").textContent =
-        index < total - 1 ? "Siguiente →" : "✅ Confirmar reservas";
+        index < total - 1 ? "Siguiente →" : "Ir al pago →";
 
     document.getElementById("modal-progreso-bar").style.width =
         Math.round((index / total) * 100) + "%";
@@ -271,25 +272,122 @@ async function siguientePaso() {
         return;
     }
 
+    // Validar que la fecha no sea anterior a ahora mismo
+    const fechaSeleccionada = new Date(fecha);
+    const ahora = new Date();
+    if (fechaSeleccionada <= ahora) {
+        errorEl.textContent   = "La fecha y hora seleccionada debe ser posterior a la fecha actual.";
+        errorEl.style.display = "block";
+        return;
+    }
+
     _reservasPendientes[_pasoActual].fecha = fecha;
 
     if (_pasoActual < _reservasPendientes.length - 1) {
         _pasoActual++;
         mostrarPasoModal(_pasoActual);
     } else {
-        await confirmarCompra();
+        // Todas las fechas elegidas → abrir pasarela de pago
+        cerrarModalCompra();
+        abrirModalPago();
     }
 }
 
-async function confirmarCompra() {
-    const btnSig  = document.getElementById("btn-siguiente");
-    const errorEl = document.getElementById("modal-compra-error");
+function cerrarModalCompra() {
+    document.getElementById("modal-compra").style.display = "none";
+}
 
-    btnSig.disabled    = true;
-    btnSig.textContent = "Procesando...";
-    document.getElementById("modal-progreso-bar").style.width = "100%";
+// ── Pasarela de pago ──────────────────────────────────────────────────────────
 
-    // Confirmar con el servidor usando el previewId y las fechas elegidas
+function abrirModalPago() {
+    // Rellenar resumen del pedido
+    const resumenEl = document.getElementById("pago-resumen");
+    if (resumenEl) {
+        const lineas = _reservasPendientes.map(i =>
+            `<div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+                <span>${esc(i.titulo)} × ${i.personasFinal} persona${i.personasFinal !== 1 ? "s" : ""}</span>
+                <strong>${fmt(i.precioFinal * i.personasFinal)}</strong>
+             </div>`
+        ).join("");
+        resumenEl.innerHTML = lineas +
+            `<div style="border-top:1px solid #e5e5e5;margin-top:8px;padding-top:8px;display:flex;justify-content:space-between;font-weight:800;color:#1a1a2e;font-size:14px;">
+                <span>Total a pagar</span>
+                <span style="color:#e11d48;">${fmt(_totalPedido)}</span>
+             </div>`;
+    }
+    // Limpiar errores y campos
+    document.getElementById("pago-error").style.display = "none";
+    document.getElementById("modal-pago").style.display = "flex";
+}
+
+function cerrarModalPago() {
+    document.getElementById("modal-pago").style.display = "none";
+    // Reabrir el último paso de fechas
+    mostrarPasoModal(_reservasPendientes.length - 1);
+    document.getElementById("modal-compra").style.display = "flex";
+}
+
+async function procesarPago() {
+    const metodo = document.querySelector('input[name="metodoPago"]:checked')?.value || "tarjeta";
+    const errorEl = document.getElementById("pago-error");
+    errorEl.style.display = "none";
+
+    // Validar tarjeta si corresponde
+    if (metodo === "tarjeta") {
+        const numero  = document.getElementById("inp-numero").value.replace(/\s/g, "");
+        const titular = document.getElementById("inp-titular").value.trim();
+        const expiry  = document.getElementById("inp-expiry").value;
+        const cvv     = document.getElementById("inp-cvv").value;
+
+        if (numero.length < 16) {
+            mostrarErrorPago("El número de tarjeta no es válido."); return;
+        }
+        if (!titular) {
+            mostrarErrorPago("Introduce el nombre del titular."); return;
+        }
+        if (!/^\d{2}\/\d{2}$/.test(expiry)) {
+            mostrarErrorPago("La fecha de caducidad no es válida (MM/AA)."); return;
+        }
+        {
+            const [mm, aa] = expiry.split("/").map(Number);
+            const now = new Date();
+            const currentYear  = now.getFullYear() % 100;
+            const currentMonth = now.getMonth() + 1;
+            if (mm < 1 || mm > 12) {
+                mostrarErrorPago("El mes de caducidad no es válido (01-12)."); return;
+            }
+            if (aa < currentYear || (aa === currentYear && mm < currentMonth)) {
+                mostrarErrorPago("La tarjeta está caducada. Introduce una fecha válida."); return;
+            }
+        }
+        if (cvv.length < 3) {
+            mostrarErrorPago("El CVV debe tener 3 dígitos."); return;
+        }
+    }
+
+    // Cerrar modal pago y mostrar procesando
+    document.getElementById("modal-pago").style.display = "none";
+    document.getElementById("modal-procesando").style.display = "flex";
+
+    // Animación de mensajes simulados
+    const mensajes = [
+        "Verificando datos de la tarjeta...",
+        "Contactando con el banco...",
+        "Aplicando autenticación 3D Secure...",
+        "Confirmando el pago..."
+    ];
+    let msgIdx = 0;
+    const msgEl = document.getElementById("procesando-msg");
+    const intervalo = setInterval(() => {
+        msgIdx = (msgIdx + 1) % mensajes.length;
+        if (msgEl) msgEl.textContent = mensajes[msgIdx];
+    }, 900);
+
+    // Esperar 3.5 segundos para que se vea la animación
+    await new Promise(r => setTimeout(r, 3500));
+    clearInterval(intervalo);
+
+    // Llamar al backend
     const fechas = _reservasPendientes.map(item => ({
         experienciaId: item.experienciaId,
         fecha: item.fecha
@@ -298,33 +396,35 @@ async function confirmarCompra() {
     const res = await fetch("/api/me/carrito/checkout/confirm", {
         method:  "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ previewId: _previewId, fechas })
+        body: JSON.stringify({ previewId: _previewId, fechas, metodoPago: metodo })
     });
 
-    btnSig.disabled = false;
-    cerrarModalCompra();
+    document.getElementById("modal-procesando").style.display = "none";
 
     if (res.ok) {
-        // Éxito: mostrar modal de confirmación con datos del usuario
+        const pago = await res.json().catch(() => null);
         try {
             const meRes = await fetch('/api/auth/me', { credentials: 'include' });
             const user  = meRes.ok ? await meRes.json() : null;
-            mostrarModalConfirmacion(user);
+            mostrarModalConfirmacion(user, pago);
         } catch (_) {
-            mostrarModalConfirmacion(null);
+            mostrarModalConfirmacion(null, pago);
         }
     } else if (res.status === 409) {
-        // Las condiciones cambiaron: recargar el carrito
         mostrarCarrito();
         alert("Las condiciones han cambiado. Por favor revisa el carrito antes de confirmar.");
     } else {
+        // Volver al modal de pago con el error
+        document.getElementById("modal-pago").style.display = "flex";
         const err = await res.json().catch(() => ({}));
-        alert(err.message || "Error al confirmar la compra");
+        mostrarErrorPago(err.message || "Error al confirmar el pago. Inténtalo de nuevo.");
     }
 }
 
-function cerrarModalCompra() {
-    document.getElementById("modal-compra").style.display = "none";
+function mostrarErrorPago(msg) {
+    const el = document.getElementById("pago-error");
+    el.textContent   = "⚠ " + msg;
+    el.style.display = "block";
 }
 
 window.addEventListener("click", e => {
@@ -335,7 +435,7 @@ window.addEventListener("click", e => {
 
 // ── Modal de confirmación de compra ──────────────────────────────────────────
 
-function mostrarModalConfirmacion(user) {
+function mostrarModalConfirmacion(user, pago) {
     // Cerrar modal de compra si sigue abierto
     cerrarModalCompra();
 
@@ -382,6 +482,24 @@ function mostrarModalConfirmacion(user) {
                     Hemos enviado todos los detalles a <strong style="color:#e53935;">${escHtml(correo)}</strong>
                 </p>` : ''}
             </div>
+
+            <!-- Datos del pago -->
+            ${pago ? `
+            <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:12px;padding:14px 18px;margin-bottom:16px;text-align:left;font-size:13px;color:#166534;">
+                <p style="margin:0 0 6px;font-weight:800;font-size:12px;text-transform:uppercase;letter-spacing:.06em;">🧾 Resumen del pago</p>
+                <div style="display:flex;justify-content:space-between;margin-bottom:3px;">
+                    <span>Referencia</span>
+                    <strong style="font-family:monospace;">${escHtml(pago.referencia || '')}</strong>
+                </div>
+                <div style="display:flex;justify-content:space-between;margin-bottom:3px;">
+                    <span>Método</span>
+                    <strong>${escHtml((pago.metodoPago || '').charAt(0).toUpperCase() + (pago.metodoPago || '').slice(1))}</strong>
+                </div>
+                <div style="display:flex;justify-content:space-between;">
+                    <span>Total pagado</span>
+                    <strong>${fmt(pago.importeTotal || 0)}</strong>
+                </div>
+            </div>` : ''}
 
             <!-- Pasos siguientes -->
             <div style="text-align:left;margin-bottom:22px;">
@@ -448,3 +566,5 @@ function esc(s) {
         .replace(/&/g,"&amp;").replace(/</g,"&lt;")
         .replace(/>/g,"&gt;").replace(/"/g,"&quot;");
 }
+
+function escHtml(s) { return esc(s); }

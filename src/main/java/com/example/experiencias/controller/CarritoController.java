@@ -22,10 +22,12 @@ import com.example.experiencias.dto.CarritoItemUpdateRequest;
 import com.example.experiencias.dto.CheckoutConfirmRequest;
 import com.example.experiencias.dto.CheckoutItemPreview;
 import com.example.experiencias.dto.CheckoutPreviewResponse;
+import com.example.experiencias.dto.PagoResponse;
 import com.example.experiencias.dto.ReservaResponse;
 import com.example.experiencias.entity.CarritoItem;
 import com.example.experiencias.entity.CheckoutPreview;
 import com.example.experiencias.entity.Experiencia;
+import com.example.experiencias.entity.Pago;
 import com.example.experiencias.entity.Reserva;
 import com.example.experiencias.exception.BadRequestException;
 import com.example.experiencias.exception.BusinessException;
@@ -34,7 +36,9 @@ import com.example.experiencias.exception.DataAccessException;
 import com.example.experiencias.repository.CarritoItemRepository;
 import com.example.experiencias.repository.CheckoutPreviewRepository;
 import com.example.experiencias.repository.ExperienciaRepository;
+import com.example.experiencias.repository.PagoRepository;
 import com.example.experiencias.repository.ReservaRepository;
+import com.example.experiencias.service.PagoSimuladoService;
 
 import jakarta.validation.Valid;
 
@@ -46,12 +50,12 @@ import jakarta.validation.Valid;
  * El userId NUNCA se recibe del cliente: siempre viene de @SessionAttribute("userId").
  *
  * Flujo de compra:
- *   1. GET  /api/me/carrito              → ver carrito actual
- *   2. POST /api/me/carrito              → añadir experiencia
- *   3. PUT  /api/me/carrito/{id}         → modificar personas
- *   4. DELETE /api/me/carrito/{id}       → eliminar item
- *   5. POST /api/me/carrito/checkout     → generar preview (snapshot de condiciones)
- *   6. POST /api/me/carrito/checkout/confirm → confirmar compra con el previewId
+ *   1. GET  /api/me/carrito                      → ver carrito actual
+ *   2. POST /api/me/carrito                      → añadir experiencia
+ *   3. PUT  /api/me/carrito/{id}                 → modificar personas
+ *   4. DELETE /api/me/carrito/{id}               → eliminar item
+ *   5. POST /api/me/carrito/checkout             → generar preview (snapshot de condiciones)
+ *   6. POST /api/me/carrito/checkout/confirm     → confirmar compra + PAGO SIMULADO
  */
 @RestController
 @RequestMapping("/api/me/carrito")
@@ -64,7 +68,6 @@ public class CarritoController {
     }
 
     // ── GET /api/me/carrito ───────────────────────────────────────────────────
-    // Devuelve los items del carrito con precio actual y snapshot para mostrar cambios
     @GetMapping
     public List<CarritoItemDetalle> index(@SessionAttribute("userId") int userId) {
         try (Connection con = ds.getConnection()) {
@@ -75,7 +78,6 @@ public class CarritoController {
     }
 
     // ── POST /api/me/carrito ──────────────────────────────────────────────────
-    // Añade una experiencia al carrito. Si ya existe, acumula personas.
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public CarritoItemResponse add(
@@ -91,17 +93,15 @@ public class CarritoController {
             CarritoItem existente = carritoRepo.findByUserIdAndExperienciaId(userId, req.experienciaId());
 
             if (existente != null) {
-                // Ya existe → acumular personas (máx. 12)
                 int nuevasPersonas = existente.getPersonas() + req.personas();
                 if (nuevasPersonas > 12) {
                     throw new BusinessException("No se pueden reservar más de 12 personas por experiencia");
                 }
                 existente.setPersonas(nuevasPersonas);
-                existente.setPrecio(exp.getPrecio()); // refresca snapshot de precio
+                existente.setPrecio(exp.getPrecio());
                 carritoRepo.update(existente);
                 return toResponse(existente);
             } else {
-                // Nueva línea
                 if (req.personas() > 12) {
                     throw new BusinessException("No se pueden reservar más de 12 personas por experiencia");
                 }
@@ -116,7 +116,6 @@ public class CarritoController {
     }
 
     // ── PUT /api/me/carrito/{id} ──────────────────────────────────────────────
-    // Modifica el número de personas de un item del carrito
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void update(
@@ -136,7 +135,7 @@ public class CarritoController {
             }
 
             item.setPersonas(req.personas());
-            item.setPrecio(exp.getPrecio()); // refresca snapshot
+            item.setPrecio(exp.getPrecio());
             carritoRepo.update(item);
 
         } catch (SQLException e) {
@@ -145,7 +144,6 @@ public class CarritoController {
     }
 
     // ── DELETE /api/me/carrito/{id} ───────────────────────────────────────────
-    // Elimina un item del carrito del usuario
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(
@@ -160,8 +158,6 @@ public class CarritoController {
     }
 
     // ── POST /api/me/carrito/checkout ─────────────────────────────────────────
-    // Genera un checkout preview: snapshot de las condiciones actuales.
-    // Detecta cambios de precio respecto al carrito e informa al usuario.
     @PostMapping("/checkout")
     @ResponseStatus(HttpStatus.CREATED)
     public CheckoutPreviewResponse preview(@SessionAttribute("userId") int userId) {
@@ -179,7 +175,7 @@ public class CarritoController {
 
             for (var item : items) {
                 int    personasAnterior = item.personas();
-                int    personasFinal    = item.personas(); // sin stock, no se limita
+                int    personasFinal    = item.personas();
                 double precioAnterior   = item.precioCarrito();
                 double precioFinal      = item.precioActual();
                 boolean hayCambios      = precioAnterior != precioFinal;
@@ -197,8 +193,6 @@ public class CarritoController {
                 total += personasFinal * precioFinal;
             }
 
-            // Serializar el estado actual para compararlo en la confirmación
-            // Formato: experienciaId:personas:precio|experienciaId:personas:precio
             String data = previewItems.stream()
                 .map(i -> i.experienciaId() + ":" + i.personasFinal() + ":" + String.format("%.2f", i.precioFinal()))
                 .sorted()
@@ -213,22 +207,41 @@ public class CarritoController {
     }
 
     // ── POST /api/me/carrito/checkout/confirm ─────────────────────────────────
-    // Confirma la compra. Verifica que el estado no ha cambiado desde el preview
-    // y crea una Reserva por cada experiencia del carrito.
+    /**
+     * Confirma la compra con pago simulado.
+     *
+     * Pasos:
+     *  1. Recuperar y verificar el preview.
+     *  2. Comparar estado actual del carrito con el snapshot del preview.
+     *  3. Crear una Reserva (estado "pendiente") por cada experiencia.
+     *  4. Invocar PagoSimuladoService → genera referencia, persiste pago,
+     *     y cambia todas las reservas a "confirmada".
+     *  5. Vaciar carrito y previews del usuario.
+     *  6. Devolver PagoResponse con la referencia y las reservas confirmadas.
+     *
+     * Body esperado:
+     * {
+     *   "previewId": 5,
+     *   "metodoPago": "tarjeta",          // "tarjeta" | "transferencia" | "paypal"
+     *   "fechas": [
+     *     { "experienciaId": 3, "fecha": "2026-06-15T10:00" }
+     *   ]
+     * }
+     */
     @PostMapping("/checkout/confirm")
     @ResponseStatus(HttpStatus.CREATED)
-    public List<ReservaResponse> confirm(
+    public PagoResponse confirm(
             @RequestBody @Valid CheckoutConfirmRequest req,
             @SessionAttribute("userId") int userId) {
 
         return Tx.run(ds, con -> {
 
-            // 1. Recuperar el preview (solo del usuario en sesión)
+            // 1. Recuperar el preview
             CheckoutPreviewRepository previewRepo = new CheckoutPreviewRepository(con);
             CheckoutPreview preview = previewRepo.findByIdAndUserIdOrThrow(req.previewId(), userId);
             String stored = preview.getData();
 
-            // 2. Cargar el estado actual del carrito
+            // 2. Estado actual del carrito
             CarritoItemRepository carritoRepo = new CarritoItemRepository(con);
             List<CarritoItemDetalle> items = carritoRepo.findDetalleByUserId(userId);
 
@@ -236,7 +249,6 @@ public class CarritoController {
                 throw new BadRequestException("El carrito está vacío");
             }
 
-            // 3. Reconstruir el estado actual y comparar con el preview
             String current = items.stream()
                 .map(i -> i.experienciaId() + ":" + i.personas() + ":" + String.format("%.2f", i.precioActual()))
                 .sorted()
@@ -247,7 +259,7 @@ public class CarritoController {
                     "Las condiciones han cambiado desde el checkout. Por favor, revisa el carrito antes de confirmar.");
             }
 
-            // 4. Construir mapa experienciaId → fecha elegida por el usuario
+            // 3. Mapa de fechas elegidas
             Map<Integer, LocalDateTime> fechasPorExp = new java.util.HashMap<>();
             if (req.fechas() != null) {
                 for (var fi : req.fechas()) {
@@ -257,13 +269,16 @@ public class CarritoController {
                 }
             }
 
-            // 5. Crear una Reserva por cada experiencia del carrito
+            // 4. Crear reservas en estado "pendiente"
             ReservaRepository reservaRepo = new ReservaRepository(con);
-            List<ReservaResponse> reservas = new ArrayList<>();
+            List<ReservaResponse> reservasResp = new ArrayList<>();
+            List<Integer> reservaIds = new ArrayList<>();
             LocalDateTime ahora = LocalDateTime.now();
+            double importeTotal = 0;
 
             for (var item : items) {
                 double total = item.personas() * item.precioActual();
+                importeTotal += total;
                 LocalDateTime fechaActividad = fechasPorExp.getOrDefault(
                     item.experienciaId(), ahora.plusDays(1));
 
@@ -277,23 +292,44 @@ public class CarritoController {
                     "pendiente"
                 );
                 reservaRepo.insert(reserva);
+                reservaIds.add(reserva.getId());
 
-                reservas.add(new ReservaResponse(
+                reservasResp.add(new ReservaResponse(
                     reserva.getId(),
                     item.experienciaId(),
                     fechaActividad,
                     item.personas(),
                     total,
-                    "pendiente",
+                    "pendiente",   // se actualizará a "confirmada" tras el pago
                     ahora
                 ));
             }
+
+            // 5. Procesar pago simulado → confirma reservas y guarda registro de pago
+            PagoRepository pagoRepo = new PagoRepository(con);
+            PagoSimuladoService pagoService = new PagoSimuladoService(pagoRepo, reservaRepo);
+            Pago pago = pagoService.procesarPago(userId, req.metodoPago(), reservaIds, importeTotal);
+
+            // Actualizar el estado en la respuesta de reservas a "confirmada"
+            List<ReservaResponse> reservasConfirmadas = reservasResp.stream()
+                .map(r -> new ReservaResponse(
+                    r.id(), r.experienciaId(), r.fechaReserva(),
+                    r.numeroPersonas(), r.precioTotal(), "confirmada", r.fechaCreacion()))
+                .toList();
 
             // 6. Limpiar carrito y previews del usuario
             carritoRepo.deleteByUserId(userId);
             previewRepo.deleteByUserId(userId);
 
-            return reservas;
+            return new PagoResponse(
+                pago.getId(),
+                pago.getReferencia(),
+                pago.getMetodoPago(),
+                pago.getEstadoPago(),
+                pago.getImporteTotal(),
+                pago.getFechaPago(),
+                reservasConfirmadas
+            );
         });
     }
 

@@ -39,7 +39,7 @@
 
     </div>
 
-    <!-- ── Modal paso a paso ── -->
+    <!-- ── Modal paso a paso: fechas ── -->
     <div id="modal-compra" class="modal-compra-overlay">
         <div class="modal-compra-box">
 
@@ -66,9 +66,200 @@
         </div>
     </div>
 
+    <!-- ── Modal pasarela de pago ── -->
+    <div id="modal-pago" class="modal-compra-overlay">
+        <div class="modal-compra-box" style="max-width:480px;">
+
+            <!-- Cabecera -->
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+                <div>
+                    <p style="font-size:11px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:#e11d48;margin:0 0 2px;">Pago seguro</p>
+                    <h2 style="font-size:17px;font-weight:800;color:#1a1a2e;margin:0;">Xperiabox Checkout</h2>
+                </div>
+                <div style="display:flex;align-items:center;gap:6px;background:#f8f8f8;border-radius:8px;padding:6px 10px;">
+                    <span style="font-size:18px;">🔒</span>
+                    <span style="font-size:11px;color:#666;font-weight:600;">SSL seguro</span>
+                </div>
+            </div>
+
+            <!-- Resumen del pedido -->
+            <div id="pago-resumen" style="background:#f9f9f9;border-radius:10px;padding:12px 14px;margin-bottom:18px;font-size:13px;color:#555;">
+                <!-- se rellena por JS -->
+            </div>
+
+            <!-- Selector método de pago -->
+            <div style="margin-bottom:16px;">
+                <p style="font-size:12px;font-weight:700;color:#444;margin:0 0 8px;text-transform:uppercase;letter-spacing:.05em;">Método de pago</p>
+                <div style="display:flex;gap:8px;">
+                    <label class="pago-metodo-btn activo" id="tab-tarjeta">
+                        <input type="radio" name="metodoPago" value="tarjeta" checked style="display:none;">
+                        💳 Tarjeta
+                    </label>
+                    <label class="pago-metodo-btn" id="tab-paypal">
+                        <input type="radio" name="metodoPago" value="paypal" style="display:none;">
+                        🅿 PayPal
+                    </label>
+                    <label class="pago-metodo-btn" id="tab-transferencia">
+                        <input type="radio" name="metodoPago" value="transferencia" style="display:none;">
+                        🏦 Banco
+                    </label>
+                </div>
+            </div>
+
+            <!-- Panel tarjeta -->
+            <div id="panel-tarjeta">
+                <!-- Tarjeta visual -->
+                <div class="tarjeta-visual" id="tarjeta-visual">
+                    <div class="tarjeta-chip">▬▬</div>
+                    <div class="tarjeta-numero" id="tv-numero">•••• •••• •••• ••••</div>
+                    <div class="tarjeta-bottom">
+                        <div>
+                            <div class="tarjeta-label">Titular</div>
+                            <div class="tarjeta-titular" id="tv-titular">NOMBRE APELLIDO</div>
+                        </div>
+                        <div style="text-align:right;">
+                            <div class="tarjeta-label">Caduca</div>
+                            <div class="tarjeta-expiry" id="tv-expiry">MM/AA</div>
+                        </div>
+                        <div style="text-align:right;">
+                            <div class="tarjeta-logo">VISA</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Formulario tarjeta -->
+                <div style="display:flex;flex-direction:column;gap:10px;margin-top:14px;">
+                    <div>
+                        <label class="pago-label">Número de tarjeta</label>
+                        <input class="pago-input" id="inp-numero" type="text" inputmode="numeric"
+                               maxlength="19" placeholder="1234 5678 9012 3456"
+                               oninput="formatearNumero(this)" onkeypress="return soloNumeros(event)">
+                    </div>
+                    <div>
+                        <label class="pago-label">Titular de la tarjeta</label>
+                        <input class="pago-input" id="inp-titular" type="text"
+                               placeholder="Como aparece en la tarjeta"
+                               oninput="actualizarTitular(this)">
+                    </div>
+                    <div style="display:flex;gap:10px;">
+                        <div style="flex:1;">
+                            <label class="pago-label">Caducidad</label>
+                            <input class="pago-input" id="inp-expiry" type="text" inputmode="numeric"
+                                   maxlength="5" placeholder="MM/AA"
+                                   oninput="formatearExpiry(this)" onkeypress="return soloNumeros(event)">
+                        </div>
+                        <div style="flex:1;">
+                            <label class="pago-label">CVV</label>
+                            <input class="pago-input" id="inp-cvv" type="password" inputmode="numeric"
+                                   maxlength="3" placeholder="•••"
+                                   onkeypress="return soloNumeros(event)">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Panel PayPal -->
+            <div id="panel-paypal" style="display:none;text-align:center;padding:24px 0;">
+                <div style="font-size:3rem;margin-bottom:12px;">🅿</div>
+                <p style="font-size:14px;color:#555;margin:0 0 6px;">Serás redirigido a PayPal para completar el pago de forma segura.</p>
+                <p style="font-size:12px;color:#999;">Tu sesión de Xperiabox se mantendrá activa.</p>
+            </div>
+
+            <!-- Panel Transferencia -->
+            <div id="panel-transferencia" style="display:none;padding:16px 0;">
+                <div style="background:#f0f9ff;border:1px solid #bae6fd;border-radius:10px;padding:14px 16px;font-size:13px;color:#0369a1;">
+                    <p style="margin:0 0 8px;font-weight:700;">🏦 Datos bancarios</p>
+                    <p style="margin:0 0 4px;">IBAN: <strong>ES12 3456 7890 1234 5678 9012</strong></p>
+                    <p style="margin:0 0 4px;">BIC/SWIFT: <strong>XPRIAXXX</strong></p>
+                    <p style="margin:0;font-size:12px;color:#0284c7;">Usa tu email como concepto de la transferencia.</p>
+                </div>
+            </div>
+
+            <!-- Error pago -->
+            <div id="pago-error" class="modal-compra-error" style="display:none;margin-top:10px;"></div>
+
+            <!-- Botones -->
+            <div class="modal-compra-actions" style="margin-top:18px;">
+                <button class="btn-cancelar-modal" onclick="cerrarModalPago()">← Volver</button>
+                <button class="btn-siguiente-modal" id="btn-pagar" onclick="procesarPago()">
+                    🔒 Pagar ahora
+                </button>
+            </div>
+
+            <!-- Logos seguridad -->
+            <div style="display:flex;justify-content:center;gap:16px;margin-top:14px;opacity:.5;font-size:11px;color:#888;align-items:center;">
+                <span>🔒 Cifrado SSL</span>
+                <span>|</span>
+                <span>🛡️ Pago seguro</span>
+                <span>|</span>
+                <span>✅ 3D Secure</span>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ── Modal procesando pago ── -->
+    <div id="modal-procesando" class="modal-compra-overlay">
+        <div class="modal-compra-box" style="max-width:360px;text-align:center;padding:48px 32px;">
+            <div class="spinner-pago"></div>
+            <h3 style="font-size:17px;font-weight:800;color:#1a1a2e;margin:24px 0 8px;">Procesando pago...</h3>
+            <p style="font-size:13px;color:#888;margin:0;" id="procesando-msg">Verificando datos de la tarjeta</p>
+        </div>
+    </div>
+
+    <style>
+        /* ── Tarjeta visual ── */
+        .tarjeta-visual {
+            background: linear-gradient(135deg, #1a1a2e 0%, #e11d48 100%);
+            border-radius: 14px;
+            padding: 20px 22px 16px;
+            color: #fff;
+            font-family: 'Courier New', monospace;
+            box-shadow: 0 8px 24px rgba(225,29,72,.3);
+            position: relative;
+            min-height: 140px;
+        }
+        .tarjeta-chip { font-size: 22px; opacity: .7; margin-bottom: 18px; letter-spacing:-4px; }
+        .tarjeta-numero { font-size: 18px; letter-spacing: 3px; margin-bottom: 18px; font-weight: 600; }
+        .tarjeta-bottom { display: flex; align-items: flex-end; justify-content: space-between; }
+        .tarjeta-label { font-size: 8px; opacity: .6; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 2px; }
+        .tarjeta-titular { font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .tarjeta-expiry { font-size: 14px; font-weight: 600; }
+        .tarjeta-logo { font-size: 16px; font-weight: 900; font-family: sans-serif; font-style: italic; opacity: .9; }
+
+        /* ── Botones método ── */
+        .pago-metodo-btn {
+            flex: 1; text-align: center; padding: 9px 6px;
+            border: 2px solid #eee; border-radius: 10px;
+            font-size: 12px; font-weight: 700; color: #666;
+            cursor: pointer; transition: all .15s; user-select: none;
+        }
+        .pago-metodo-btn.activo {
+            border-color: #e11d48; background: #fde8ee; color: #e11d48;
+        }
+
+        /* ── Inputs pago ── */
+        .pago-label { display:block; font-size:12px; font-weight:700; color:#444; margin-bottom:5px; }
+        .pago-input {
+            width: 100%; padding: 11px 13px; border: 1.5px solid #ddd;
+            border-radius: 9px; font-size: 14px; font-family: inherit;
+            box-sizing: border-box; outline: none; transition: border-color .15s;
+        }
+        .pago-input:focus { border-color: #e11d48; }
+        .pago-input.error { border-color: #e11d48; background: #fff5f5; }
+
+        /* ── Spinner ── */
+        .spinner-pago {
+            width: 56px; height: 56px; margin: 0 auto;
+            border: 5px solid #f0f0f0;
+            border-top-color: #e11d48;
+            border-radius: 50%;
+            animation: spin .9s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+    </style>
 
     <script>
-        // Ocultar "Iniciar Sesión" si hay sesión activa
         fetch('/api/auth/me', { credentials: 'include' })
             .then(res => res.ok ? res.json() : null)
             .then(user => {
@@ -76,8 +267,118 @@
                 if (user && btnLogin) btnLogin.style.display = 'none';
             })
             .catch(() => {});
+
+        // ── Tabs método de pago ──
+        document.querySelectorAll('.pago-metodo-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.pago-metodo-btn').forEach(b => b.classList.remove('activo'));
+                btn.classList.add('activo');
+                btn.querySelector('input').checked = true;
+                const metodo = btn.querySelector('input').value;
+                document.getElementById('panel-tarjeta').style.display      = metodo === 'tarjeta'        ? 'block' : 'none';
+                document.getElementById('panel-paypal').style.display       = metodo === 'paypal'         ? 'block' : 'none';
+                document.getElementById('panel-transferencia').style.display = metodo === 'transferencia'  ? 'block' : 'none';
+                document.getElementById('btn-pagar').textContent =
+                    metodo === 'paypal'        ? '🅿 Continuar con PayPal' :
+                    metodo === 'transferencia' ? '✅ Confirmar transferencia' :
+                                                '🔒 Pagar ahora';
+            });
+        });
+
+        // ── Formateo tarjeta ──
+        function soloNumeros(e) { return e.key >= '0' && e.key <= '9'; }
+
+        function formatearNumero(input) {
+            let v = input.value.replace(/\D/g, '').slice(0, 16);
+            input.value = v.replace(/(.{4})/g, '$1 ').trim();
+            const display = v.padEnd(16, '•').replace(/(.{4})/g, '$1 ').trim();
+            document.getElementById('tv-numero').textContent = display;
+            // Detectar red
+            const logo = document.getElementById('tarjeta-logo') || document.querySelector('.tarjeta-logo');
+            if (logo) {
+                logo.textContent = v[0] === '4' ? 'VISA' : v[0] === '5' ? 'MC' : v[0] === '3' ? 'AMEX' : 'VISA';
+            }
+        }
+
+        function actualizarTitular(input) {
+            const v = input.value.toUpperCase() || 'NOMBRE APELLIDO';
+            document.getElementById('tv-titular').textContent = v;
+        }
+
+        function formatearExpiry(input) {
+            let v = input.value.replace(/\D/g, '').slice(0, 4);
+            if (v.length >= 3) v = v.slice(0,2) + '/' + v.slice(2);
+            input.value = v;
+            document.getElementById('tv-expiry').textContent = v || 'MM/AA';
+        }
     </script>
     <script src="/experiencias/js/navbar.js"></script>
     <script src="/experiencias/js/carrito.js"></script>
+  <!-- FOOTER con información de contacto -->
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-grid">
+        <div class="footer-col footer-brand">
+          <div class="footer-logo">Xperiabox<span class="footer-logo-dot">.</span></div>
+          <p class="footer-tagline">Vive experiencias únicas. Deja que el destino te sorprenda.</p>
+          <div class="footer-social">
+            <a href="#" class="footer-social-link" aria-label="Instagram">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+            </a>
+            <a href="#" class="footer-social-link" aria-label="Facebook">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+            </a>
+            <a href="#" class="footer-social-link" aria-label="Twitter/X">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+            </a>
+          </div>
+        </div>
+        <div class="footer-col">
+          <h4 class="footer-heading">Contacto</h4>
+          <ul class="footer-list">
+            <li class="footer-contact-item">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+              <a href="mailto:info@xperiabox.com">info@xperiabox.com</a>
+            </li>
+            <li class="footer-contact-item">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.62 3.38 2 2 0 0 1 3.6 1.22h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.81a16 16 0 0 0 6.29 6.29l.95-.95a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+              <a href="tel:+34900123456">+34 900 123 456</a>
+            </li>
+            <li class="footer-contact-item">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+              <span>Calle Aventura 42, 28001 Madrid, España</span>
+            </li>
+            <li class="footer-contact-item">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              <span>Lun–Vie: 9:00–19:00 · Sáb: 10:00–14:00</span>
+            </li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4 class="footer-heading">Explora</h4>
+          <ul class="footer-list">
+            <li><a href="/experiencias/index.html">Todas las experiencias</a></li>
+            <li><a href="/experiencias/categorias.html">Categorías</a></li>
+            <li><a href="/experiencias/como-funciona.html">Cómo funciona</a></li>
+            <li><a href="/experiencias/reservas.html">Mis reservas</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4 class="footer-heading">Legal</h4>
+          <ul class="footer-list">
+            <li><a href="#">Política de privacidad</a></li>
+            <li><a href="#">Términos y condiciones</a></li>
+            <li><a href="#">Política de cancelación</a></li>
+            <li><a href="#">Aviso legal</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>© 2025 XperiaBox · Vive experiencias únicas</span>
+        <span class="footer-bottom-sep">·</span>
+        <span>Hecho con ❤️ en España</span>
+      </div>
+    </div>
+  </footer>
 </body>
 </html>
