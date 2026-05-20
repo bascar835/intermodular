@@ -47,6 +47,20 @@ async function guardar(e) {
         estado:          document.getElementById("estado").value
     };
 
+    // Validar rango de fecha en JS (por si se manipula el atributo min/max)
+    const fechaInput = new Date(document.getElementById("fecha_reserva").value);
+    const ahora      = new Date();
+    const maxFecha   = new Date(); maxFecha.setFullYear(maxFecha.getFullYear() + 1);
+
+    if (fechaInput < ahora) {
+        mostrarErrorGeneral("La fecha de reserva no puede ser anterior a hoy.");
+        return;
+    }
+    if (fechaInput > maxFecha) {
+        mostrarErrorGeneral("La fecha de reserva no puede superar 1 año desde hoy.");
+        return;
+    }
+
     const res = await authFetch("/api/admin/reservas", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -62,3 +76,28 @@ async function guardar(e) {
 }
 
 cargarSelects();
+
+// ── Restricción de fechas: hoy → máx. 1 año vista ──────────────────────────
+(function fijarRangoFecha() {
+    const input = document.getElementById('fecha_reserva');
+    if (!input) return;
+
+    const ahora   = new Date();
+    const maxDate = new Date(ahora);
+    maxDate.setFullYear(maxDate.getFullYear() + 1);
+
+    // Formato requerido por datetime-local: "YYYY-MM-DDTHH:MM"
+    function toLocal(d) {
+        const pad = n => String(n).padStart(2, '0');
+        return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+    }
+
+    input.min = toLocal(ahora);
+    input.max = toLocal(maxDate);
+
+    // Mostrar aviso informativo debajo del campo
+    const aviso = document.createElement('small');
+    aviso.style.cssText = 'color:#6b7280;margin-top:4px;display:block;font-size:.8rem;';
+    aviso.textContent   = `Fecha válida: hoy hasta el ${maxDate.toLocaleDateString('es-ES', { day:'2-digit', month:'long', year:'numeric' })}`;
+    input.parentNode.appendChild(aviso);
+})();

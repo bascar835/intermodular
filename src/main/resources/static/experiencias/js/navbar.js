@@ -6,6 +6,10 @@
  * - Administrador:     además muestra "⚙ Panel Admin" destacado
  *
  * Badge del carrito sincronizado entre todas las páginas via BroadcastChannel.
+ * Reglas del badge:
+ *   - Sin sesión          → oculto siempre
+ *   - Con sesión, 0 items → oculto (carrito vacío)
+ *   - Con sesión, ≥1 item → visible con el número
  */
 (function () {
     const path = window.location.pathname;
@@ -40,7 +44,6 @@
             font-weight: 700;
             min-width: 18px; height: 18px;
             border-radius: 9px;
-            display: flex !important;
             align-items: center; justify-content: center;
             padding: 0 4px; line-height: 1;
             box-shadow: 0 1px 4px rgba(0,0,0,0.28);
@@ -63,7 +66,7 @@
         const bc = new BroadcastChannel('xperiabox_carrito');
         bc.onmessage = function (e) {
             if (e.data && e.data.type === 'carrito_update') {
-                _renderBadge(e.data.count);
+                _renderBadge(e.data.count, e.data.session === true);
             }
         };
     }
@@ -74,10 +77,14 @@
         .then(user => {
             const link = document.getElementById('nav-auth-link');
             if (!link) return;
-            if (!user) return;
+            if (!user) {
+                // Sin sesión: ocultar el badge
+                _renderBadge(0, false);
+                return;
+            }
 
-            const nombre        = user.name || user.nombre || 'Usuario';
-            const esAdmin       = user.role === 'ROLE_ADMIN';
+            const nombre         = user.name || user.nombre || 'Usuario';
+            const esAdmin        = user.role === 'ROLE_ADMIN';
             const reservasActive = path.includes('/reservas') ? ' active' : '';
 
             const wrapper = document.createElement('span');
@@ -90,27 +97,32 @@
             `;
             link.replaceWith(wrapper);
 
-            // Cargar badge inicial
+            // Cargar badge inicial (solo si hay sesión)
             actualizarCarritoBadge();
         })
         .catch(() => {});
 
 })();
 
-/** Renderiza el badge con el número dado (0 = oculto). */
-function _renderBadge(count) {
+/**
+ * Renderiza el badge.
+ *   session=false       → oculto siempre (sin sesión)
+ *   session=true, count=0 → oculto (carrito vacío)
+ *   session=true, count>0 → visible con el número
+ */
+function _renderBadge(count, session) {
     const badge = document.getElementById('carrito-badge');
     if (!badge) return;
-    if (count > 0) {
-        badge.textContent = count > 99 ? '99+' : count;
-        badge.style.display = 'flex';
-        // Re-trigger animation
-        badge.style.animation = 'none';
-        badge.offsetHeight; // reflow
-        badge.style.animation = '';
-    } else {
+    if (!session || count <= 0) {
         badge.style.display = 'none';
+        return;
     }
+    badge.textContent = count > 99 ? '99+' : count;
+    badge.style.display = 'flex';
+    // Re-trigger animation
+    badge.style.animation = 'none';
+    badge.offsetHeight; // reflow
+    badge.style.animation = '';
 }
 
 /**
@@ -122,12 +134,12 @@ function actualizarCarritoBadge() {
         .then(res => res.ok ? res.json() : [])
         .then(items => {
             const count = Array.isArray(items) ? items.length : 0;
-            _renderBadge(count);
-            // Notificar al resto de pestañas abiertas
+            _renderBadge(count, true);
+            // Notificar al resto de pestañas con session:true para que evalúen el count
             if (typeof BroadcastChannel !== 'undefined') {
                 try {
                     const bc = new BroadcastChannel('xperiabox_carrito');
-                    bc.postMessage({ type: 'carrito_update', count });
+                    bc.postMessage({ type: 'carrito_update', count, session: true });
                     bc.close();
                 } catch (_) {}
             }
@@ -140,11 +152,11 @@ function cerrarSesion() {
         .catch(() => {})
         .finally(() => {
             sessionStorage.removeItem('xperiabox_carrito');
-            // Avisar a otras pestañas que el carrito es 0
+            // Avisar a otras pestañas: sin sesión, badge oculto
             if (typeof BroadcastChannel !== 'undefined') {
                 try {
                     const bc = new BroadcastChannel('xperiabox_carrito');
-                    bc.postMessage({ type: 'carrito_update', count: 0 });
+                    bc.postMessage({ type: 'carrito_update', count: 0, session: false });
                     bc.close();
                 } catch (_) {}
             }

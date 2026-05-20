@@ -9,7 +9,6 @@ async function cargarUsuarios() {
     usuarios.forEach(u => {
         const tr = document.createElement("tr");
         tr.innerHTML = `
-            <td>${u.id}</td>
             <td>${u.name}</td>
             <td>${u.email}</td>
             <td>${u.role.replace("ROLE_", "")}</td>

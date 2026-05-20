@@ -14,7 +14,6 @@ async function cargarReservas() {
 
         const tr = document.createElement("tr");
         tr.innerHTML = `
-            <td>${r.id}</td>
             <td>${r.usuario_id}</td>
             <td>${r.experiencia_id}</td>
             <td>${fechaFormateada}</td>

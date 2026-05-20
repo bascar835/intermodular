@@ -305,11 +305,14 @@ async function confirmarCompra() {
     cerrarModalCompra();
 
     if (res.ok) {
-        // Éxito: ahora hay que asignar las fechas a las reservas creadas
-        // (el servidor crea las reservas, nosotros hacemos PUT para añadir la fecha)
-        // Por simplicidad: redirigir a reservas con mensaje de éxito
-        sessionStorage.setItem("reservaExito", "1");
-        window.location.href = "/experiencias/reservas.html";
+        // Éxito: mostrar modal de confirmación con datos del usuario
+        try {
+            const meRes = await fetch('/api/auth/me', { credentials: 'include' });
+            const user  = meRes.ok ? await meRes.json() : null;
+            mostrarModalConfirmacion(user);
+        } catch (_) {
+            mostrarModalConfirmacion(null);
+        }
     } else if (res.status === 409) {
         // Las condiciones cambiaron: recargar el carrito
         mostrarCarrito();
@@ -328,6 +331,110 @@ window.addEventListener("click", e => {
     const modal = document.getElementById("modal-compra");
     if (modal && e.target === modal) cerrarModalCompra();
 });
+
+
+// ── Modal de confirmación de compra ──────────────────────────────────────────
+
+function mostrarModalConfirmacion(user) {
+    // Cerrar modal de compra si sigue abierto
+    cerrarModalCompra();
+
+    const nombre = user ? (user.name || user.nombre || 'Cliente') : 'Cliente';
+    const correo = user ? (user.email || '') : '';
+
+    // Crear overlay
+    const overlay = document.createElement('div');
+    overlay.id = 'modal-confirmacion-overlay';
+    overlay.style.cssText = [
+        'position:fixed;inset:0;background:rgba(0,0,0,0.55);',
+        'display:flex;align-items:center;justify-content:center;z-index:9999;',
+        'animation:fadeInOverlay .25s ease;'
+    ].join('');
+
+    overlay.innerHTML = `
+        <div style="
+            background:#fff;border-radius:20px;padding:44px 40px 36px;max-width:500px;width:92%;
+            text-align:center;box-shadow:0 12px 48px rgba(0,0,0,0.28);
+            animation:slideUpModal .35s ease;
+        ">
+            <!-- Icono animado -->
+            <div style="
+                width:72px;height:72px;background:linear-gradient(135deg,#4caf50,#2e7d32);
+                border-radius:50%;display:flex;align-items:center;justify-content:center;
+                margin:0 auto 20px;font-size:2.2rem;
+                box-shadow:0 4px 18px rgba(76,175,80,0.4);
+            ">✅</div>
+
+            <!-- Título -->
+            <h2 style="margin:0 0 6px;font-size:1.65rem;color:#1a1a2e;font-family:Montserrat,sans-serif;font-weight:800;">
+                ¡Reserva confirmada!
+            </h2>
+            <p style="color:#777;margin:0 0 22px;font-size:0.95rem;">
+                Gracias por confiar en <strong style="color:#e53935;">Xperiabox</strong>
+            </p>
+
+            <!-- Saludo personalizado -->
+            <div style="background:#fafafa;border-radius:12px;padding:16px 20px;margin-bottom:16px;text-align:left;">
+                <p style="margin:0 0 6px;font-size:1rem;color:#333;line-height:1.55;">
+                    Hola <strong>${escHtml(nombre)}</strong> 👋, tu experiencia está reservada y lista para disfrutar.
+                </p>
+                ${correo ? `<p style="margin:0;font-size:.88rem;color:#666;">
+                    Hemos enviado todos los detalles a <strong style="color:#e53935;">${escHtml(correo)}</strong>
+                </p>` : ''}
+            </div>
+
+            <!-- Pasos siguientes -->
+            <div style="text-align:left;margin-bottom:22px;">
+                <p style="margin:0 0 10px;font-size:.82rem;font-weight:700;color:#999;letter-spacing:.06em;text-transform:uppercase;">¿Qué pasa ahora?</p>
+                <div style="display:flex;flex-direction:column;gap:10px;">
+                    <div style="display:flex;align-items:flex-start;gap:12px;">
+                        <span style="font-size:1.2rem;flex-shrink:0;">📧</span>
+                        <span style="font-size:.9rem;color:#444;line-height:1.45;">
+                            Recibirás un correo con el resumen completo de tu reserva y los próximos pasos.
+                        </span>
+                    </div>
+                    <div style="display:flex;align-items:flex-start;gap:12px;">
+                        <span style="font-size:1.2rem;flex-shrink:0;">📅</span>
+                        <span style="font-size:.9rem;color:#444;line-height:1.45;">
+                            Consulta la fecha y hora de tu experiencia en <em>Mis reservas</em> en cualquier momento.
+                        </span>
+                    </div>
+                    <div style="display:flex;align-items:flex-start;gap:12px;">
+                        <span style="font-size:1.2rem;flex-shrink:0;">🎉</span>
+                        <span style="font-size:.9rem;color:#444;line-height:1.45;">
+                            ¡Solo queda prepararte y disfrutar de la experiencia!
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Botón principal -->
+            <button onclick="cerrarModalConfirmacion()" style="
+                width:100%;background:linear-gradient(135deg,#e53935,#c62828);color:#fff;border:none;border-radius:12px;
+                padding:15px 32px;font-size:1rem;font-weight:700;cursor:pointer;
+                font-family:Montserrat,sans-serif;transition:opacity .2s;letter-spacing:.02em;
+            " onmouseover="this.style.opacity='.88'" onmouseout="this.style.opacity='1'">
+                📋 Ver mis reservas
+            </button>
+        </div>
+        <style>
+            @keyframes fadeInOverlay { from{opacity:0} to{opacity:1} }
+            @keyframes slideUpModal  { from{transform:translateY(40px);opacity:0} to{transform:translateY(0);opacity:1} }
+        </style>
+    `;
+
+    document.body.appendChild(overlay);
+
+    // Actualizar badge (carrito vacío tras compra)
+    if (typeof actualizarCarritoBadge === 'function') actualizarCarritoBadge();
+}
+
+function cerrarModalConfirmacion() {
+    const overlay = document.getElementById('modal-confirmacion-overlay');
+    if (overlay) overlay.remove();
+    sessionStorage.setItem('reservaExito', '1');
+    window.location.href = '/experiencias/reservas.html';
+}
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 function fmt(v) {

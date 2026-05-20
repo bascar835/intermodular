@@ -12,7 +12,6 @@ async function cargarExperiencias() {
             ? `<img src="${p.imagen}" style="width:48px;height:36px;object-fit:cover;border-radius:4px;">`
             : '<span style="color:#9ca3af;font-size:.75rem;">Sin imagen</span>';
         tr.innerHTML = `
-            <td>${p.id}</td>
             <td>${p.titulo}</td>
             <td>${p.precio} €</td>
             <td>${p.ubicacion}</td>

@@ -110,8 +110,8 @@ function renderDetalle(exp) {
         </div>
     `).join('');
 
-    // Contenido dinámico: usar datos de BD si existen, si no generar con IA
-    mostrarContenidoRecomendaciones(exp);
+    // Contenido dinámico generado por IA según el título real de la experiencia
+    generarContenidoIA(exp.titulo, exp.ubicacion, exp.categoria_nombre, exp.categoria_id);
 
     document.getElementById('compra-precio').textContent    = precioFmt;
     document.getElementById('compra-ubicacion').textContent = exp.ubicacion;
@@ -167,45 +167,14 @@ function textoDescripcion(titulo, ubicacion, categoria) {
     return textos[categoria] ?? `Descubre ${titulo} en ${ubicacion}, una experiencia única.`;
 }
 
-// ── Contenido: BD primero, IA como fallback ──────────────────────────────────
-function mostrarContenidoRecomendaciones(exp) {
-    const recEl  = document.getElementById('det-recomendaciones');
-    const inclEl = document.getElementById('det-incluye');
-
-    const tieneRec    = exp.recomendamos && exp.recomendamos.trim() !== '';
-    const tieneIncl   = exp.incluye      && exp.incluye.trim()      !== '';
-
-    if (tieneRec) {
-        // Renderizar desde BD: convertir saltos de línea en párrafos
-        recEl.innerHTML = exp.recomendamos
-            .split('\n')
-            .filter(l => l.trim())
-            .map(l => `<p>${esc(l)}</p>`)
-            .join('');
-    }
-
-    if (tieneIncl) {
-        inclEl.innerHTML = exp.incluye
-            .split('\n')
-            .filter(l => l.trim())
-            .map(l => `<li>${esc(l)}</li>`)
-            .join('');
-    }
-
-    // Si alguno falta, completar con IA
-    if (!tieneRec || !tieneIncl) {
-        generarContenidoIA(exp.titulo, exp.ubicacion, exp.categoria_nombre, exp.categoria_id, !tieneRec, !tieneIncl);
-    }
-}
-
 // ── Contenido dinámico IA: recomendaciones + qué incluye ────────────────────
-async function generarContenidoIA(titulo, ubicacion, categoriaNombre, categoriaId, generarRec = true, generarInc = true) {
+async function generarContenidoIA(titulo, ubicacion, categoriaNombre, categoriaId) {
     const recEl    = document.getElementById('det-recomendaciones');
     const inclEl   = document.getElementById('det-incluye');
 
-    // Placeholders solo en los que faltan
-    if (generarRec)  recEl.innerHTML  = '<p style="color:#aaa;font-style:italic;">Cargando recomendaciones…</p>';
-    if (generarInc)  inclEl.innerHTML = '<li style="color:#aaa;font-style:italic;">Cargando…</li>';
+    // Placeholders mientras carga
+    recEl.innerHTML  = '<p style="color:#aaa;font-style:italic;">Cargando recomendaciones…</p>';
+    inclEl.innerHTML = '<li style="color:#aaa;font-style:italic;">Cargando…</li>';
 
     const fallbackRec  = fallbackRecomendaciones(categoriaId, ubicacion);
     const fallbackInc  = fallbackQueIncluye(categoriaId);
@@ -246,23 +215,19 @@ Responde ÚNICAMENTE con el JSON, sin texto adicional, sin markdown, sin explica
         const parsed = JSON.parse(clean);
 
         // Recomendaciones
-        if (generarRec) {
-            recEl.innerHTML = parsed.recomendaciones
-                .map(r => `<p><strong>${esc(r.titulo)}:</strong> ${esc(r.texto)}</p>`)
-                .join('');
-        }
+        recEl.innerHTML = parsed.recomendaciones
+            .map(r => `<p><strong>${esc(r.titulo)}:</strong> ${esc(r.texto)}</p>`)
+            .join('');
 
         // Qué incluye
-        if (generarInc) {
-            inclEl.innerHTML = parsed.incluye
-                .map(item => `<li>${esc(item)}</li>`)
-                .join('');
-        }
+        inclEl.innerHTML = parsed.incluye
+            .map(item => `<li>${esc(item)}</li>`)
+            .join('');
 
     } catch (e) {
         // Fallback estático si la IA falla
-        if (generarRec) recEl.innerHTML  = fallbackRec;
-        if (generarInc) inclEl.innerHTML = fallbackInc.map(i => `<li>${esc(i)}</li>`).join('');
+        recEl.innerHTML  = fallbackRec;
+        inclEl.innerHTML = fallbackInc.map(i => `<li>${esc(i)}</li>`).join('');
     }
 }
 

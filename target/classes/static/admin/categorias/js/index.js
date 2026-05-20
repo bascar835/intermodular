@@ -20,7 +20,6 @@ async function cargarCategorias() {
 
         const tr = document.createElement("tr");
         tr.innerHTML = `
-            <td>${c.id}</td>
             <td>${c.nombre}</td>
             <td>${c.descripcion ?? "-"}</td>
             <td>${imgHtml}</td>
