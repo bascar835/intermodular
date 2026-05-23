@@ -111,8 +111,8 @@ function renderDetalle(exp) {
     `).join('');
 
     // Contenido dinámico generado por IA según el título real de la experiencia
-    generarContenidoIA(exp.titulo, exp.ubicacion, exp.categoria_nombre, exp.categoria_id);
-
+	// Después
+	generarContenidoIA(exp.titulo, exp.ubicacion, exp.categoria_nombre, exp.categoria_id, exp.recomendamos, exp.incluye);
     document.getElementById('compra-precio').textContent    = precioFmt;
     document.getElementById('compra-ubicacion').textContent = exp.ubicacion;
     document.getElementById('compra-duracion').textContent  = durLabel;
@@ -168,33 +168,56 @@ function textoDescripcion(titulo, ubicacion, categoria) {
 }
 
 // ── Contenido dinámico IA: recomendaciones + qué incluye ────────────────────
-async function generarContenidoIA(titulo, ubicacion, categoriaNombre, categoriaId) {
-    const recEl    = document.getElementById('det-recomendaciones');
-    const inclEl   = document.getElementById('det-incluye');
+async function generarContenidoIA(titulo, ubicacion, categoriaNombre, categoriaId, recomendamosBD, incluyeBD) {
+    const recEl  = document.getElementById('det-recomendaciones');
+    const inclEl = document.getElementById('det-incluye');
 
-    // Placeholders mientras carga
-    recEl.innerHTML  = '<p style="color:#aaa;font-style:italic;">Cargando recomendaciones…</p>';
-    inclEl.innerHTML = '<li style="color:#aaa;font-style:italic;">Cargando…</li>';
+    // ── 1. Si el admin rellenó los campos en BD → mostrarlos directamente ──
+    const tieneRec  = recomendamosBD && recomendamosBD.trim() !== '';
+    const tieneIncl = incluyeBD      && incluyeBD.trim()      !== '';
 
-    const fallbackRec  = fallbackRecomendaciones(categoriaId, ubicacion);
-    const fallbackInc  = fallbackQueIncluye(categoriaId);
+    if (tieneRec) {
+        // Renderizar cada línea como un párrafo
+        recEl.innerHTML = recomendamosBD
+            .split('\n')
+            .filter(l => l.trim() !== '')
+            .map(l => `<p>${esc(l.trim())}</p>`)
+            .join('');
+    }
+
+    if (tieneIncl) {
+        inclEl.innerHTML = incluyeBD
+            .split('\n')
+            .filter(l => l.trim() !== '')
+            .map(l => `<li>${esc(l.trim())}</li>`)
+            .join('');
+    }
+
+    // Si los dos campos tienen datos, no hace falta llamar a la IA
+    if (tieneRec && tieneIncl) return;
+
+    // ── 2. Para los campos vacíos → intentar IA, fallback si falla ──
+    recEl.innerHTML  = tieneRec  ? recEl.innerHTML  : '<p style="color:#aaa;font-style:italic;">Cargando recomendaciones…</p>';
+    inclEl.innerHTML = tieneIncl ? inclEl.innerHTML : '<li style="color:#aaa;font-style:italic;">Cargando…</li>';
+
+    const fallbackRec = fallbackRecomendaciones(categoriaId, ubicacion);
+    const fallbackInc = fallbackQueIncluye(categoriaId);
 
     try {
+        const camposNecesarios = [];
+        if (!tieneRec)  camposNecesarios.push('"recomendaciones": [{ "titulo": "...", "texto": "..." }, ...]');
+        if (!tieneIncl) camposNecesarios.push('"incluye": ["item 1", ...]');
+
         const prompt = `Eres un asistente de una plataforma de experiencias de ocio llamada Xperiabox.
 El usuario está viendo la experiencia llamada "${titulo}", ubicada en "${ubicacion}", categoría "${categoriaNombre}".
 
-Devuelve SOLO un objeto JSON válido con exactamente estas dos claves:
+Devuelve SOLO un objeto JSON válido con estas claves (solo las que te pido):
 {
-  "recomendaciones": [
-    { "titulo": "...", "texto": "..." },
-    { "titulo": "...", "texto": "..." },
-    { "titulo": "...", "texto": "..." }
-  ],
-  "incluye": ["item 1", "item 2", "item 3", "item 4", "item 5"]
+  ${camposNecesarios.join(',\n  ')}
 }
 
-Las recomendaciones deben ser consejos prácticos y concretos MUY específicos al título de la experiencia.
-Los items de "incluye" deben ser lo que normalmente incluye ese tipo de experiencia concreta.
+Las recomendaciones deben ser consejos prácticos MUY específicos al título de la experiencia (3 items).
+Los items de "incluye" deben ser lo que normalmente incluye ese tipo de experiencia (5 items).
 Responde ÚNICAMENTE con el JSON, sin texto adicional, sin markdown, sin explicaciones.`;
 
         const res = await fetch('https://api.anthropic.com/v1/messages', {
@@ -209,25 +232,25 @@ Responde ÚNICAMENTE con el JSON, sin texto adicional, sin markdown, sin explica
 
         if (!res.ok) throw new Error('API error');
 
-        const data = await res.json();
-        const text = data.content?.map(b => b.text || '').join('') || '';
-        const clean = text.replace(/```json|```/g, '').trim();
+        const data   = await res.json();
+        const text   = data.content?.map(b => b.text || '').join('') || '';
+        const clean  = text.replace(/```json|```/g, '').trim();
         const parsed = JSON.parse(clean);
 
-        // Recomendaciones
-        recEl.innerHTML = parsed.recomendaciones
-            .map(r => `<p><strong>${esc(r.titulo)}:</strong> ${esc(r.texto)}</p>`)
-            .join('');
-
-        // Qué incluye
-        inclEl.innerHTML = parsed.incluye
-            .map(item => `<li>${esc(item)}</li>`)
-            .join('');
+        if (!tieneRec && parsed.recomendaciones) {
+            recEl.innerHTML = parsed.recomendaciones
+                .map(r => `<p><strong>${esc(r.titulo)}:</strong> ${esc(r.texto)}</p>`)
+                .join('');
+        }
+        if (!tieneIncl && parsed.incluye) {
+            inclEl.innerHTML = parsed.incluye
+                .map(item => `<li>${esc(item)}</li>`)
+                .join('');
+        }
 
     } catch (e) {
-        // Fallback estático si la IA falla
-        recEl.innerHTML  = fallbackRec;
-        inclEl.innerHTML = fallbackInc.map(i => `<li>${esc(i)}</li>`).join('');
+        if (!tieneRec)  recEl.innerHTML  = fallbackRec;
+        if (!tieneIncl) inclEl.innerHTML = fallbackInc.map(i => `<li>${esc(i)}</li>`).join('');
     }
 }
 
